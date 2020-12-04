@@ -1,5 +1,12 @@
 # @backstage/plugin-sentry
 
+## 0.2.5
+
+### Patch Changes
+
+- Updated dependencies [ff243ce96]
+  - @backstage/core@0.4.0
+
 ## 0.2.4
 
 ### Patch Changes

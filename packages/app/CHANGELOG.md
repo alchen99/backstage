@@ -1,5 +1,44 @@
 # example-app
 
+## 0.2.6
+
+### Patch Changes
+
+- Updated dependencies [04efbbdd2]
+- Updated dependencies [6011b7d3e]
+- Updated dependencies [79418ddb6]
+- Updated dependencies [d2938af4c]
+- Updated dependencies [61897fb2c]
+- Updated dependencies [6a0d7a9fb]
+- Updated dependencies [ff243ce96]
+  - @backstage/plugin-circleci@0.2.4
+  - @backstage/plugin-jenkins@0.3.3
+  - @backstage/plugin-catalog@0.2.6
+  - @backstage/plugin-pagerduty@0.2.2
+  - @backstage/plugin-catalog-import@0.3.1
+  - @backstage/cli@0.4.1
+  - @backstage/plugin-search@0.2.3
+  - @backstage/core@0.4.0
+  - @backstage/plugin-api-docs@0.3.2
+  - @backstage/plugin-cloudbuild@0.2.4
+  - @backstage/plugin-cost-insights@0.4.3
+  - @backstage/plugin-explore@0.2.2
+  - @backstage/plugin-gcp-projects@0.2.2
+  - @backstage/plugin-github-actions@0.2.4
+  - @backstage/plugin-gitops-profiles@0.2.2
+  - @backstage/plugin-graphiql@0.2.2
+  - @backstage/plugin-kubernetes@0.3.2
+  - @backstage/plugin-lighthouse@0.2.5
+  - @backstage/plugin-newrelic@0.2.2
+  - @backstage/plugin-register-component@0.2.4
+  - @backstage/plugin-rollbar@0.2.6
+  - @backstage/plugin-scaffolder@0.3.3
+  - @backstage/plugin-sentry@0.2.5
+  - @backstage/plugin-tech-radar@0.3.1
+  - @backstage/plugin-techdocs@0.3.2
+  - @backstage/plugin-user-settings@0.2.3
+  - @backstage/plugin-welcome@0.2.3
+
 ## 0.2.5
 
 ### Patch Changes

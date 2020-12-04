@@ -1,5 +1,12 @@
 # @backstage/plugin-welcome
 
+## 0.2.3
+
+### Patch Changes
+
+- Updated dependencies [ff243ce96]
+  - @backstage/core@0.4.0
+
 ## 0.2.2
 
 ### Patch Changes

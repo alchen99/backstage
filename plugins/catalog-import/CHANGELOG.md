@@ -1,5 +1,16 @@
 # @backstage/plugin-catalog-import
 
+## 0.3.1
+
+### Patch Changes
+
+- 79418ddb6: Align plugin ID and fix variable typo
+- d2938af4c: Add register existing component instructions
+- Updated dependencies [6011b7d3e]
+- Updated dependencies [ff243ce96]
+  - @backstage/plugin-catalog@0.2.6
+  - @backstage/core@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes

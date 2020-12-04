@@ -1,5 +1,11 @@
 # @backstage/plugin-scaffolder-backend
 
+## 0.3.4
+
+### Patch Changes
+
+- 1e22f8e0b: Unify `dockerode` library and type dependency versions
+
 ## 0.3.3
 
 ### Patch Changes

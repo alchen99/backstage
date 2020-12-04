@@ -1,5 +1,15 @@
 # example-backend
 
+## 0.2.6
+
+### Patch Changes
+
+- 1e22f8e0b: Unify `dockerode` library and type dependency versions
+- Updated dependencies [1e22f8e0b]
+  - @backstage/plugin-scaffolder-backend@0.3.4
+  - @backstage/plugin-techdocs-backend@0.3.2
+  - example-app@0.2.6
+
 ## 0.2.5
 
 ### Patch Changes

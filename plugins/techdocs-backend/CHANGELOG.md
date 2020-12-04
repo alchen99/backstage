@@ -1,5 +1,11 @@
 # @backstage/plugin-techdocs-backend
 
+## 0.3.2
+
+### Patch Changes
+
+- 1e22f8e0b: Unify `dockerode` library and type dependency versions
+
 ## 0.3.1
 
 ### Patch Changes

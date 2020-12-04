@@ -1,5 +1,11 @@
 # @backstage/cli
 
+## 0.4.1
+
+### Patch Changes
+
+- 61897fb2c: Fix config schema for `.app.listen`
+
 ## 0.4.0
 
 ### Minor Changes

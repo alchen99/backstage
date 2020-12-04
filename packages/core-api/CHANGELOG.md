@@ -1,5 +1,28 @@
 # @backstage/core-api
 
+## 0.2.5
+
+### Patch Changes
+
+- b6557c098: Update ApiFactory type to correctly infer API type and disallow mismatched implementations.
+
+  This fixes for example the following code:
+
+  ```ts
+  interface MyApi {
+    myMethod(): void
+  }
+
+  const myApiRef = createApiRef<MyApi>({...});
+
+  createApiFactory({
+    api: myApiRef,
+    deps: {},
+    // This should've caused an error, since the empty object does not fully implement MyApi
+    factory: () => ({}),
+  })
+  ```
+
 ## 0.2.4
 
 ### Patch Changes

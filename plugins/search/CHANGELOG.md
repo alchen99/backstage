@@ -1,5 +1,15 @@
 # @backstage/plugin-search
 
+## 0.2.3
+
+### Patch Changes
+
+- 6a0d7a9fb: change default size for pageSize in search result view
+- Updated dependencies [6011b7d3e]
+- Updated dependencies [ff243ce96]
+  - @backstage/plugin-catalog@0.2.6
+  - @backstage/core@0.4.0
+
 ## 0.2.2
 
 ### Patch Changes
