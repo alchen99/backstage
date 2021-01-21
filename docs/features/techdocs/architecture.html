@@ -153,6 +153,18 @@ is how the basic out-of-the-box setup is implemented). Storage solutions act as
 a cache for the generated static content. TechDocs is also currently built on
 MkDocs which does not allow us to generate docs per-page, so we would have to
 build all docs for a entity on every request.</p>
+<p><strong>Q. Can you use the techdocs plugin without the techdocs-backend plugin?</strong></p>
+<p>A: <code>techdocs</code> and <code>techdocs-backend</code> plugins are designed to be used together,
+like any other Backstage plugin with a frontend and its backend (catalog,
+scaffolder, etc.). If you set your Backstage instance to generate docs on the
+server, <code>techdocs-backend</code> will be responsible for managing the whole build
+process, making sure it's scalable. It is responsible for securely communicating
+with the cloud storage provider, for both fetching static generated sites and
+publishing the updates. There are other planned features like an authentication
+layer for users to determine whether they have the permission to view a
+particular docs site. There are a handful of features which are extremely hard
+to develop without a tightly integrated backend in place. Hence, support for
+<code>techdocs</code> without <code>techdocs-backend</code> is limited and challenging to develop.</p>
 <h1><a class="anchor" aria-hidden="true" id="future-work"></a><a href="#future-work" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Future work</h1>
 <p><em>Ideas here are far fetched and not in the project's milestone for near future
 (~6 months).</em></p>
