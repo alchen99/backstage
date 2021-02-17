@@ -159,6 +159,7 @@ to the name of the bucket you just created.</p>
 variables</strong></p>
 <p>You should follow the
 <a href="https://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html">AWS security best practices guide for authentication</a>.</p>
+<p>TechDocs needs access to read files and metadata of the S3 bucket.</p>
 <p>If the environment variables</p>
 <ul>
 <li><code>AWS_ACCESS_KEY_ID</code></li>
@@ -166,13 +167,18 @@ variables</strong></p>
 <li><code>AWS_REGION</code></li>
 </ul>
 <p>are set and can be used to access the bucket you created in step 2, they will be
-used by the AWS SDK v3 Node.js client for authentication.
-<a href="https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/loading-node-credentials-environment.html">Refer to the official documentation.</a></p>
+used by the AWS SDK V2 Node.js client for authentication.
+<a href="https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-environment.html">Refer to the official documentation for loading credentials in Node.js from environment variables</a>.</p>
 <p>If the environment variables are missing, the AWS SDK tries to read the
 <code>~/.aws/credentials</code> file for credentials.
-<a href="https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/loading-node-credentials-shared.html">Refer to the official documentation.</a></p>
-<p>Note that the region of the bucket has to be set for the AWS SDK to work.
-<a href="https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/setting-region.html">See this</a>.</p>
+<a href="https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/loading-node-credentials-shared.html">Refer to the official documentation.</a></p>
+<p>If you are using Amazon EC2 instance to deploy Backstage, you do not need to
+obtain the access keys separately. They can be made available in the environment
+automatically by defining appropriate IAM role with access to the bucket. Read
+more in
+<a href="https://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html#use-roles">official AWS documentation for using IAM roles.</a>.</p>
+<p>The AWS Region of the bucket is optional since TechDocs uses AWS SDK V2 and not
+V3.</p>
 <p><strong>3b. Authentication using app-config.yaml</strong></p>
 <p>AWS credentials and region can be provided to the AWS SDK via <code>app-config.yaml</code>.
 If the configs below are present, they will be used over existing <code>AWS_*</code>
@@ -191,12 +197,7 @@ environment variables and the <code>~/.aws/credentials</code> config file.</p>
           <span class="hljs-string">$env:</span> <span class="hljs-string">AWS_SECRET_ACCESS_KEY</span>
 </code></pre>
 <p>Refer to the
-<a href="https://docs.aws.amazon.com/sdk-for-javascript/v3/developer-guide/getting-your-credentials.html">official AWS documentation for obtaining the credentials</a>.</p>
-<p>Note: If you are using Amazon EC2 instance to deploy Backstage, you do not need
-to obtain the access keys separately. They can be made available in the
-environment automatically by defining appropriate IAM role with access to the
-bucket. Read more
-<a href="https://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html#use-roles">here</a>.</p>
+<a href="https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/getting-your-credentials.html">official AWS documentation for obtaining the credentials</a>.</p>
 <p><strong>4. That's it!</strong></p>
 <p>Your Backstage app is now ready to use AWS S3 for TechDocs, to store and read
 the static generated documentation files. When you start the backend of the app,
