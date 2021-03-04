@@ -62,8 +62,31 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/backstage/backstage/edit/master/docs/dls/contributing-to-storybook.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Contributing to Storybook</h1></header><article><div><span><p>You find our storybook at
-<a href="http://backstage.io/storybook">http://backstage.io/storybook</a></p>
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/backstage/backstage/edit/master/docs/dls/contributing-to-storybook.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Contributing to Storybook</h1></header><article><div><span><p>The Backstage Storybook provides you a way to explore reusable Backstage User
+Interface elements and how to use them in developing the Backstage core and its
+plugins. These UI elements are commonly called &quot;components&quot;, and include things
+such as buttons, tables, specialized widgets with specific formatting, and so
+on.</p>
+<p>You'll find our storybook at
+<a href="http://backstage.io/storybook">http://backstage.io/storybook</a>.</p>
+<p>As noted in the <a href="/docs/dls/design">design introduction</a>, Backstage's design is based
+off of <a href="https://material-ui.com/">Material-UI</a>. Much of the UI elements use
+direct Material-UI, while we've also extended and written custom ones to provide
+specific functionality.</p>
+<p><img src="../assets/dls/storybook-page.png" alt="Storybook Page"></p>
+<p>Storybook &quot;Stories&quot; are used to provide examples for how to use a specific
+component, which are then displayed both visually and with sample code to be
+copied.</p>
+<p>When custom Backstage components are created, they are placed in the
+<code>@backstage/core</code> package and added to the Storybook.</p>
+<p>There may be times where an existing Material-UI component (in
+<code>@material-ui/core</code>) is sufficient and doesn't need to be wrapped or duplicated.
+However, we may want to identify an <em>opinionated</em> way to use that component
+inside of Backstage. In these cases, stories showing how to use those existing
+components will also be put into our storybook.</p>
+<p>When a story example using Material-UI becomes more complex, requiring a
+specific set of colors, variants, parameters, etc., it may become a candidate to
+be refactored to become a full Backstage core component.</p>
 <h2><a class="anchor" aria-hidden="true" id="creating-a-new-story"></a><a href="#creating-a-new-story" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Creating a new Story</h2>
 <blockquote>
 <p>A Story basically represents a single visual state of a component.</p>
@@ -85,12 +108,11 @@ componentName.stories.tsx</em></p>
 <h2><a class="anchor" aria-hidden="true" id="running-locally"></a><a href="#running-locally" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Running locally</h2>
 <p>Go to <code>packages/storybook</code>, run <code>yarn install</code> and install the dependencies,
 then run the following on your command line: <code>yarn start</code></p>
-<p><img src="../assets/dls/running-storybook.png" alt=""></p>
+<p><img src="../assets/dls/running-storybook.png" alt="Storybook command startup"></p>
 <p><em>You should see a log like the image above.</em></p>
 <p>If everything worked out, your server will be running on <strong>port 6006</strong>, go to
 your browser and navigate to <code>http://localhost:6006/</code>. You should be able to
 navigate and see the Storybook page.</p>
-<p><img src="../assets/dls/storybook-page.png" alt=""></p>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/dls/design"><span class="arrow-prev">← </span><span>Design</span></a><a class="docs-next button" href="/docs/dls/figma"><span>Figma</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#creating-a-new-story">Creating a new Story</a></li><li><a href="#running-locally">Running locally</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="footer-title"><a href="/"><h2 class="footerLogo"></h2></a></div><div><h5>Docs</h5><a href="/docs/overview/what-is-backstage">What is Backstage?</a><a href="/docs/getting-started/">Getting started</a><a href="/docs/features/software-catalog/software-catalog-overview">Service Catalog</a><a href="/docs/plugins/create-a-plugin">Create a Plugin</a><a href="/docs/dls/design">Designing for Backstage</a></div><div><h5>Community</h5><a href="https://discord.gg/MUpMjP2">Support chatroom</a><a href="https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md">Contributing</a><a href="https://mailchi.mp/spotify/backstage-community">Subscribe to our newsletter</a><a href="https://www.cncf.io/sandbox-projects/">CNCF Sandbox</a></div><div><h5>More</h5><a href="https://spotify.github.io/">Open Source @ Spotify</a><a href="https://engineering.atspotify.com/">Spotify Engineering Blog</a><a href="https://developer.spotify.com/">Spotify for Developers</a><a href="https://github.com/backstage/backstage">GitHub</a><a class="github-button" href="https://github.com/backstage/backstage" data-icon="octicon-star" data-count-href="/backstage/backstage/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><div class="social"><a href="https://twitter.com/SpotifyEng" class="twitter-follow-button">Follow @SpotifyEng</a></div></div></section><p style="text-align:center"><a href="https://spotify.github.io">Made with ❤️  at Spotify</a></p><p class="copyright">Copyright © 2021 Backstage Project Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: https://www.linuxfoundation.org/trademark-usage</p></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>window.twttr=(function(d,s, id){var js,fjs=d.getElementsByTagName(s)[0],t=window.twttr||{};if(d.getElementById(id))return t;js=d.createElement(s);js.id=id;js.src='https://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js, fjs);t._e = [];t.ready = function(f) {t._e.push(f);};return t;}(document, 'script', 'twitter-wjs'));</script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
