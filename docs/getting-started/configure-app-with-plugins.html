@@ -62,18 +62,26 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/backstage/backstage/edit/master/docs/getting-started/configure-app-with-plugins.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Configuring App with plugins</h1></header><article><div><span><h2><a class="anchor" aria-hidden="true" id="adding-existing-plugins-to-your-app"></a><a href="#adding-existing-plugins-to-your-app" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Adding existing plugins to your app</h2>
-<p>The following steps assume that you have created a new Backstage app and want to
-add an existing plugin to it. We are using the
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/backstage/backstage/edit/master/docs/getting-started/configure-app-with-plugins.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Configuring App with plugins</h1></header><article><div><span><p>Backstage plugins customize the app for your needs. There is a
+<a href="https://backstage.io/plugins">plugin marketplace</a> with plugins for many common
+infrastructure needs - CI/CD, monitoring, auditing, and more.</p>
+<h2><a class="anchor" aria-hidden="true" id="adding-existing-plugins-to-your-app"></a><a href="#adding-existing-plugins-to-your-app" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Adding existing plugins to your app</h2>
+<p>The following steps assume that you have
+<a href="/docs/getting-started/create-an-app">created a Backstage app</a> and want to add an existing plugin
+to it. We are using the
 <a href="https://github.com/backstage/backstage/blob/master/plugins/circleci/README.md">CircleCI</a>
 plugin in this example.</p>
 <ol>
 <li>Add the plugin's npm package to the repo:</li>
 </ol>
-<pre><code class="hljs css language-bash">yarn add @backstage/plugin-circleci
+<pre><code class="hljs css language-bash">yarn workspace app add @backstage/plugin-circleci
 </code></pre>
+<p>Note the plugin is added to the <code>app</code> package, rather than the root
+package.json. Backstage Apps are set up as monorepos with
+<a href="https://classic.yarnpkg.com/en/docs/workspaces/">yarn workspaces</a>. Since
+CircleCI is a frontend UI plugin, it goes in <code>app</code> rather than <code>backend</code>.</p>
 <ol start="2">
-<li>Add the plugin itself:</li>
+<li>Add the plugin itself to the App:</li>
 </ol>
 <pre><code class="hljs css language-js"><span class="hljs-comment">// packages/app/src/plugins.ts</span>
 <span class="hljs-keyword">export</span> { plugin <span class="hljs-keyword">as</span> Circleci } <span class="hljs-keyword">from</span> <span class="hljs-string">'@backstage/plugin-circleci'</span>;

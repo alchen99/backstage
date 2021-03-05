@@ -81,9 +81,9 @@ bust the entire cache.</p>
 <code>yarn install</code>, generate type definitions using <code>yarn tsc</code>, and build all
 packages with <code>yarn build</code>.</p>
 <blockquote>
-<p>NOTE: Using <code>yarn build</code> to build packages and bundle the backend assumes that
-you have migrated to using <code>backstage-cli backend:bundle</code> as your build script
-in the backend package.</p>
+<p>NOTE: If you created your app prior to 2021-02-18, follow the
+<a href="https://github.com/backstage/backstage/releases/tag/release-2021-02-18">migration step</a>
+to move from <code>backend:build</code> to <code>backend:bundle</code>.</p>
 </blockquote>
 <p>In a CI workflow it might look something like this:</p>
 <pre><code class="hljs css language-bash">yarn install --frozen-lockfile
@@ -94,21 +94,9 @@ yarn tsc
 <span class="hljs-comment"># Build all packages and in the end bundle them all up into the packages/backend/dist folder.</span>
 yarn build
 </code></pre>
-<p>Once the host build is complete, we are ready to build our image. We use the
-following <code>Dockerfile</code>, which is also included when creating a new app with
-<code>@backstage/create-app</code>:</p>
-<pre><code class="hljs css language-Dockerfile"><span class="hljs-comment"># This dockerfile builds an image for the backend package.</span>
-<span class="hljs-comment"># It should be executed with the root of the repo as docker context.</span>
-<span class="hljs-comment">#</span>
-<span class="hljs-comment"># Before building this image, be sure to have run the following commands in the repo root:</span>
-<span class="hljs-comment">#</span>
-<span class="hljs-comment"># yarn install</span>
-<span class="hljs-comment"># yarn tsc</span>
-<span class="hljs-comment"># yarn build</span>
-<span class="hljs-comment">#</span>
-<span class="hljs-comment"># Once the commands have been run, you can build the image using `yarn build-image`</span>
-
-<span class="hljs-keyword">FROM</span> node:<span class="hljs-number">14</span>-buster-slim
+<p>Once the host build is complete, we are ready to build our image. The following
+<code>Dockerfile</code> is included when creating a new app with <code>@backstage/create-app</code>:</p>
+<pre><code class="hljs css language-Dockerfile"><span class="hljs-keyword">FROM</span> node:<span class="hljs-number">14</span>-buster-slim
 
 <span class="hljs-keyword">WORKDIR</span><span class="bash"> /app</span>
 
@@ -126,22 +114,22 @@ following <code>Dockerfile</code>, which is also included when creating a new ap
 </code></pre>
 <p>For more details on how the <code>backend:bundle</code> command and the <code>skeleton.tar.gz</code>
 file works, see the
-<a href="/docs/cli/commands#backendbundle"><code>backend:bundle</code> command docs</a></p>
-<p>The <code>Dockerfile</code> is typically placed at <code>packages/backend/Dockerfile</code>, but needs
-to be executed with the root of the repo as the build context, in order to get
-access to the root <code>yarn.lock</code> and <code>package.json</code>, along with any other files
-that might be needed, such as <code>.npmrc</code>.</p>
-<p>In order to speed up the build we can significantly reduce the build context
-size using the following <code>.dockerignore</code> in the root of the repo:</p>
+<a href="/docs/cli/commands#backendbundle"><code>backend:bundle</code> command docs</a>.</p>
+<p>The <code>Dockerfile</code> is located at <code>packages/backend/Dockerfile</code>, but needs to be
+executed with the root of the repo as the build context, in order to get access
+to the root <code>yarn.lock</code> and <code>package.json</code>, along with any other files that
+might be needed, such as <code>.npmrc</code>.</p>
+<p>The <code>@backstage/create-app</code> command adds the following <code>.dockerignore</code> in the
+root of the repo to speed up the build by reducing build context size:</p>
 <pre><code class="hljs css language-text">.git
 node_modules
 packages
 !packages/backend/dist
 plugins
 </code></pre>
-<p>With the project build and the <code>.dockerignore</code> and <code>Dockerfile</code> in place, we are
-now ready to build the final image. Assuming we're at the root of the repo, we
-execute the build like this:</p>
+<p>With the project built and the <code>.dockerignore</code> and <code>Dockerfile</code> in place, we are
+now ready to build the final image. From the root of the repo, execute the
+build:</p>
 <pre><code class="hljs css language-bash">docker image build . -f packages/backend/Dockerfile --tag backstage
 </code></pre>
 <p>To try out the image locally you can run the following:</p>
