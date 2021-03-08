@@ -131,6 +131,12 @@ configuration options for TechDocs.</p>
       <span class="hljs-attr">region:</span>
         <span class="hljs-string">$env:</span> <span class="hljs-string">AWS_REGION</span>
 
+      <span class="hljs-comment"># (Optional) Endpoint URI to send requests to.</span>
+      <span class="hljs-comment"># If not set, the default endpoint is built from the configured region.</span>
+      <span class="hljs-comment"># https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#constructor-property</span>
+      <span class="hljs-attr">endpoint:</span>
+        <span class="hljs-string">$env:</span> <span class="hljs-string">AWS_ENDPOINT</span>
+
     <span class="hljs-comment"># Required when techdocs.publisher.type is set to 'azureBlobStorage'. Skip otherwise.</span>
 
     <span class="hljs-attr">azureBlobStorage:</span>
