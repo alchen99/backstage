@@ -62,99 +62,15 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/backstage/backstage/edit/master/docs/features/software-templates/builtin-actions.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Builtin actions</h1></header><article><div><span><h1><a class="anchor" aria-hidden="true" id="built-in-actions"></a><a href="#built-in-actions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Built-in Actions</h1>
-<p>This is the list of built-in template actions</p>
-<h2><a class="anchor" aria-hidden="true" id="fetchplain"></a><a href="#fetchplain" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>fetch:plain</code></h2>
-<p>Downloads content and places it in the workspacePath or optionally in a
-subdirectory specified by the <code>targetPath</code> input option.</p>
-<p>input:</p>
-<ul>
-<li><code>url</code> (required) Relative path or absolute URL pointing to the directory tree
-to fetch.</li>
-<li><code>targetPath</code> Target path within the working directory to download the contents
-to.</li>
-</ul>
-<p>output: nothing</p>
-<h2><a class="anchor" aria-hidden="true" id="fetchcookiecutter"></a><a href="#fetchcookiecutter" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>fetch:cookiecutter</code></h2>
-<p>Downloads template from <code>url</code> and templates with cookiecutter</p>
-<p>input:</p>
-<ul>
-<li><code>url</code> (required) Relative path or absolute URL pointing to the directory tree
-to fetch.</li>
-<li><code>targetPath</code> Target path within the working directory to download the contents
-to.</li>
-<li><code>values</code> Values to pass on to cookiecutter for templating.</li>
-</ul>
-<p>output: nothing</p>
-<h2><a class="anchor" aria-hidden="true" id="catalogregister"></a><a href="#catalogregister" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>catalog:register</code></h2>
-<p>Registers entity in the software catalog.</p>
-<p>input:</p>
-<ul>
-<li><code>catalogInfoUrl</code> (required) An absolute URL pointing to the catalog info file
-location.</li>
-</ul>
-<p>output:</p>
-<ul>
-<li><code>repoContentsUrl</code> An absolute URL pointing to the root of a repository
-directory tree.</li>
-<li><code>catalogInfoPath</code> A relative path from the repo root pointing to the catalog
-info file, defaults to /catalog-info.yaml</li>
-</ul>
-<h2><a class="anchor" aria-hidden="true" id="publishgithub"></a><a href="#publishgithub" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>publish:github</code></h2>
-<p>Initializes a git repository of contents in workspacePath and publishes to
-GitHub.</p>
-<p>input:</p>
-<ul>
-<li><code>repoUrl</code> (required) Repository location</li>
-<li><code>repoVisibility</code> (optional, default: 'private') Possible values: 'private',
-'public' or 'internal'.</li>
-</ul>
-<p>output:</p>
-<ul>
-<li><code>remoteUrl</code> A URL to the repository with the provider</li>
-<li><code>repoContentsUrl</code> A URL to the root of the repository</li>
-</ul>
-<h2><a class="anchor" aria-hidden="true" id="publishgitlab"></a><a href="#publishgitlab" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>publish:gitlab</code></h2>
-<p>Initializes a git repository of contents in workspacePath and publishes to
-GitLab.</p>
-<p>input:</p>
-<ul>
-<li><code>repoUrl</code> (required) Repository location</li>
-<li><code>repoVisibility</code> (optional, default: 'private') Possible values: 'private',
-'public' or 'internal'.</li>
-</ul>
-<p>output:</p>
-<ul>
-<li><code>remoteUrl</code> A URL to the repository with the provider</li>
-<li><code>repoContentsUrl</code> A URL to the root of the repository</li>
-</ul>
-<h2><a class="anchor" aria-hidden="true" id="publishbitbucket"></a><a href="#publishbitbucket" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>publish:bitbucket</code></h2>
-<p>Initializes a git repository of contents in workspacePath and publishes to
-Bitbucket.</p>
-<p>input:</p>
-<ul>
-<li><code>repoUrl</code> (required) Repository location</li>
-<li><code>repoVisibility</code> (optional, default: 'private') Possible values: 'private',
-'public'.</li>
-</ul>
-<p>output:</p>
-<ul>
-<li><code>remoteUrl</code> A URL to the repository with the provider</li>
-<li><code>repoContentsUrl</code> A URL to the root of the repository</li>
-</ul>
-<h2><a class="anchor" aria-hidden="true" id="publishazure"></a><a href="#publishazure" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>publish:azure</code></h2>
-<p>Initializes a git repository of contents in workspacePath and publishes to
-Azure.</p>
-<p>input:</p>
-<ul>
-<li><code>repoUrl</code> (required) Repository location</li>
-</ul>
-<p>output:</p>
-<ul>
-<li><code>remoteUrl</code> A URL to the repository with the provider</li>
-<li><code>repoContentsUrl</code> A URL to the root of the repository</li>
-</ul>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/features/software-templates/writing-templates"><span class="arrow-prev">← </span><span>Writing Templates</span></a><a class="docs-next button" href="/docs/features/software-templates/writing-custom-actions"><span>Writing Custom Actions</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#fetchplain"><code>fetch:plain</code></a></li><li><a href="#fetchcookiecutter"><code>fetch:cookiecutter</code></a></li><li><a href="#catalogregister"><code>catalog:register</code></a></li><li><a href="#publishgithub"><code>publish:github</code></a></li><li><a href="#publishgitlab"><code>publish:gitlab</code></a></li><li><a href="#publishbitbucket"><code>publish:bitbucket</code></a></li><li><a href="#publishazure"><code>publish:azure</code></a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="footer-title"><a href="/"><h2 class="footerLogo"></h2></a></div><div><h5>Docs</h5><a href="/docs/overview/what-is-backstage">What is Backstage?</a><a href="/docs/getting-started/">Getting started</a><a href="/docs/features/software-catalog/software-catalog-overview">Service Catalog</a><a href="/docs/plugins/create-a-plugin">Create a Plugin</a><a href="/docs/dls/design">Designing for Backstage</a></div><div><h5>Community</h5><a href="https://discord.gg/MUpMjP2">Support chatroom</a><a href="https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md">Contributing</a><a href="https://mailchi.mp/spotify/backstage-community">Subscribe to our newsletter</a><a href="https://www.cncf.io/sandbox-projects/">CNCF Sandbox</a></div><div><h5>More</h5><a href="https://spotify.github.io/">Open Source @ Spotify</a><a href="https://engineering.atspotify.com/">Spotify Engineering Blog</a><a href="https://developer.spotify.com/">Spotify for Developers</a><a href="https://github.com/backstage/backstage">GitHub</a><a class="github-button" href="https://github.com/backstage/backstage" data-icon="octicon-star" data-count-href="/backstage/backstage/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><div class="social"><a href="https://twitter.com/SpotifyEng" class="twitter-follow-button">Follow @SpotifyEng</a></div></div></section><p style="text-align:center"><a href="https://spotify.github.io">Made with ❤️  at Spotify</a></p><p class="copyright">Copyright © 2021 Backstage Project Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: https://www.linuxfoundation.org/trademark-usage</p></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>window.twttr=(function(d,s, id){var js,fjs=d.getElementsByTagName(s)[0],t=window.twttr||{};if(d.getElementById(id))return t;js=d.createElement(s);js.id=id;js.src='https://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js, fjs);t._e = [];t.ready = function(f) {t._e.push(f);};return t;}(document, 'script', 'twitter-wjs'));</script><script>
+        </script></nav></div><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/backstage/backstage/edit/master/docs/features/software-templates/builtin-actions.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Builtin actions</h1></header><article><div><span><p>The scaffolder comes with several built-in actions for fetching content,
+registering in the catalog and of course actions for creating and publishing a
+git repository.</p>
+<p>There are several repository providers supported out of the box such as GitHub,
+Azure, GitLab and Bitbucket.</p>
+<p>A list of all registered actions can be found under <code>/create/actions</code>. For local
+development you should be able to reach them at
+<code>http://localhost:3000/create/actions</code>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/features/software-templates/writing-templates"><span class="arrow-prev">← </span><span>Writing Templates</span></a><a class="docs-next button" href="/docs/features/software-templates/writing-custom-actions"><span>Writing Custom Actions</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="footer-title"><a href="/"><h2 class="footerLogo"></h2></a></div><div><h5>Docs</h5><a href="/docs/overview/what-is-backstage">What is Backstage?</a><a href="/docs/getting-started/">Getting started</a><a href="/docs/features/software-catalog/software-catalog-overview">Service Catalog</a><a href="/docs/plugins/create-a-plugin">Create a Plugin</a><a href="/docs/dls/design">Designing for Backstage</a></div><div><h5>Community</h5><a href="https://discord.gg/MUpMjP2">Support chatroom</a><a href="https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md">Contributing</a><a href="https://mailchi.mp/spotify/backstage-community">Subscribe to our newsletter</a><a href="https://www.cncf.io/sandbox-projects/">CNCF Sandbox</a></div><div><h5>More</h5><a href="https://spotify.github.io/">Open Source @ Spotify</a><a href="https://engineering.atspotify.com/">Spotify Engineering Blog</a><a href="https://developer.spotify.com/">Spotify for Developers</a><a href="https://github.com/backstage/backstage">GitHub</a><a class="github-button" href="https://github.com/backstage/backstage" data-icon="octicon-star" data-count-href="/backstage/backstage/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><div class="social"><a href="https://twitter.com/SpotifyEng" class="twitter-follow-button">Follow @SpotifyEng</a></div></div></section><p style="text-align:center"><a href="https://spotify.github.io">Made with ❤️  at Spotify</a></p><p class="copyright">Copyright © 2021 Backstage Project Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: https://www.linuxfoundation.org/trademark-usage</p></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>window.twttr=(function(d,s, id){var js,fjs=d.getElementsByTagName(s)[0],t=window.twttr||{};if(d.getElementById(id))return t;js=d.createElement(s);js.id=id;js.src='https://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js, fjs);t._e = [];t.ready = function(f) {t._e.push(f);};return t;}(document, 'script', 'twitter-wjs'));</script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
