@@ -70,7 +70,8 @@ by writing custom actions which can be used along side our
 alongside your <code>backend</code> package in <code>packages/backend</code>.</p>
 <p>Let's create a simple action that adds a new file and some contents that are
 passed as <code>input</code> to the function.</p>
-<p>In <code>packages/backend/src/actions/custom.ts</code> we can create a new action.</p>
+<p>In <code>packages/backend/src/plugins/scaffolder/actions/custom.ts</code> we can create a
+new action.</p>
 <pre><code class="hljs css language-ts"><span class="hljs-keyword">import</span> { createTemplateAction } <span class="hljs-keyword">from</span> <span class="hljs-string">'@backstage/plugin-scaffolder-backend'</span>;
 <span class="hljs-keyword">import</span> fs <span class="hljs-keyword">from</span> <span class="hljs-string">'fs-extra'</span>;
 
