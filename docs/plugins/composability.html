@@ -376,7 +376,7 @@ to that page.</p>
   },
 });
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> MyPage = plugin.provide(
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> MyPage = myPlugin.provide(
   createRoutableExtension({
     <span class="hljs-attr">component</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">'./components/MyPage'</span>).then(<span class="hljs-function"><span class="hljs-params">m</span> =&gt;</span> m.MyPage),
     <span class="hljs-attr">mountPoint</span>: rootRouteRef,
