@@ -84,24 +84,31 @@ CircleCI is a frontend UI plugin, it goes in <code>app</code> rather than <code>
 <li>Add the plugin itself to the App:</li>
 </ol>
 <pre><code class="hljs css language-js"><span class="hljs-comment">// packages/app/src/plugins.ts</span>
-<span class="hljs-keyword">export</span> { plugin <span class="hljs-keyword">as</span> Circleci } <span class="hljs-keyword">from</span> <span class="hljs-string">'@backstage/plugin-circleci'</span>;
+<span class="hljs-keyword">export</span> { plugin <span class="hljs-keyword">as</span> CircleCi } <span class="hljs-keyword">from</span> <span class="hljs-string">'@backstage/plugin-circleci'</span>;
 </code></pre>
 <ol start="3">
-<li>Register the plugin router:</li>
+<li>Register the plugin in the entity pages:</li>
 </ol>
-<pre><code class="hljs css language-jsx"><span class="hljs-comment">// packages/app/src/components/catalog/EntityPage.tsx</span>
+<pre><code class="hljs css language-diff"> // packages/app/src/components/catalog/EntityPage.tsx
+<span class="hljs-addition">+import {</span>
+<span class="hljs-addition">+  EntityCircleCIContent,</span>
+<span class="hljs-addition">+  isCircleCIAvailable,</span>
+<span class="hljs-addition">+} from '@backstage/plugin-circleci';</span>
 
-<span class="hljs-keyword">import</span> { Router <span class="hljs-keyword">as</span> CircleCIRouter } <span class="hljs-keyword">from</span> <span class="hljs-string">'@backstage/plugin-circleci'</span>;
-
-<span class="hljs-comment">// Then somewhere inside &lt;EntityPageLayout&gt;</span>
-<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">EntityPageLayout.Content</span>
-  <span class="hljs-attr">path</span>=<span class="hljs-string">"/ci-cd/*"</span>
-  <span class="hljs-attr">title</span>=<span class="hljs-string">"CI/CD"</span>
-  <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">CircleCIRouter</span> /&gt;</span>}
-/&gt;</span>;
+...
+ const cicdContent = (
+   &lt;EntitySwitch&gt;
+     ...
+<span class="hljs-addition">+     &lt;EntitySwitch.Case if={isCircleCIAvailable}&gt;</span>
+<span class="hljs-addition">+       &lt;EntityCircleCIContent /&gt;</span>
+<span class="hljs-addition">+     &lt;/EntitySwitch.Case&gt;;</span>
+   &lt;/EntitySwitch&gt;
+ );
 </code></pre>
-<p>Note that stand-alone plugins that are not &quot;attached&quot; to the Software Catalog
-would be added outside the <code>EntityPage</code>.</p>
+<p>This is just one example, but each Backstage instance may integrate content or
+cards to suit their needs on different pages, tabs, etc. Note that stand-alone
+plugins that are not &quot;attached&quot; to the Software Catalog would be added outside
+the <code>EntityPage</code>.</p>
 <ol start="4">
 <li>[Optional] Add proxy config:</li>
 </ol>
