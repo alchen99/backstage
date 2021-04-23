@@ -124,7 +124,78 @@ much data git clone has to transfer.</p>
 minutes which means they will not be re-built if new changes are made within 30
 minutes. This cache invalidation will be replaced by commit timestamp based
 implementation very soon.</p>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 4/22/2021</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/features/techdocs/configuring-ci-cd"><span class="arrow-prev">← </span><span class="function-name-prevnext">Configuring CI/CD to generate and publish TechDocs sites</span></a><a class="docs-next button" href="/docs/features/techdocs/troubleshooting"><span>Troubleshooting</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach">How to migrate from TechDocs Basic to Recommended deployment approach?</a><ul class="toc-headings"><li><a href="#1-prepare-a-cloud-storage">1. Prepare a cloud storage</a></li><li><a href="#2-publish-to-storage-from-cicd">2. Publish to storage from CI/CD</a></li><li><a href="#3-switch-techdocs-to-read-only-mode">3. Switch TechDocs to read-only mode</a></li></ul></li><li><a href="#how-to-use-url-reader-in-techdocs-prepare-step">How to use URL Reader in TechDocs Prepare step?</a><ul class="toc-headings"><li><a href="#why-is-url-reader-faster-than-a-git-clone">Why is URL Reader faster than a git clone?</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="footer-title"><a href="/"><h2 class="footerLogo"></h2></a></div><div><h5>Docs</h5><a href="/docs/overview/what-is-backstage">What is Backstage?</a><a href="/docs/getting-started/">Getting started</a><a href="/docs/features/software-catalog/software-catalog-overview">Service Catalog</a><a href="/docs/plugins/create-a-plugin">Create a Plugin</a><a href="/docs/dls/design">Designing for Backstage</a></div><div><h5>Community</h5><a href="https://discord.gg/MUpMjP2">Support chatroom</a><a href="https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md">Contributing</a><a href="https://mailchi.mp/spotify/backstage-community">Subscribe to our newsletter</a><a href="https://www.cncf.io/sandbox-projects/">CNCF Sandbox</a></div><div><h5>More</h5><a href="https://spotify.github.io/">Open Source @ Spotify</a><a href="https://engineering.atspotify.com/">Spotify Engineering Blog</a><a href="https://developer.spotify.com/">Spotify for Developers</a><a href="https://github.com/backstage/backstage">GitHub</a><a class="github-button" href="https://github.com/backstage/backstage" data-icon="octicon-star" data-count-href="/backstage/backstage/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><div class="social"><a href="https://twitter.com/SpotifyEng" class="twitter-follow-button">Follow @SpotifyEng</a></div></div></section><p style="text-align:center"><a href="https://spotify.github.io">Made with ❤️  at Spotify</a></p><p class="copyright">Copyright © 2021 Backstage Project Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: https://www.linuxfoundation.org/trademark-usage</p></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>window.twttr=(function(d,s, id){var js,fjs=d.getElementsByTagName(s)[0],t=window.twttr||{};if(d.getElementById(id))return t;js=d.createElement(s);js.id=id;js.src='https://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js, fjs);t._e = [];t.ready = function(f) {t._e.push(f);};return t;}(document, 'script', 'twitter-wjs'));</script><script>
+<h2><a class="anchor" aria-hidden="true" id="how-to-use-a-custom-techdocs-home-page"></a><a href="#how-to-use-a-custom-techdocs-home-page" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>How to use a custom TechDocs home page?</h2>
+<h3><a class="anchor" aria-hidden="true" id="1st-way-techdocscustomhome-with-a-custom-configuration"></a><a href="#1st-way-techdocscustomhome-with-a-custom-configuration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>1st way: TechDocsCustomHome with a custom configuration</h3>
+<p>As an example, in your main App.tsx:</p>
+<pre><code class="hljs css language-tsx"><span class="hljs-keyword">import</span> {
+  TechDocsCustomHome,
+  PanelType,
+  TechDocsReaderPage,
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'@backstage/plugin-techdocs'</span>;
+<span class="hljs-keyword">import</span> { Entity } <span class="hljs-keyword">from</span> <span class="hljs-string">'@backstage/catalog-model'</span>;
+
+<span class="hljs-keyword">const</span> tabsConfig = [
+  {
+    <span class="hljs-attr">label</span>: <span class="hljs-string">'Custom Tab'</span>,
+    <span class="hljs-attr">panels</span>: [
+      {
+        <span class="hljs-attr">title</span>: <span class="hljs-string">'Custom Documents Cards 1'</span>,
+        <span class="hljs-attr">description</span>:
+          <span class="hljs-string">'Explore your internal technical ecosystem through documentation.'</span>,
+        <span class="hljs-attr">panelType</span>: <span class="hljs-string">'DocsCardGrid'</span> <span class="hljs-keyword">as</span> PanelType,
+        <span class="hljs-comment">// optional, is applied to a container of the panel (excludes header of panel)</span>
+        <span class="hljs-attr">panelCSS</span>: { <span class="hljs-attr">maxHeight</span>: <span class="hljs-string">'400px'</span>, <span class="hljs-attr">overflow</span>:<span class="hljs-string">'auto'</span> },
+        <span class="hljs-attr">filterPredicate</span>: <span class="hljs-function">(<span class="hljs-params">entity: Entity</span>) =&gt;</span> !!entity.metadata.annotations?.[<span class="hljs-string">'customCardAnnotationOne'</span>];
+    },
+      {
+        <span class="hljs-attr">title</span>: <span class="hljs-string">'Custom Documents Cards 2'</span>,
+        <span class="hljs-attr">description</span>:
+          <span class="hljs-string">'Explore your internal technical ecosystem through documentation.'</span>,
+        <span class="hljs-attr">panelType</span>: <span class="hljs-string">'DocsCardGrid'</span> <span class="hljs-keyword">as</span> PanelType,
+        <span class="hljs-attr">panelCSS</span>: { <span class="hljs-attr">maxHeight</span>: <span class="hljs-string">'400px'</span>, <span class="hljs-attr">overflow</span>:<span class="hljs-string">'auto'</span> },
+        <span class="hljs-attr">filterPredicate</span>: <span class="hljs-function">(<span class="hljs-params">entity: Entity</span>) =&gt;</span> !!entity.metadata.annotations?.[<span class="hljs-string">'customCardAnnotationTwo'</span>];
+      },
+    ],
+  },
+  {
+    <span class="hljs-attr">label</span>: <span class="hljs-string">'Overview'</span>,
+    <span class="hljs-attr">panels</span>: [
+      {
+        <span class="hljs-attr">title</span>: <span class="hljs-string">'Overview'</span>,
+        <span class="hljs-attr">description</span>:
+          <span class="hljs-string">'Explore your internal technical ecosystem through documentation.'</span>,
+        <span class="hljs-attr">panelType</span>: <span class="hljs-string">'DocsTable'</span> <span class="hljs-keyword">as</span> PanelType,
+        <span class="hljs-attr">filterPredicate</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-literal">true</span>,
+      },
+    ],
+  },
+];
+
+<span class="hljs-keyword">const</span> routes = (
+  <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">FlatRoutes</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">Route</span>
+      <span class="hljs-attr">path</span>=<span class="hljs-string">"/docs"</span>
+      <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">TechDocsCustomHome</span> <span class="hljs-attr">tabsConfig</span>=<span class="hljs-string">{tabsConfig}</span> /&gt;</span>}
+    /&gt;
+    <span class="hljs-tag">&lt;<span class="hljs-name">Route</span>
+      <span class="hljs-attr">path</span>=<span class="hljs-string">"/docs/:namespace/:kind/:name/*"</span>
+      <span class="hljs-attr">element</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">TechDocsReaderPage</span> /&gt;</span>}
+    /&gt;
+  <span class="hljs-tag">&lt;/<span class="hljs-name">FlatRoutes</span>&gt;</span></span>
+</code></pre>
+<p>An example of tabsConfig that corresponds to the default documentation home page
+can be found at <code>plugins/techdocs/src/home/components/TechDocsHome.tsx</code>.</p>
+<p>Currently <code>panelType</code> has DocsCardGrid and DocsTable available. We currently
+recommend that DocsCardGrid can be optionally vertically stacked by setting a
+maxHeight using <code>panelCSS</code>, and DocsTable to be in a tab by itself.</p>
+<h3><a class="anchor" aria-hidden="true" id="2nd-way-custom-home-page-plugin"></a><a href="#2nd-way-custom-home-page-plugin" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2nd way: Custom home page plugin</h3>
+<p>A custom home page plugin can be built that uses the components extensions
+DocsCardGrid and DocsTable, exported from @backstage/techdocs. They both take a
+array of documentation entities ( i.e.have a 'backstage.io/techdocs-ref'
+annotation ) as an 'entities' attribute.</p>
+<p>For a reference to the React structure of the default home page, please refer to
+<code>plugins/techdocs/src/home/components/TechDocsCustomHome.tsx</code>.</p>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 4/23/2021</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/features/techdocs/configuring-ci-cd"><span class="arrow-prev">← </span><span class="function-name-prevnext">Configuring CI/CD to generate and publish TechDocs sites</span></a><a class="docs-next button" href="/docs/features/techdocs/troubleshooting"><span>Troubleshooting</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach">How to migrate from TechDocs Basic to Recommended deployment approach?</a><ul class="toc-headings"><li><a href="#1-prepare-a-cloud-storage">1. Prepare a cloud storage</a></li><li><a href="#2-publish-to-storage-from-cicd">2. Publish to storage from CI/CD</a></li><li><a href="#3-switch-techdocs-to-read-only-mode">3. Switch TechDocs to read-only mode</a></li></ul></li><li><a href="#how-to-use-url-reader-in-techdocs-prepare-step">How to use URL Reader in TechDocs Prepare step?</a><ul class="toc-headings"><li><a href="#why-is-url-reader-faster-than-a-git-clone">Why is URL Reader faster than a git clone?</a></li></ul></li><li><a href="#how-to-use-a-custom-techdocs-home-page">How to use a custom TechDocs home page?</a><ul class="toc-headings"><li><a href="#1st-way-techdocscustomhome-with-a-custom-configuration">1st way: TechDocsCustomHome with a custom configuration</a></li><li><a href="#2nd-way-custom-home-page-plugin">2nd way: Custom home page plugin</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="footer-title"><a href="/"><h2 class="footerLogo"></h2></a></div><div><h5>Docs</h5><a href="/docs/overview/what-is-backstage">What is Backstage?</a><a href="/docs/getting-started/">Getting started</a><a href="/docs/features/software-catalog/software-catalog-overview">Service Catalog</a><a href="/docs/plugins/create-a-plugin">Create a Plugin</a><a href="/docs/dls/design">Designing for Backstage</a></div><div><h5>Community</h5><a href="https://discord.gg/MUpMjP2">Support chatroom</a><a href="https://github.com/backstage/backstage/blob/master/CONTRIBUTING.md">Contributing</a><a href="https://mailchi.mp/spotify/backstage-community">Subscribe to our newsletter</a><a href="https://www.cncf.io/sandbox-projects/">CNCF Sandbox</a></div><div><h5>More</h5><a href="https://spotify.github.io/">Open Source @ Spotify</a><a href="https://engineering.atspotify.com/">Spotify Engineering Blog</a><a href="https://developer.spotify.com/">Spotify for Developers</a><a href="https://github.com/backstage/backstage">GitHub</a><a class="github-button" href="https://github.com/backstage/backstage" data-icon="octicon-star" data-count-href="/backstage/backstage/stargazers" data-show-count="true" data-count-aria-label="# stargazers on GitHub" aria-label="Star this project on GitHub">Star</a><div class="social"><a href="https://twitter.com/SpotifyEng" class="twitter-follow-button">Follow @SpotifyEng</a></div></div></section><p style="text-align:center"><a href="https://spotify.github.io">Made with ❤️  at Spotify</a></p><p class="copyright">Copyright © 2021 Backstage Project Authors. All rights reserved. The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The Linux Foundation, please see our Trademark Usage page: https://www.linuxfoundation.org/trademark-usage</p></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>window.twttr=(function(d,s, id){var js,fjs=d.getElementsByTagName(s)[0],t=window.twttr||{};if(d.getElementById(id))return t;js=d.createElement(s);js.id=id;js.src='https://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js, fjs);t._e = [];t.ready = function(f) {t._e.push(f);};return t;}(document, 'script', 'twitter-wjs'));</script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;
