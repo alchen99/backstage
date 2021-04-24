@@ -337,6 +337,16 @@ backend.</p>
                 <span class="hljs-attr">name:</span> <span class="hljs-string">postgres-secrets</span>
             <span class="hljs-bullet">-</span> <span class="hljs-attr">secretRef:</span>
                 <span class="hljs-attr">name:</span> <span class="hljs-string">backstage-secrets</span>
+<span class="hljs-comment"># Uncomment if health checks are enabled in your app:</span>
+<span class="hljs-comment"># https://backstage.io/docs/plugins/observability#health-checks</span>
+<span class="hljs-comment">#          readinessProbe:</span>
+<span class="hljs-comment">#            httpGet:</span>
+<span class="hljs-comment">#              port: 7000</span>
+<span class="hljs-comment">#              path: /healthcheck</span>
+<span class="hljs-comment">#          livenessProbe:</span>
+<span class="hljs-comment">#            httpGet:</span>
+<span class="hljs-comment">#              port: 7000</span>
+<span class="hljs-comment">#              path: /healthcheck</span>
 </code></pre>
 <p>For production deployments, the <code>image</code> reference will usually be a full URL to
 a repository on a container registry (for example, ECR on AWS).</p>
