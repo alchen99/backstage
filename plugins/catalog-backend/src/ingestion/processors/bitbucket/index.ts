@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 export { BitbucketClient, paginated } from './client';
-export type { PagedResponse } from './client';
-export * from './types';
-export type { BitbucketRepositoryParser } from './BitbucketRepositoryParser';
 export { defaultRepositoryParser } from './BitbucketRepositoryParser';
+export type { PagedResponse } from './client';
+export type { BitbucketRepository } from './types';
+export type { BitbucketRepositoryParser } from './BitbucketRepositoryParser';

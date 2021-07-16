@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,9 +89,9 @@ export interface Config {
        */
       apps?: Array<{
         /**
-         * The numeric GitHub App ID
+         * The numeric GitHub App ID, string for environment variables
          */
-        appId: number;
+        appId: number | string;
         /**
          * The private key to use for auth against the app
          * @visibility secret

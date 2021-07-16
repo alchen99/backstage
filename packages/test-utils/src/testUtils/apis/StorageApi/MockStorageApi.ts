@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,12 @@ import {
   Observable,
   StorageApi,
   StorageValueChange,
-} from '@backstage/core-api';
+} from '@backstage/core-plugin-api';
 import ObservableImpl from 'zen-observable';
 
 export type MockStorageBucket = { [key: string]: any };
+
+const bucketStorageApis = new Map<string, MockStorageApi>();
 
 export class MockStorageApi implements StorageApi {
   private readonly namespace: string;
@@ -37,7 +39,13 @@ export class MockStorageApi implements StorageApi {
   }
 
   forBucket(name: string): StorageApi {
-    return new MockStorageApi(`${this.namespace}/${name}`, this.data);
+    if (!bucketStorageApis.has(name)) {
+      bucketStorageApis.set(
+        name,
+        new MockStorageApi(`${this.namespace}/${name}`, this.data),
+      );
+    }
+    return bucketStorageApis.get(name)!;
   }
 
   get<T>(key: string): T | undefined {

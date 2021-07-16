@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 
 export { CommonValidatorFunctions } from './CommonValidatorFunctions';
+export { entityEnvelopeSchemaValidator } from './entityEnvelopeSchemaValidator';
+export { entityKindSchemaValidator } from './entityKindSchemaValidator';
+export { entitySchemaValidator } from './entitySchemaValidator';
 export { KubernetesValidatorFunctions } from './KubernetesValidatorFunctions';
 export { makeValidator } from './makeValidator';
 export type { Validators } from './types';

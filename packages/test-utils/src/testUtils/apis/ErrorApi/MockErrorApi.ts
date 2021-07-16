@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ErrorApi, ErrorContext, Observable } from '@backstage/core-api';
+import { ErrorApi, ErrorContext, Observable } from '@backstage/core-plugin-api';
 
 type Options = {
   collect?: boolean;
@@ -32,6 +32,10 @@ type Waiter = {
 
 const nullObservable = {
   subscribe: () => ({ unsubscribe: () => {}, closed: true }),
+
+  [Symbol.observable]() {
+    return this;
+  },
 };
 
 export class MockErrorApi implements ErrorApi {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { splunkOnCallApiRef, SplunkOnCallClient } from './api';
 import {
   createApiFactory,
   createPlugin,
@@ -20,8 +21,8 @@ import {
   discoveryApiRef,
   configApiRef,
   createRoutableExtension,
-} from '@backstage/core';
-import { splunkOnCallApiRef, SplunkOnCallClient } from './api';
+  createComponentExtension,
+} from '@backstage/core-plugin-api';
 
 export const rootRouteRef = createRouteRef({
   title: 'splunk-on-call',
@@ -47,5 +48,16 @@ export const SplunkOnCallPage = splunkOnCallPlugin.provide(
     component: () =>
       import('./components/SplunkOnCallPage').then(m => m.SplunkOnCallPage),
     mountPoint: rootRouteRef,
+  }),
+);
+
+export const EntitySplunkOnCallCard = splunkOnCallPlugin.provide(
+  createComponentExtension({
+    component: {
+      lazy: () =>
+        import('./components/EntitySplunkOnCallCard').then(
+          m => m.EntitySplunkOnCallCard,
+        ),
+    },
   }),
 );

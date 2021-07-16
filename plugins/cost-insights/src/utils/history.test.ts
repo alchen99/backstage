@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,9 @@ describe.each`
   params                                              | expected
   ${''}                                               | ${{}}
   ${'?foo=bar'}                                       | ${{}}
+  ${'?group'}                                         | ${{ group: null }}
   ${'?project'}                                       | ${{ project: null }}
+  ${'?project&group'}                                 | ${{ group: null, project: null }}
   ${'?group=some-group'}                              | ${{ group: 'some-group' }}
   ${'?group=some-group&project'}                      | ${{ group: 'some-group', project: null }}
   ${'?group=some-group&project=some-project'}         | ${{ group: 'some-group', project: 'some-project' }}
@@ -70,11 +72,5 @@ describe.each`
   it(`should validate ${params}`, async () => {
     const pageFilters = await validate(params);
     expect(pageFilters).toMatchObject(expected);
-  });
-});
-
-describe('invalidate', () => {
-  it("should throw an error if param values don't match schema", async () => {
-    await expect(validate('?group')).rejects.toThrowError();
   });
 });

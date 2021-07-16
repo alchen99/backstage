@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ import express from 'express';
 import JSON5 from 'json5';
 import createLimiter from 'p-limit';
 import path from 'path';
+import { Readable } from 'stream';
 import { Logger } from 'winston';
 import { getFileTreeRecursively, getHeadersForFileExtension } from './helpers';
+import { MigrateWriteStream } from './migrations';
 import {
   PublisherBase,
   PublishRequest,
@@ -168,7 +170,7 @@ export class GoogleGCSPublish implements PublisherBase {
         .createReadStream()
         .on('error', err => {
           this.logger.error(err.message);
-          reject(err.message);
+          reject(err);
         })
         .on('data', chunk => {
           fileStreamChunks.push(chunk);
@@ -187,9 +189,9 @@ export class GoogleGCSPublish implements PublisherBase {
    */
   docsRouter(): express.Handler {
     return (req, res) => {
-      // Trim the leading forward slash
+      // Decode and trim the leading forward slash
       // filePath example - /default/Component/documented-component/index.html
-      const filePath = req.path.replace(/^\//, '');
+      const filePath = decodeURI(req.path.replace(/^\//, ''));
 
       // Files with different extensions (CSS, HTML) need to be served with different headers
       const fileExtension = path.extname(filePath);
@@ -233,6 +235,25 @@ export class GoogleGCSPublish implements PublisherBase {
         .catch(() => {
           resolve(false);
         });
+    });
+  }
+
+  migrateDocsCase({ removeOriginal = false, concurrency = 25 }): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // Iterate through every file in the root of the publisher.
+      const allFileMetadata: Readable = this.storageClient
+        .bucket(this.bucketName)
+        .getFilesStream();
+      const migrateFiles = new MigrateWriteStream(
+        this.logger,
+        removeOriginal,
+        concurrency,
+      );
+      migrateFiles.on('finish', resolve).on('error', reject);
+      allFileMetadata.pipe(migrateFiles).on('error', error => {
+        migrateFiles.destroy();
+        reject(error);
+      });
     });
   }
 }

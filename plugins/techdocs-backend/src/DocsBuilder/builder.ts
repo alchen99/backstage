@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
 import {
   Entity,
   ENTITY_DEFAULT_NAMESPACE,
-  serializeEntityRef,
+  stringifyEntityRef,
 } from '@backstage/catalog-model';
+import { Config } from '@backstage/config';
 import { NotModifiedError } from '@backstage/errors';
 import {
   GeneratorBase,
@@ -28,10 +29,10 @@ import {
   PublisherBase,
   UrlPreparer,
 } from '@backstage/techdocs-common';
-import Docker from 'dockerode';
 import fs from 'fs-extra';
 import os from 'os';
 import path from 'path';
+import { Writable } from 'stream';
 import { Logger } from 'winston';
 import { BuildMetadataStorage } from './BuildMetadataStorage';
 
@@ -41,7 +42,8 @@ type DocsBuilderArguments = {
   publisher: PublisherBase;
   entity: Entity;
   logger: Logger;
-  dockerClient: Docker;
+  config: Config;
+  logStream?: Writable;
 };
 
 export class DocsBuilder {
@@ -50,7 +52,8 @@ export class DocsBuilder {
   private publisher: PublisherBase;
   private entity: Entity;
   private logger: Logger;
-  private dockerClient: Docker;
+  private config: Config;
+  private logStream: Writable | undefined;
 
   constructor({
     preparers,
@@ -58,20 +61,26 @@ export class DocsBuilder {
     publisher,
     entity,
     logger,
-    dockerClient,
+    config,
+    logStream,
   }: DocsBuilderArguments) {
     this.preparer = preparers.get(entity);
     this.generator = generators.get(entity);
     this.publisher = publisher;
     this.entity = entity;
     this.logger = logger;
-    this.dockerClient = dockerClient;
+    this.config = config;
+    this.logStream = logStream;
   }
 
-  public async build(): Promise<void> {
+  /**
+   * Build the docs and return whether they have been newly generated or have been cached
+   * @returns true, if the docs have been built. false, if the cached docs are still up-to-date.
+   */
+  public async build(): Promise<boolean> {
     if (!this.entity.metadata.uid) {
       throw new Error(
-        'Trying to build documentation for entity not in service catalog',
+        'Trying to build documentation for entity not in software catalog',
       );
     }
 
@@ -80,7 +89,7 @@ export class DocsBuilder {
      */
 
     this.logger.info(
-      `Step 1 of 3: Preparing docs for entity ${serializeEntityRef(
+      `Step 1 of 3: Preparing docs for entity ${stringifyEntityRef(
         this.entity,
       )}`,
     );
@@ -111,6 +120,7 @@ export class DocsBuilder {
     try {
       const preparerResponse = await this.preparer.prepare(this.entity, {
         etag: storedEtag,
+        logger: this.logger,
       });
 
       preparedDir = preparerResponse.preparedDir;
@@ -121,17 +131,17 @@ export class DocsBuilder {
         // Set last check happened to now
         new BuildMetadataStorage(this.entity.metadata.uid).setLastUpdated();
         this.logger.debug(
-          `Docs for ${serializeEntityRef(
+          `Docs for ${stringifyEntityRef(
             this.entity,
           )} are unmodified. Using cache, skipping generate and prepare`,
         );
-        return;
+        return false;
       }
       throw new Error(err.message);
     }
 
     this.logger.info(
-      `Prepare step completed for entity ${serializeEntityRef(
+      `Prepare step completed for entity ${stringifyEntityRef(
         this.entity,
       )}, stored at ${preparedDir}`,
     );
@@ -141,25 +151,29 @@ export class DocsBuilder {
      */
 
     this.logger.info(
-      `Step 2 of 3: Generating docs for entity ${serializeEntityRef(
+      `Step 2 of 3: Generating docs for entity ${stringifyEntityRef(
         this.entity,
       )}`,
     );
 
-    // Create a temporary directory to store the generated files in.
-    const tmpdirPath = os.tmpdir();
+    const workingDir = this.config.getOptionalString(
+      'backend.workingDirectory',
+    );
+    const tmpdirPath = workingDir || os.tmpdir();
     // Fixes a problem with macOS returning a path that is a symlink
     const tmpdirResolvedPath = fs.realpathSync(tmpdirPath);
     const outputDir = await fs.mkdtemp(
       path.join(tmpdirResolvedPath, 'techdocs-tmp-'),
     );
+
     const parsedLocationAnnotation = getLocationForEntity(this.entity);
     await this.generator.run({
       inputDir: preparedDir,
       outputDir,
-      dockerClient: this.dockerClient,
       parsedLocationAnnotation,
       etag: newEtag,
+      logger: this.logger,
+      logStream: this.logStream,
     });
 
     // Remove Prepared directory since it is no longer needed.
@@ -182,7 +196,7 @@ export class DocsBuilder {
      */
 
     this.logger.info(
-      `Step 3 of 3: Publishing docs for entity ${serializeEntityRef(
+      `Step 3 of 3: Publishing docs for entity ${stringifyEntityRef(
         this.entity,
       )}`,
     );
@@ -204,5 +218,7 @@ export class DocsBuilder {
 
     // Update the last check time for the entity
     new BuildMetadataStorage(this.entity.metadata.uid).setLastUpdated();
+
+    return true;
   }
 }

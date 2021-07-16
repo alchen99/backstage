@@ -106,52 +106,32 @@ Used to load in static configuration, mainly for use by the CLI and
 
 Stability: `1`. Mainly intended for internal use.
 
-### `core` [GitHub](https://github.com/backstage/backstage/tree/master/packages/core/)
+### `core-app-api` [GitHub](https://github.com/backstage/backstage/tree/master/packages/core-app-api/)
 
-#### Section: React Components
+The APIs used exclusively in the app, such as `createApp` and the system icons.
 
-All of the React components exported from `src/components/` and `src/layout/`
+Stability: `2`.
+
+### `core-components` [GitHub](https://github.com/backstage/backstage/tree/master/packages/core-components/)
+
+A collection of React components for use in Backstage plugins and apps.
+Previously exported by `@backstage/core`.
 
 Stability: `1`. These components have not received a proper review of the API,
 but we also want to ensure stability.
 
-#### Section: Plugin API
+### `core-plugin-api` [GitHub](https://github.com/backstage/backstage/tree/master/packages/core-plugin-api/)
 
-The parts of the core API that are used by plugins, and the way plugins expose
-functionality to apps and other plugins. Includes for example `createPlugin`,
-`createRouteRef`, `createApiRef`.
+The core API used to build Backstage plugins and apps.
 
-Stability: `2`. There are planned breaking changes around the way that plugins
-expose features and do routing. We still commit to keeping a short deprecation
-period so that plugins outside of the main repo have time to migrate.
+Stability: `2`.
 
-#### Section: App API
+### `cost-insights` [GitHub](https://github.com/backstage/backstage/tree/master/plugins/cost-insights)
 
-The APIs used exclusively in the app, such as `createApp` and the system icons.
+A frontend plugin that allows users to visualize, understand and optimize your
+team's cloud costs.
 
-Stability: `2`
-
-#### Section: Utility API Definitions
-
-The type declarations of the core Utility APIs.
-
-Stability: `2`. Changes to the Utility API type declarations need time to
-propagate.
-
-#### Section: Utility API Implementations
-
-The interfaces and default implementations for various Utility APIs, such as
-ErrorApi, IdentityApi, the auth APIs, etc.
-
-Stability: `1`. Most changes to the core utility APIs will not lead to
-widespread breaking changes since most apps rely on the default implementations.
-
-### `core-api` [GitHub](https://github.com/backstage/backstage/tree/master/packages/core-api/)
-
-The non-visual parts of @backstage/core. Everything in this packages is
-re-exported from @backstage/core, and this package should not be used directly.
-
-Stability: See @backstage/core
+Stability: `1`
 
 ### `create-app` [GitHub](https://github.com/backstage/backstage/tree/master/packages/create-app/)
 
@@ -204,8 +184,9 @@ Stability: `2`
 ### `test-utils-core` [GitHub](https://github.com/backstage/backstage/tree/master/packages/test-utils-core/)
 
 Internal testing utilities that are separated out for usage in
-@backstage/core-api. All exports are re-exported by @backstage/test-utils. This
-package should not be depended on directly.
+@backstage/core-app-api and @backstage/core-plugin-api. All exports are
+re-exported by @backstage/test-utils. This package should not be depended on
+directly.
 
 Stability: See @backstage/test-utils
 
@@ -227,9 +208,6 @@ color could be considered a breaking change.
 Stability: `1`
 
 ## Plugins
-
-Plugins are rarely marked as stable as the `@backstage/core` plugin API is under
-heavy development.
 
 Many backend plugins are split into "REST API" and "TypeScript Interface"
 sections. The "TypeScript Interface" refers to the API used to integrate the
@@ -354,12 +332,11 @@ Stability: `1`
 The backend scaffolder plugin that provides an implementation for templates in
 the catalog.
 
-Stability: `1`. There is planned work to rework the scaffolder in
-https://github.com/backstage/backstage/issues/2771.
+Stability: `2`.
 
 ### `tech-radar` [GitHub](https://github.com/backstage/backstage/tree/master/plugins/tech-radar/)
 
-Visualize the your company's official guidelines of different areas of software
+Visualize your company's official guidelines of different areas of software
 development.
 
 Stability: `0`

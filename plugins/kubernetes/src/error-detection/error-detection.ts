@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import { DetectedError, DetectedErrorsByCluster } from './types';
-import { ObjectsByEntityResponse } from '@backstage/plugin-kubernetes-backend';
+import { ObjectsByEntityResponse } from '@backstage/plugin-kubernetes-common';
 import { groupResponses } from '../utils/response';
 import { detectErrorsInPods } from './pods';
 import { detectErrorsInDeployments } from './deployments';

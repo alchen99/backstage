@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-import { Link } from '@backstage/core';
 import { Grid, Typography } from '@material-ui/core';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import React from 'react';
 import { BackButton } from '../Buttons';
 import { EntityListComponent } from '../EntityListComponent';
-import { ReviewResult } from '../useImportState';
+import { PrepareResult } from '../useImportState';
+import { Link } from '@backstage/core-components';
 
 type Props = {
-  reviewResult: ReviewResult;
+  prepareResult: PrepareResult;
   onReset: () => void;
 };
 
-export const StepFinishImportLocation = ({ reviewResult, onReset }: Props) => (
+export const StepFinishImportLocation = ({ prepareResult, onReset }: Props) => (
   <>
-    {reviewResult.type === 'repository' && (
+    {prepareResult.type === 'repository' && (
       <>
         <Typography paragraph>
           The following Pull Request has been opened:{' '}
           <Link
-            to={reviewResult.pullRequest.url}
+            to={prepareResult.pullRequest.url}
             target="_blank"
             rel="noreferrer"
           >
-            {reviewResult.pullRequest.url}
+            {prepareResult.pullRequest.url}
           </Link>
         </Typography>
 
@@ -53,7 +53,7 @@ export const StepFinishImportLocation = ({ reviewResult, onReset }: Props) => (
     </Typography>
 
     <EntityListComponent
-      locations={reviewResult.locations}
+      locations={prepareResult.locations}
       locationListItemIcon={() => <LocationOnIcon />}
       withLinks
     />

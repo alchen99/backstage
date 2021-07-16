@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,214 +14,71 @@
  * limitations under the License.
  */
 
+import React from 'react';
+import { Grid } from '@material-ui/core';
 import {
-  configApiRef,
+  EntityKindPicker,
+  EntityLifecyclePicker,
+  EntityListProvider,
+  EntityOwnerPicker,
+  EntityTagPicker,
+  EntityTypePicker,
+  UserListFilterKind,
+  UserListPicker,
+} from '@backstage/plugin-catalog-react';
+import { CatalogTable } from '../CatalogTable';
+
+import { EntityRow } from '../CatalogTable/types';
+import CatalogLayout from './CatalogLayout';
+import { CreateComponentButton } from '../CreateComponentButton';
+import {
   Content,
   ContentHeader,
-  errorApiRef,
   SupportButton,
-  useApi,
-  useRouteRef,
-} from '@backstage/core';
-import {
-  catalogApiRef,
-  isOwnerOf,
-  useStarredEntities,
-} from '@backstage/plugin-catalog-react';
-
-import { Button, makeStyles } from '@material-ui/core';
-import SettingsIcon from '@material-ui/icons/Settings';
-import StarIcon from '@material-ui/icons/Star';
-import React, { useCallback, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { EntityFilterGroupsProvider, useFilteredEntities } from '../../filter';
-import { createComponentRouteRef } from '../../routes';
-import {
-  ButtonGroup,
-  CatalogFilter,
-  CatalogFilterType,
-} from '../CatalogFilter/CatalogFilter';
-import { CatalogTable } from '../CatalogTable/CatalogTable';
-import { ResultsFilter } from '../ResultsFilter/ResultsFilter';
-import { useOwnUser } from '../useOwnUser';
-import CatalogLayout from './CatalogLayout';
-import { CatalogTabs, LabeledComponentType } from './CatalogTabs';
-
-const useStyles = makeStyles(theme => ({
-  contentWrapper: {
-    display: 'grid',
-    gridTemplateAreas: "'filters' 'table'",
-    gridTemplateColumns: '250px 1fr',
-    gridColumnGap: theme.spacing(2),
-  },
-  buttonSpacing: {
-    marginLeft: theme.spacing(2),
-  },
-}));
+  TableColumn,
+  TableProps,
+} from '@backstage/core-components';
 
 export type CatalogPageProps = {
-  initiallySelectedFilter?: string;
+  initiallySelectedFilter?: UserListFilterKind;
+  columns?: TableColumn<EntityRow>[];
+  actions?: TableProps<EntityRow>['actions'];
 };
 
-const CatalogPageContents = (props: CatalogPageProps) => {
-  const styles = useStyles();
-  const {
-    loading,
-    error,
-    reload,
-    matchingEntities,
-    availableTags,
-    isCatalogEmpty,
-  } = useFilteredEntities();
-  const configApi = useApi(configApiRef);
-  const catalogApi = useApi(catalogApiRef);
-  const errorApi = useApi(errorApiRef);
-  const { isStarredEntity } = useStarredEntities();
-  const [selectedTab, setSelectedTab] = useState<string>();
-  const [
-    selectedSidebarItem,
-    setSelectedSidebarItem,
-  ] = useState<CatalogFilterType>();
-  const orgName = configApi.getOptionalString('organization.name') ?? 'Company';
-  const initiallySelectedFilter =
-    selectedSidebarItem?.id ?? props.initiallySelectedFilter ?? 'owned';
-  const createComponentLink = useRouteRef(createComponentRouteRef);
-  const addMockData = useCallback(async () => {
-    try {
-      const promises: Promise<unknown>[] = [];
-      const root = configApi.getConfig('catalog.exampleEntityLocations');
-      for (const type of root.keys()) {
-        for (const target of root.getStringArray(type)) {
-          promises.push(catalogApi.addLocation({ target }));
-        }
-      }
-      await Promise.all(promises);
-      await reload();
-    } catch (err) {
-      errorApi.post(err);
-    }
-  }, [catalogApi, configApi, errorApi, reload]);
-
-  const tabs = useMemo<LabeledComponentType[]>(
-    () => [
-      {
-        id: 'service',
-        label: 'Services',
-      },
-      {
-        id: 'website',
-        label: 'Websites',
-      },
-      {
-        id: 'library',
-        label: 'Libraries',
-      },
-      {
-        id: 'documentation',
-        label: 'Documentation',
-      },
-      {
-        id: 'other',
-        label: 'Other',
-      },
-    ],
-    [],
-  );
-
-  const { value: user } = useOwnUser();
-
-  const filterGroups = useMemo<ButtonGroup[]>(
-    () => [
-      {
-        name: 'Personal',
-        items: [
-          {
-            id: 'owned',
-            label: 'Owned',
-            icon: SettingsIcon,
-            filterFn: entity => user !== undefined && isOwnerOf(user, entity),
-          },
-          {
-            id: 'starred',
-            label: 'Starred',
-            icon: StarIcon,
-            filterFn: isStarredEntity,
-          },
-        ],
-      },
-      {
-        name: orgName,
-        items: [
-          {
-            id: 'all',
-            label: 'All',
-            filterFn: () => true,
-          },
-        ],
-      },
-    ],
-    [isStarredEntity, orgName, user],
-  );
-
-  const showAddExampleEntities =
-    configApi.has('catalog.exampleEntityLocations') && isCatalogEmpty;
-
-  return (
-    <CatalogLayout>
-      <CatalogTabs
-        tabs={tabs}
-        onChange={({ label }) => setSelectedTab(label)}
-      />
-      <Content>
-        <ContentHeader title={selectedTab ?? ''}>
-          {createComponentLink && (
-            <Button
-              component={RouterLink}
-              variant="contained"
-              color="primary"
-              to={createComponentLink()}
-            >
-              Create Component
-            </Button>
-          )}
-          {showAddExampleEntities && (
-            <Button
-              className={styles.buttonSpacing}
-              variant="outlined"
-              color="primary"
-              onClick={addMockData}
-            >
-              Add example components
-            </Button>
-          )}
-          <SupportButton>All your software catalog entities</SupportButton>
-        </ContentHeader>
-        <div className={styles.contentWrapper}>
-          <div>
-            <CatalogFilter
-              buttonGroups={filterGroups}
-              onChange={({ label, id }) =>
-                setSelectedSidebarItem({ label, id })
-              }
-              initiallySelected={initiallySelectedFilter}
-            />
-            <ResultsFilter availableTags={availableTags} />
-          </div>
-          <CatalogTable
-            titlePreamble={selectedSidebarItem?.label ?? ''}
-            view={selectedTab}
-            entities={matchingEntities}
-            loading={loading}
-            error={error}
-          />
-        </div>
-      </Content>
-    </CatalogLayout>
-  );
-};
-
-export const CatalogPage = (props: CatalogPageProps) => (
-  <EntityFilterGroupsProvider>
-    <CatalogPageContents {...props} />
-  </EntityFilterGroupsProvider>
+export const CatalogPage = ({
+  initiallySelectedFilter = 'owned',
+  columns,
+  actions,
+}: CatalogPageProps) => (
+  <CatalogLayout>
+    <Content>
+      <ContentHeader title="Components">
+        <CreateComponentButton />
+        <SupportButton>All your software catalog entities</SupportButton>
+      </ContentHeader>
+      <Grid container spacing={2}>
+        <EntityListProvider>
+          <Grid item sm={12} lg={2} alignContent="flex-start">
+            <Grid container>
+              <Grid item xs={12} sm={4} lg={12}>
+                <EntityKindPicker initialFilter="component" hidden />
+                <EntityTypePicker />
+              </Grid>
+              <Grid item xs={12} sm={4} lg={12}>
+                <UserListPicker initialFilter={initiallySelectedFilter} />
+              </Grid>
+              <Grid item xs={12} sm={4} lg={12}>
+                <EntityOwnerPicker />
+                <EntityLifecyclePicker />
+                <EntityTagPicker />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12} sm={12} lg={10}>
+            <CatalogTable columns={columns} actions={actions} />
+          </Grid>
+        </EntityListProvider>
+      </Grid>
+    </Content>
+  </CatalogLayout>
 );

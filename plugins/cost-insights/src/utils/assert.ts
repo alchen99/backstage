@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ export function notEmpty<TValue>(
   return !isNull(value) && !isUndefined(value);
 }
 
-export function isUndefined(value: any): boolean {
+export function isUndefined(value: any): value is undefined {
   return value === undefined;
 }
 

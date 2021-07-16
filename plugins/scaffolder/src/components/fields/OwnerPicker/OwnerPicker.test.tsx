@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-import React from 'react';
-import { ApiProvider, ApiRegistry } from '@backstage/core';
+import { Entity } from '@backstage/catalog-model';
 import { CatalogApi, catalogApiRef } from '@backstage/plugin-catalog-react';
 import { renderInTestApp } from '@backstage/test-utils';
-import userEvent from '@testing-library/user-event';
-import { Entity } from '@backstage/catalog-model';
 import { FieldProps } from '@rjsf/core';
-
+import React from 'react';
 import { OwnerPicker } from './OwnerPicker';
+import { ApiProvider, ApiRegistry } from '@backstage/core-app-api';
 
 const makeEntity = (kind: string, namespace: string, name: string): Entity => ({
   apiVersion: 'backstage.io/v1beta1',
@@ -92,20 +90,6 @@ describe('<OwnerPicker />', () => {
           kind: ['Group', 'User'],
         },
       });
-    });
-
-    it('updates even if there is not an exact match', async () => {
-      const { getByLabelText } = await renderInTestApp(
-        <Wrapper>
-          <OwnerPicker {...props} />
-        </Wrapper>,
-      );
-      const input = getByLabelText('Owner');
-
-      userEvent.type(input, 'squ');
-      input.blur();
-
-      expect(onChange).toHaveBeenCalledWith('squ');
     });
   });
 

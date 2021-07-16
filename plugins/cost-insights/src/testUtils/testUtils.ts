@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import dayjs from 'dayjs';
+import { DateTime } from 'luxon';
 import regression, { DataPoint } from 'regression';
 import {
   ChangeStatistic,
@@ -58,9 +58,9 @@ export function aggregationFor(
 ): DateAggregation[] {
   const { duration, endDate } = parseIntervals(intervals);
   const inclusiveEndDate = inclusiveEndDateOf(duration, endDate);
-  const days = dayjs(endDate).diff(
-    inclusiveStartDateOf(duration, inclusiveEndDate),
-    'day',
+  const days = DateTime.fromISO(endDate).diff(
+    DateTime.fromISO(inclusiveStartDateOf(duration, inclusiveEndDate)),
+    'days',
   );
 
   function nextDelta(): number {
@@ -74,9 +74,11 @@ export function aggregationFor(
   return [...Array(days).keys()].reduce(
     (values: DateAggregation[], i: number): DateAggregation[] => {
       const last = values.length ? values[values.length - 1].amount : baseline;
-      const date = dayjs(inclusiveStartDateOf(duration, inclusiveEndDate))
-        .add(i, 'day')
-        .format(DEFAULT_DATE_FORMAT);
+      const date = DateTime.fromISO(
+        inclusiveStartDateOf(duration, inclusiveEndDate),
+      )
+        .plus({ days: i })
+        .toFormat(DEFAULT_DATE_FORMAT);
       const amount = Math.max(0, last + nextDelta());
       values.push({
         date: date,
@@ -93,10 +95,16 @@ export function changeOf(aggregation: DateAggregation[]): ChangeStatistic {
   const lastAmount = aggregation.length
     ? aggregation[aggregation.length - 1].amount
     : 0;
-  const ratio =
-    firstAmount !== 0 ? (lastAmount - firstAmount) / firstAmount : 0;
+
+  // if either the first or last amounts are zero, the rate of increase/decrease is infinite
+  if (!firstAmount || !lastAmount) {
+    return {
+      amount: lastAmount - firstAmount,
+    };
+  }
+
   return {
-    ratio: ratio,
+    ratio: (lastAmount - firstAmount) / firstAmount,
     amount: lastAmount - firstAmount,
   };
 }

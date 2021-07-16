@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,24 +24,26 @@ import {
   Duration,
   DateAggregation,
 } from '../types';
-import dayjs, { OpUnitType } from 'dayjs';
-import durationPlugin from 'dayjs/plugin/duration';
+import { DateTime, Duration as LuxonDuration } from 'luxon';
 import { inclusiveStartDateOf } from './duration';
-
-dayjs.extend(durationPlugin);
+import { notEmpty } from './assert';
 
 // Used for displaying status colors
-export function growthOf(ratio: number, amount?: number) {
-  if (typeof amount === 'number') {
-    if (amount >= EngineerThreshold && ratio >= ChangeThreshold.upper) {
+export function growthOf(change: ChangeStatistic): GrowthType {
+  const exceedsEngineerThreshold = Math.abs(change.amount) >= EngineerThreshold;
+
+  if (notEmpty(change.ratio)) {
+    if (exceedsEngineerThreshold && change.ratio >= ChangeThreshold.upper) {
       return GrowthType.Excess;
     }
-    if (amount >= EngineerThreshold && ratio <= ChangeThreshold.lower) {
+
+    if (exceedsEngineerThreshold && change.ratio <= ChangeThreshold.lower) {
       return GrowthType.Savings;
     }
   } else {
-    if (ratio >= ChangeThreshold.upper) return GrowthType.Excess;
-    if (ratio <= ChangeThreshold.lower) return GrowthType.Savings;
+    if (exceedsEngineerThreshold && change.amount > 0) return GrowthType.Excess;
+    if (exceedsEngineerThreshold && change.amount < 0)
+      return GrowthType.Savings;
   }
 
   return GrowthType.Negligible;
@@ -54,15 +56,24 @@ export function getComparedChange(
   duration: Duration,
   lastCompleteBillingDate: string, // YYYY-MM-DD,
 ): ChangeStatistic {
-  const ratio = dailyCost.change!.ratio - metricData.change.ratio;
+  const dailyCostRatio = dailyCost.change?.ratio;
+  const metricDataRatio = metricData.change?.ratio;
   const previousPeriodTotal = getPreviousPeriodTotalCost(
     dailyCost.aggregation,
     duration,
     lastCompleteBillingDate,
   );
+
+  // if either ratio cannot be calculated, no compared ratio can be calculated
+  if (!notEmpty(dailyCostRatio) || !notEmpty(metricDataRatio)) {
+    return {
+      amount: previousPeriodTotal,
+    };
+  }
+
   return {
-    ratio: ratio,
-    amount: previousPeriodTotal * ratio,
+    ratio: dailyCostRatio - metricDataRatio,
+    amount: previousPeriodTotal * (dailyCostRatio - metricDataRatio),
   };
 }
 
@@ -71,18 +82,21 @@ export function getPreviousPeriodTotalCost(
   duration: Duration,
   inclusiveEndDate: string,
 ): number {
-  const dayjsDuration = dayjs.duration(duration);
+  const luxonDuration = LuxonDuration.fromISO(duration);
   const startDate = inclusiveStartDateOf(duration, inclusiveEndDate);
-  // dayjs doesn't allow adding an ISO 8601 period to dates.
-  const [amount, type]: [number, OpUnitType] = dayjsDuration.days()
-    ? [dayjsDuration.days(), 'day']
-    : [dayjsDuration.months(), 'month'];
-  const nextPeriodStart = dayjs(startDate).add(amount, type);
-
+  const nextPeriodStart = DateTime.fromISO(startDate).plus(luxonDuration);
   // Add up costs that incurred before the start of the next period.
   return aggregation.reduce((acc, costByDate) => {
-    return dayjs(costByDate.date).isBefore(nextPeriodStart)
+    return DateTime.fromISO(costByDate.date) < nextPeriodStart
       ? acc + costByDate.amount
       : acc;
   }, 0);
+}
+
+export function choose<T>(
+  [savings, excess]: [T, T],
+  change: ChangeStatistic,
+): T {
+  const isSavings = (change.ratio ?? change.amount) <= 0;
+  return isSavings ? savings : excess;
 }

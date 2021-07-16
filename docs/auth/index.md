@@ -66,7 +66,8 @@ built-in providers:
 
 ```diff
 # packages/app/src/App.tsx
-+ import { githubAuthApiRef, SignInProviderConfig, SignInPage } from '@backstage/core';
++ import { githubAuthApiRef } from '@backstage/core-plugin-api';
++ import { SignInProviderConfig, SignInPage } from '@backstage/core-components';
 
 + const githubProvider: SignInProviderConfig = {
 +  id: 'github-auth-provider',
@@ -77,7 +78,6 @@ built-in providers:
 +
 const app = createApp({
   apis,
-  plugins: Object.values(plugins),
 +  components: {
 +    SignInPage: props => (
 +      <SignInPage
@@ -96,7 +96,6 @@ To also allow unauthenticated guest access, use the `providers` prop for
 ```diff
 const app = createApp({
   apis,
-  plugins: Object.values(plugins),
 +  components: {
 +    SignInPage: props => (
 +      <SignInPage

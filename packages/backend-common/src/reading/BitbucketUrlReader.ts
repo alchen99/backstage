@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,17 @@ import parseGitUrl from 'git-url-parse';
 import { Minimatch } from 'minimatch';
 import { Readable } from 'stream';
 import { NotFoundError, NotModifiedError } from '@backstage/errors';
-import { ReadTreeResponseFactory } from './tree';
 import { stripFirstDirectoryFromPath } from './tree/util';
 import {
+  ReadTreeResponseFactory,
   ReaderFactory,
   ReadTreeOptions,
   ReadTreeResponse,
   SearchOptions,
   SearchResponse,
   UrlReader,
+  ReadUrlResponse,
+  ReadUrlOptions,
 } from './types';
 
 /**
@@ -99,6 +101,15 @@ export class BitbucketUrlReader implements UrlReader {
     throw new Error(message);
   }
 
+  async readUrl(
+    url: string,
+    _options?: ReadUrlOptions,
+  ): Promise<ReadUrlResponse> {
+    // TODO etag is not implemented yet.
+    const buffer = await this.read(url);
+    return { buffer: async () => buffer };
+  }
+
   async readTree(
     url: string,
     options?: ReadTreeOptions,
@@ -126,7 +137,7 @@ export class BitbucketUrlReader implements UrlReader {
       throw new Error(message);
     }
 
-    return await this.deps.treeResponseFactory.fromZipArchive({
+    return await this.deps.treeResponseFactory.fromTarArchive({
       stream: (archiveBitbucketResponse.body as unknown) as Readable,
       subpath: filepath,
       etag: lastCommitShortHash,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 import React, { useCallback, useEffect } from 'react';
-import { Field } from '@rjsf/core';
-import { useApi, Progress } from '@backstage/core';
+import { FieldProps } from '@rjsf/core';
 import { scaffolderApiRef } from '../../../api';
 import { useAsync } from 'react-use';
 import Select from '@material-ui/core/Select';
@@ -23,6 +22,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Input from '@material-ui/core/Input';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
+
+import { useApi } from '@backstage/core-plugin-api';
+import { Progress } from '@backstage/core-components';
 
 function splitFormData(url: string | undefined) {
   let host = undefined;
@@ -69,12 +71,12 @@ function serializeFormData(data: {
   return `${data.host}?${params.toString()}`;
 }
 
-export const RepoUrlPicker: Field = ({
+export const RepoUrlPicker = ({
   onChange,
   uiSchema,
   rawErrors,
   formData,
-}) => {
+}: FieldProps<string>) => {
   const api = useApi(scaffolderApiRef);
   const allowedHosts = uiSchema['ui:options']?.allowedHosts as string[];
 

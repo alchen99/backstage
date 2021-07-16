@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,8 @@ import { BitbucketIntegration } from './bitbucket/BitbucketIntegration';
 import { GitHubIntegration } from './github/GitHubIntegration';
 import { GitLabIntegration } from './gitlab/GitLabIntegration';
 import { defaultScmResolveUrl } from './helpers';
-import {
-  ScmIntegration,
-  ScmIntegrationRegistry,
-  ScmIntegrationsGroup,
-} from './types';
+import { ScmIntegration, ScmIntegrationsGroup } from './types';
+import { ScmIntegrationRegistry } from './registry';
 
 type IntegrationsByType = {
   azure: ScmIntegrationsGroup<AzureIntegration>;

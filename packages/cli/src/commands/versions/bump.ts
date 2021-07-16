@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -195,8 +195,14 @@ export default async () => {
       );
       console.log();
 
-      for (const name of Array.from(breakingUpdates.keys()).sort()) {
-        console.log(`  ${chalk.yellow(name)}`);
+      for (const [name, { from, to }] of Array.from(
+        breakingUpdates.entries(),
+      ).sort()) {
+        console.log(
+          `  ${chalk.yellow(name)} : ${chalk.yellow(from)} ~> ${chalk.yellow(
+            to,
+          )}`,
+        );
 
         let path;
         if (name.startsWith('@backstage/plugin-')) {

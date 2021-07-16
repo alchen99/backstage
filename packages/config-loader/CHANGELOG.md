@@ -1,5 +1,38 @@
 # @backstage/config-loader
 
+## 0.6.5
+
+### Patch Changes
+
+- ae84b20cf: Revert the upgrade to `fs-extra@10.0.0` as that seemed to have broken all installs inexplicably.
+
+## 0.6.4
+
+### Patch Changes
+
+- f00493739: Removed workaround for breaking change in typescript 4.3 and bump `typescript-json-schema` instead. This should again allow the usage of `@items.visibility <value>` to set the visibility of array items.
+
+## 0.6.3
+
+### Patch Changes
+
+- 2cf98d279: Resolve the path to app-config.yaml from the current working directory. This will allow use of `yarn link` or running the CLI in other directories and improve the experience for local backstage development.
+- 438a512eb: Fixed configuration schema parsing when using TypeScript `4.3`.
+
+## 0.6.2
+
+### Patch Changes
+
+- 290405276: Updated dependencies
+
+## 0.6.1
+
+### Patch Changes
+
+- d8b81fd28: Bump `json-schema` dependency from `0.2.5` to `0.3.0`.
+- Updated dependencies [d8b81fd28]
+  - @backstage/config@0.1.5
+
 ## 0.6.0
 
 ### Minor Changes

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { createApiRef } from '@backstage/core';
 import { Entity } from '@backstage/catalog-model';
+import { createApiRef } from '@backstage/core-plugin-api';
 
 export type TodoItem = {
   /** The contents of the TODO comment */

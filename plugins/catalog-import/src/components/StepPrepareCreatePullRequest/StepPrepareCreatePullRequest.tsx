@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 
 import { Entity } from '@backstage/catalog-model';
-import { useApi } from '@backstage/core';
 import {
   catalogApiRef,
   formatEntityRefTitle,
@@ -33,6 +32,7 @@ import { PrepareResult } from '../useImportState';
 import { PreparePullRequestForm } from './PreparePullRequestForm';
 import { PreviewCatalogInfoComponent } from './PreviewCatalogInfoComponent';
 import { PreviewPullRequestComponent } from './PreviewPullRequestComponent';
+import { useApi } from '@backstage/core-plugin-api';
 
 const useStyles = makeStyles(theme => ({
   previewCard: {
@@ -176,10 +176,9 @@ export const StepPrepareCreatePullRequest = ({
   return (
     <>
       <Typography>
-        You entered a link to a {analyzeResult.integrationType} repository but
-        we didn't found a <code>catalog-info.yaml</code>. Use this form to
-        create a Pull Request that creates an initial{' '}
-        <code>catalog-info.yaml</code>.
+        You entered a link to a {analyzeResult.integrationType} repository but a{' '}
+        <code>catalog-info.yaml</code> could not be found. Use this form to open
+        a Pull Request that creates one.
       </Typography>
 
       <PreparePullRequestForm<FormData>

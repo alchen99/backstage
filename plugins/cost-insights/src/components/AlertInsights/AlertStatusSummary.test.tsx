@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,8 +50,8 @@ describe('<AlertStatusSummary />', () => {
       </MockScrollProvider>,
     );
     [mockSnoozed, mockAccepted, mockDismissed].forEach(a => {
-      expect(getByText(a.title)).toBeInTheDocument();
-      expect(getByText(a.subtitle)).toBeInTheDocument();
+      expect(getByText(a.title as string)).toBeInTheDocument();
+      expect(getByText(a.subtitle as string)).toBeInTheDocument();
       expect(getByRole('img', { name: a.status })).toBeInTheDocument();
     });
   });

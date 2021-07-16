@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ function extractUiSchema(schema: JsonObject, uiSchema: JsonObject) {
     return;
   }
 
-  const { properties } = schema;
+  const { properties, anyOf, oneOf, allOf, dependencies } = schema;
 
   for (const propName in schema) {
     if (!schema.hasOwnProperty(propName)) {
@@ -39,22 +39,57 @@ function extractUiSchema(schema: JsonObject, uiSchema: JsonObject) {
     }
   }
 
-  if (!isObject(properties)) {
-    return;
+  if (isObject(properties)) {
+    for (const propName in properties) {
+      if (!properties.hasOwnProperty(propName)) {
+        continue;
+      }
+
+      const schemaNode = properties[propName];
+      if (!isObject(schemaNode)) {
+        continue;
+      }
+      const innerUiSchema = {};
+      uiSchema[propName] = innerUiSchema;
+      extractUiSchema(schemaNode, innerUiSchema);
+    }
   }
 
-  for (const propName in properties) {
-    if (!properties.hasOwnProperty(propName)) {
-      continue;
+  if (Array.isArray(anyOf)) {
+    for (const schemaNode of anyOf) {
+      if (!isObject(schemaNode)) {
+        continue;
+      }
+      extractUiSchema(schemaNode, uiSchema);
     }
+  }
 
-    const schemaNode = properties[propName];
-    if (!isObject(schemaNode)) {
-      continue;
+  if (Array.isArray(oneOf)) {
+    for (const schemaNode of oneOf) {
+      if (!isObject(schemaNode)) {
+        continue;
+      }
+      extractUiSchema(schemaNode, uiSchema);
     }
-    const innerUiSchema = {};
-    uiSchema[propName] = innerUiSchema;
-    extractUiSchema(schemaNode, innerUiSchema);
+  }
+
+  if (Array.isArray(allOf)) {
+    for (const schemaNode of allOf) {
+      if (!isObject(schemaNode)) {
+        continue;
+      }
+      extractUiSchema(schemaNode, uiSchema);
+    }
+  }
+
+  if (isObject(dependencies)) {
+    for (const depName of Object.keys(dependencies)) {
+      const schemaNode = dependencies[depName];
+      if (!isObject(schemaNode)) {
+        continue;
+      }
+      extractUiSchema(schemaNode, uiSchema);
+    }
   }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,17 @@
 import { Entity, EntityRelationSpec } from '@backstage/catalog-model';
 import { JsonObject } from '@backstage/config';
 import { Transaction } from '../../database/types';
+import { DeferredEntity } from '../processing/types';
 
-export type AddUnprocessedEntitiesOptions = {
-  type: 'entity' | 'provider';
-  id: string;
-  entities: Entity[];
-};
+export type AddUnprocessedEntitiesOptions =
+  | {
+      sourceEntityRef: string;
+      entities: DeferredEntity[];
+    }
+  | {
+      sourceKey: string;
+      entities: DeferredEntity[];
+    };
 
 export type AddUnprocessedEntitiesResult = {};
 
@@ -32,42 +37,69 @@ export type UpdateProcessedEntityOptions = {
   state?: Map<string, JsonObject>;
   errors?: string;
   relations: EntityRelationSpec[];
-  deferredEntities: Entity[];
+  deferredEntities: DeferredEntity[];
+  locationKey?: string;
+};
+
+export type UpdateProcessedEntityErrorsOptions = {
+  id: string;
+  errors?: string;
 };
 
 export type RefreshStateItem = {
   id: string;
   entityRef: string;
   unprocessedEntity: Entity;
-  processedEntity: Entity;
+  processedEntity?: Entity;
   nextUpdateAt: string;
   lastDiscoveryAt: string; // remove?
   state: Map<string, JsonObject>;
-  errors: string;
+  errors?: string;
+  locationKey?: string;
 };
 
 export type GetProcessableEntitiesResult = {
   items: RefreshStateItem[];
 };
 
+export type ReplaceUnprocessedEntitiesOptions =
+  | {
+      sourceKey: string;
+      items: DeferredEntity[];
+      type: 'full';
+    }
+  | {
+      sourceKey: string;
+      added: DeferredEntity[];
+      removed: DeferredEntity[];
+      type: 'delta';
+    };
+
 export interface ProcessingDatabase {
   transaction<T>(fn: (tx: Transaction) => Promise<T>): Promise<T>;
 
-  addUnprocessedEntities(
-    tx: Transaction,
-    options: AddUnprocessedEntitiesOptions,
+  replaceUnprocessedEntities(
+    txOpaque: Transaction,
+    options: ReplaceUnprocessedEntitiesOptions,
   ): Promise<void>;
-
   getProcessableEntities(
     txOpaque: Transaction,
     request: { processBatchSize: number },
   ): Promise<GetProcessableEntitiesResult>;
 
   /**
-   * Updates the
+   * Updates a processed entity
    */
   updateProcessedEntity(
     txOpaque: Transaction,
     options: UpdateProcessedEntityOptions,
+  ): Promise<void>;
+
+  /**
+   * Updates only the errors of a processed entity
+   */
+  updateProcessedEntityErrors(
+    txOpaque: Transaction,
+    options: UpdateProcessedEntityErrorsOptions,
   ): Promise<void>;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
  */
 
 import { GroupEntity, UserEntity } from '@backstage/catalog-model';
+import { GithubCredentialType } from '@backstage/integration';
 import { graphql } from '@octokit/graphql';
 
 // Graphql types
 
 export type QueryResponse = {
-  organization: Organization;
+  organization?: Organization;
+  repositoryOwner?: Organization | User;
 };
 
 export type Organization = {
@@ -41,6 +43,7 @@ export type User = {
   avatarUrl?: string;
   email?: string;
   name?: string;
+  repositories?: Connection<Repository>;
 };
 
 export type Team = {
@@ -75,13 +78,20 @@ export type Connection<T> = {
 export async function getOrganizationUsers(
   client: typeof graphql,
   org: string,
+  tokenType: GithubCredentialType,
 ): Promise<{ users: UserEntity[] }> {
   const query = `
-    query users($org: String!, $cursor: String) {
+    query users($org: String!, $email: Boolean!, $cursor: String) {
       organization(login: $org) {
         membersWithRole(first: 100, after: $cursor) {
           pageInfo { hasNextPage, endCursor }
-          nodes { avatarUrl, bio, email, login, name }
+          nodes {
+            avatarUrl,
+            bio,
+            email @include(if: $email),
+            login,
+            name
+          }
         }
       }
     }`;
@@ -117,7 +127,7 @@ export async function getOrganizationUsers(
     query,
     r => r.organization?.membersWithRole,
     mapper,
-    { org },
+    { org, email: tokenType === 'token' },
   );
 
   return { users };
@@ -134,6 +144,7 @@ export async function getOrganizationUsers(
 export async function getOrganizationTeams(
   client: typeof graphql,
   org: string,
+  orgNamespace?: string,
 ): Promise<{
   groups: GroupEntity[];
   groupMemberUsers: Map<string, string[]>;
@@ -179,6 +190,10 @@ export async function getOrganizationTeams(
       },
     };
 
+    if (orgNamespace) {
+      entity.metadata.namespace = orgNamespace;
+    }
+
     if (team.description) {
       entity.metadata.description = team.description;
     }
@@ -193,7 +208,8 @@ export async function getOrganizationTeams(
     }
 
     const memberNames: string[] = [];
-    groupMemberUsers.set(team.slug, memberNames);
+    const groupKey = orgNamespace ? `${orgNamespace}/${team.slug}` : team.slug;
+    groupMemberUsers.set(groupKey, memberNames);
 
     if (!team.members.pageInfo.hasNextPage) {
       // We got all the members in one go, run the fast path
@@ -228,28 +244,27 @@ export async function getOrganizationRepositories(
   org: string,
 ): Promise<{ repositories: Repository[] }> {
   const query = `
-  query repositories($org: String!, $cursor: String) {
-    organization(login: $org) {
-      name
-      repositories(first: 100, after: $cursor) {
-        nodes {
-          name
-          url
-          isArchived
-        }
-        pageInfo {
-          hasNextPage
-          endCursor
+    query repositories($org: String!, $cursor: String) {
+      repositoryOwner(login: $org) {
+        login
+        repositories(first: 100, after: $cursor) {
+          nodes {
+            name
+            url
+            isArchived
+          }
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
         }
       }
-    }
-  }
-  `;
+    }`;
 
   const repositories = await queryWithPaging(
     client,
     query,
-    r => r.organization?.repositories,
+    r => r.repositoryOwner?.repositories,
     x => x,
     { org },
   );

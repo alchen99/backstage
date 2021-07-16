@@ -1,5 +1,155 @@
 # @backstage/catalog-model
 
+## 0.9.0
+
+### Minor Changes
+
+- 77db0c454: Changed the regex to validate names following the Kubernetes validation rule, this allow to be more permissive validating the name of the object in Backstage.
+- 60e830222: Support for `Template` kinds with version `backstage.io/v1alpha1` has now been removed. This means that the old method of running templates with `Preparers`, `Templaters` and `Publishers` has also been removed. If you had any logic in these abstractions, they should now be moved to `actions` instead, and you can find out more about those in the [documentation](https://backstage.io/docs/features/software-templates/writing-custom-actions)
+
+  If you need any help migrating existing templates, there's a [migration guide](https://backstage.io/docs/features/software-templates/migrating-from-v1alpha1-to-v1beta2). Reach out to us on Discord in the #support channel if you're having problems.
+
+  The `scaffolder-backend` now no longer requires these `Preparers`, `Templaters`, and `Publishers` to be passed in, now all it needs is the `containerRunner`.
+
+  Please update your `packages/backend/src/plugins/scaffolder.ts` like the following
+
+  ```diff
+  - import {
+  -  DockerContainerRunner,
+  -  SingleHostDiscovery,
+  - } from '@backstage/backend-common';
+  + import { DockerContainerRunner } from '@backstage/backend-common';
+    import { CatalogClient } from '@backstage/catalog-client';
+  - import {
+  -   CookieCutter,
+  -   CreateReactAppTemplater,
+  -   createRouter,
+  -   Preparers,
+  -   Publishers,
+  -   Templaters,
+  - } from '@backstage/plugin-scaffolder-backend';
+  + import { createRouter } from '@backstage/plugin-scaffolder-backend';
+    import Docker from 'dockerode';
+    import { Router } from 'express';
+    import type { PluginEnvironment } from '../types';
+
+    export default async function createPlugin({
+      config,
+      database,
+      reader,
+  +   discovery,
+    }: PluginEnvironment): Promise<Router> {
+      const dockerClient = new Docker();
+      const containerRunner = new DockerContainerRunner({ dockerClient });
+
+  -   const cookiecutterTemplater = new CookieCutter({ containerRunner });
+  -   const craTemplater = new CreateReactAppTemplater({ containerRunner });
+  -   const templaters = new Templaters();
+
+  -   templaters.register('cookiecutter', cookiecutterTemplater);
+  -   templaters.register('cra', craTemplater);
+  -
+  -   const preparers = await Preparers.fromConfig(config, { logger });
+  -   const publishers = await Publishers.fromConfig(config, { logger });
+
+  -   const discovery = SingleHostDiscovery.fromConfig(config);
+      const catalogClient = new CatalogClient({ discoveryApi: discovery });
+
+      return await createRouter({
+  -     preparers,
+  -     templaters,
+  -     publishers,
+  +     containerRunner,
+        logger,
+        config,
+        database,
+
+  ```
+
+## 0.8.4
+
+### Patch Changes
+
+- 48c9fcd33: Migrated to use the new `@backstage/core-*` packages rather than `@backstage/core`.
+
+## 0.8.3
+
+### Patch Changes
+
+- 1d2ed7844: Removed unused `typescript-json-schema` dependency.
+
+## 0.8.2
+
+### Patch Changes
+
+- 27a9b503a: Introduce conditional steps in scaffolder templates.
+
+  A step can now include an `if` property that only executes a step if the
+  condition is truthy. The condition can include handlebar templates.
+
+  ```yaml
+  - id: register
+      if: '{{ not parameters.dryRun }}'
+      name: Register
+      action: catalog:register
+      input:
+      repoContentsUrl: '{{ steps.publish.output.repoContentsUrl }}'
+      catalogInfoPath: '/catalog-info.yaml'
+  ```
+
+  Also introduces a `not` helper in handlebar templates that allows to negate
+  boolean expressions.
+
+## 0.8.1
+
+### Patch Changes
+
+- ebe802bc4: Remove the explicit connection from `EntityEnvelope` and `Entity`.
+
+## 0.8.0
+
+### Minor Changes
+
+- 704875e26: Breaking changes:
+
+  - The long-deprecated `schemaValidator` export is finally removed.
+
+  Additions:
+
+  - The `EntityEnvelope` type, which is a supertype of `Entity`.
+  - The `entityEnvelopeSchemaValidator` function, which returns a validator for an `EntityEnvelope` or its subtypes, based on a JSON schema.
+  - The `entitySchemaValidator` function, which returns a validator for an `Entity` or its subtypes, based on a JSON schema.
+  - The `entityKindSchemaValidator` function, which returns a specialized validator for custom `Entity` kinds, based on a JSON schema.
+
+### Patch Changes
+
+- add62a455: Foundation for standard entity status values
+
+## 0.7.10
+
+### Patch Changes
+
+- f7f7783a3: Add Owner field in template card and new data distribution
+  Add spec.owner as optional field into TemplateV1Alpha and TemplateV1Beta Schema
+  Add relations ownedBy and ownerOf into Template entity
+  Template documentation updated
+- 68fdbf014: Add the `status` field to the Entity envelope
+
+## 0.7.9
+
+### Patch Changes
+
+- 10c008a3a: Renamed parameters to input in template schema
+- 16be1d093: Improve error messages when schema validation fails
+
+## 0.7.8
+
+### Patch Changes
+
+- d8b81fd28: Bump `json-schema` dependency from `0.2.5` to `0.3.0`.
+- Updated dependencies [d8b81fd28]
+  - @backstage/config@0.1.5
+
 ## 0.7.7
 
 ### Patch Changes

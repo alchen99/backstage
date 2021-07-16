@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
 
 import React from 'react';
 import { Grid, makeStyles } from '@material-ui/core';
+import { EntitySplunkOnCallCard } from './EntitySplunkOnCallCard';
 import {
   Content,
   ContentHeader,
   Page,
   Header,
   SupportButton,
-} from '@backstage/core';
-import { SplunkOnCallCard } from './SplunkOnCallCard';
-import { useEntity } from '@backstage/plugin-catalog-react';
+} from '@backstage/core-components';
 
 const useStyles = makeStyles(() => ({
   overflowXScroll: {
@@ -44,7 +43,6 @@ export const SplunkOnCallPage = ({
   pageTitle,
 }: SplunkOnCallPageProps): JSX.Element => {
   const classes = useStyles();
-  const { entity } = useEntity();
 
   return (
     <Page themeId="tool">
@@ -57,7 +55,7 @@ export const SplunkOnCallPage = ({
         </ContentHeader>
         <Grid container spacing={3} direction="row">
           <Grid item xs={12} sm={6} md={4}>
-            <SplunkOnCallCard entity={entity} />
+            <EntitySplunkOnCallCard />
           </Grid>
         </Grid>
       </Content>

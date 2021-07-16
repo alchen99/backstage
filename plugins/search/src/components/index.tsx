@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
  */
 
 export * from './Filters';
+export * from './SearchFilter';
 export * from './SearchBar';
 export * from './SearchPage';
-export * from './SearchPageNext';
 export * from './SearchResult';
+export * from './DefaultResultListItem';
 export * from './SidebarSearch';
+export * from './SearchContext';

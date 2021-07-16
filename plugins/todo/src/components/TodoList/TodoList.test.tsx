@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  */
 
 import { Entity } from '@backstage/catalog-model';
-import { ApiProvider, ApiRegistry } from '@backstage/core';
 import { EntityProvider } from '@backstage/plugin-catalog-react';
 import { renderWithEffects } from '@backstage/test-utils';
 import React from 'react';
 import { TodoApi, todoApiRef } from '../../api';
 import { TodoList } from './TodoList';
+import { ApiProvider, ApiRegistry } from '@backstage/core-app-api';
 
 describe('TodoList', () => {
   it('should render', async () => {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ import { Entity } from '@backstage/catalog-model';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { CatalogClient } from './CatalogClient';
-import { CatalogListResponse, DiscoveryApi } from './types';
+import { CatalogListResponse } from './types/api';
+import { DiscoveryApi } from './types/discovery';
 
 const server = setupServer();
 const token = 'fake-token';
@@ -46,7 +47,7 @@ describe('CatalogClient', () => {
         apiVersion: '1',
         kind: 'Component',
         metadata: {
-          name: 'Test1',
+          name: 'Test2',
           namespace: 'test1',
         },
       },
@@ -54,13 +55,13 @@ describe('CatalogClient', () => {
         apiVersion: '1',
         kind: 'Component',
         metadata: {
-          name: 'Test2',
+          name: 'Test1',
           namespace: 'test1',
         },
       },
     ];
     const defaultResponse: CatalogListResponse<Entity> = {
-      items: defaultServiceResponse,
+      items: defaultServiceResponse.reverse(),
     };
 
     beforeEach(() => {
@@ -71,12 +72,43 @@ describe('CatalogClient', () => {
       );
     });
 
-    it('should entities from correct endpoint', async () => {
+    it('should fetch entities from correct endpoint', async () => {
       const response = await client.getEntities({}, { token });
       expect(response).toEqual(defaultResponse);
     });
 
-    it('builds entity search filters properly', async () => {
+    it('builds multiple entity search filters properly', async () => {
+      expect.assertions(2);
+
+      server.use(
+        rest.get(`${mockBaseUrl}/entities`, (req, res, ctx) => {
+          expect(req.url.search).toBe(
+            '?filter=a=1,b=2,b=3,%C3%B6=%3D&filter=a=2',
+          );
+          return res(ctx.json([]));
+        }),
+      );
+
+      const response = await client.getEntities(
+        {
+          filter: [
+            {
+              a: '1',
+              b: ['2', '3'],
+              ö: '=',
+            },
+            {
+              a: '2',
+            },
+          ],
+        },
+        { token },
+      );
+
+      expect(response.items).toEqual([]);
+    });
+
+    it('builds single entity search filter properly', async () => {
       expect.assertions(2);
 
       server.use(
@@ -118,6 +150,26 @@ describe('CatalogClient', () => {
       );
 
       expect(response.items).toEqual([]);
+    });
+
+    it('handles field filtered entities', async () => {
+      server.use(
+        rest.get(`${mockBaseUrl}/entities`, (_req, res, ctx) => {
+          return res(ctx.json([{ apiVersion: '1' }, { apiVersion: '2' }]));
+        }),
+      );
+
+      const response = await client.getEntities(
+        {
+          fields: ['apiVersion'],
+        },
+        { token },
+      );
+
+      expect(response.items).toEqual([
+        { apiVersion: '1' },
+        { apiVersion: '2' },
+      ]);
     });
   });
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,22 @@
  * limitations under the License.
  */
 
-import { UrlReader } from '@backstage/backend-common';
+import { ContainerRunner, UrlReader } from '@backstage/backend-common';
 import { CatalogApi } from '@backstage/catalog-client';
 import { ScmIntegrations } from '@backstage/integration';
-import { createCatalogRegisterAction } from './catalog';
-import { createFetchCookiecutterAction, createFetchPlainAction } from './fetch';
+import { Config } from '@backstage/config';
+import {
+  createCatalogWriteAction,
+  createCatalogRegisterAction,
+} from './catalog';
+
+import { createDebugLogAction } from './debug';
+import { createFetchPlainAction, createFetchTemplateAction } from './fetch';
+import { createFetchCookiecutterAction } from '@backstage/plugin-scaffolder-backend-module-cookiecutter';
+import {
+  createFilesystemDeleteAction,
+  createFilesystemRenameAction,
+} from './filesystem';
 import {
   createPublishAzureAction,
   createPublishBitbucketAction,
@@ -26,22 +37,20 @@ import {
   createPublishGithubPullRequestAction,
   createPublishGitlabAction,
 } from './publish';
-import Docker from 'dockerode';
-import { TemplaterBuilder } from '../../stages';
 
 export const createBuiltinActions = (options: {
   reader: UrlReader;
   integrations: ScmIntegrations;
-  dockerClient: Docker;
   catalogClient: CatalogApi;
-  templaters: TemplaterBuilder;
+  containerRunner: ContainerRunner;
+  config: Config;
 }) => {
   const {
     reader,
     integrations,
-    dockerClient,
-    templaters,
+    containerRunner,
     catalogClient,
+    config,
   } = options;
 
   return [
@@ -52,24 +61,35 @@ export const createBuiltinActions = (options: {
     createFetchCookiecutterAction({
       reader,
       integrations,
-      dockerClient,
-      templaters,
+      containerRunner,
+    }),
+    createFetchTemplateAction({
+      integrations,
+      reader,
     }),
     createPublishGithubAction({
       integrations,
+      config,
     }),
     createPublishGithubPullRequestAction({
       integrations,
     }),
     createPublishGitlabAction({
       integrations,
+      config,
     }),
     createPublishBitbucketAction({
       integrations,
+      config,
     }),
     createPublishAzureAction({
       integrations,
+      config,
     }),
+    createDebugLogAction(),
     createCatalogRegisterAction({ catalogClient, integrations }),
+    createCatalogWriteAction(),
+    createFilesystemDeleteAction(),
+    createFilesystemRenameAction(),
   ];
 };

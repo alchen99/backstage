@@ -1,5 +1,196 @@
 # @backstage/plugin-techdocs
 
+## 0.10.0
+
+### Minor Changes
+
+- 94a54dd47: Added a `migrateDocsCase()` method to TechDocs publishers, along with
+  implementations for AWS, Azure, and GCS.
+
+  This change is in support of a future update to TechDocs that will allow for
+  case-insensitive entity triplet URL access to documentation pages which will
+  require a migration of existing documentation objects in external storage
+  solutions.
+
+  See [#4367](https://github.com/backstage/backstage/issues/4367) for details.
+
+### Patch Changes
+
+- 537c37b0f: Fix displaying owned documents list by fetching associated entity relations
+- 136a91974: Show a "Refresh" button to if the content is stale.
+  This removes the need to do a full page-reload to display more recent TechDocs content.
+- f1200f44c: Rewrite the `/sync/:namespace/:kind/:name` endpoint to support an event-stream as response.
+  This change allows the sync process to take longer than a normal HTTP timeout.
+  The stream also emits log events, so the caller can follow the build process in the frontend.
+- 3af126cdd: Provide a Drawer component to follow a running build.
+  This can be used to debug the rendering and get build logs in case an error occurs.
+- 2a4a3b32d: Techdocs: fix sidebars not adjusting position automatically
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.3.0
+
+## 0.9.9
+
+### Patch Changes
+
+- 0172d3424: Fixed bug preventing scroll bar from showing up on code blocks in a TechDocs site.
+- Updated dependencies
+  - @backstage/integration@0.5.8
+  - @backstage/core-components@0.1.5
+  - @backstage/catalog-model@0.9.0
+  - @backstage/plugin-catalog-react@0.2.6
+
+## 0.9.8
+
+### Patch Changes
+
+- 99a2873c7: Include cookies when making fetch requests for SVG from techdocs plugin
+- a444c7431: Filter fetched entity fields to optimize loading techdocs list
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.2.5
+  - @backstage/core-components@0.1.4
+  - @backstage/integration@0.5.7
+
+## 0.9.7
+
+### Patch Changes
+
+- aefd54da6: Fix the overlapping between the sidebar and the tabs navigation when enabled in mkdocs (features: navigation.tabs)
+- 48c9fcd33: Migrated to use the new `@backstage/core-*` packages rather than `@backstage/core`.
+- 1dfec7a2a: Refactor the implicit logic from `<Reader />` into an explicit state machine. This resolves some state synchronization issues when content is refreshed or rebuilt in the backend.
+- Updated dependencies
+  - @backstage/core-plugin-api@0.1.3
+  - @backstage/catalog-model@0.8.4
+  - @backstage/integration-react@0.1.4
+  - @backstage/plugin-catalog-react@0.2.4
+
+## 0.9.6
+
+### Patch Changes
+
+- 938aee2fb: Fix the link to the documentation page when no owned documents are displayed
+- 2e1fbe203: Do not add trailing slash for .html pages during doc links rewriting
+- 9b57fda8b: Fixes a bug that could prevent some externally hosted images (like icons or
+  build badges) from rendering within TechDocs documentation.
+- 667656c8b: Adding support for user owned document filter for TechDocs custom Homepage
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.2.3
+  - @backstage/catalog-model@0.8.3
+  - @backstage/core@0.7.13
+
+## 0.9.5
+
+### Patch Changes
+
+- aad98c544: Fixes multiple XSS and sanitization bypass vulnerabilities in TechDocs.
+- Updated dependencies [e7c5e4b30]
+- Updated dependencies [ebe802bc4]
+- Updated dependencies [49d7ec169]
+- Updated dependencies [1cf1d351f]
+- Updated dependencies [deaba2e13]
+- Updated dependencies [8e919a6f8]
+  - @backstage/theme@0.2.8
+  - @backstage/catalog-model@0.8.1
+  - @backstage/integration@0.5.5
+  - @backstage/core@0.7.12
+  - @backstage/plugin-catalog-react@0.2.1
+
+## 0.9.4
+
+### Patch Changes
+
+- 4ea9df9d3: Set admonition font size to 1rem in TechDocs to align with the rest of the document's font sizes.
+  Fixes #5448 and #5541.
+- bf805b467: Fixes #5529, a bug that prevented TechDocs from rendering pages containing malformed links.
+- 203ce6f6f: TechDocs now respects the `download` attribute on anchor tags in generated
+  markup, allowing documentation authors to bundle downloadable files with their
+  documentation.
+- Updated dependencies [0fd4ea443]
+- Updated dependencies [add62a455]
+- Updated dependencies [cc592248b]
+- Updated dependencies [17c497b81]
+- Updated dependencies [704875e26]
+  - @backstage/integration@0.5.4
+  - @backstage/catalog-model@0.8.0
+  - @backstage/core@0.7.11
+  - @backstage/plugin-catalog-react@0.2.0
+
+## 0.9.3
+
+### Patch Changes
+
+- 65e6c4541: Remove circular dependencies
+- a62cfe068: Bug fix on sidebar position when Tab-Bar is enabled
+- 35e091604: Handle URLs with a `#hash` correctly when rewriting link URLs.
+- Updated dependencies [f7f7783a3]
+- Updated dependencies [65e6c4541]
+- Updated dependencies [68fdbf014]
+- Updated dependencies [5da6a561d]
+  - @backstage/catalog-model@0.7.10
+  - @backstage/core@0.7.10
+  - @backstage/integration@0.5.3
+
+## 0.9.2
+
+### Patch Changes
+
+- 062bbf90f: chore: bump `@testing-library/user-event` from 12.8.3 to 13.1.8
+- 675a569a9: chore: bump `react-use` dependency in all packages
+- Updated dependencies [062bbf90f]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [889d89b6e]
+- Updated dependencies [16be1d093]
+- Updated dependencies [3f988cb63]
+- Updated dependencies [675a569a9]
+  - @backstage/core@0.7.9
+  - @backstage/integration-react@0.1.2
+  - @backstage/plugin-catalog-react@0.1.6
+  - @backstage/catalog-model@0.7.9
+
+## 0.9.1
+
+### Patch Changes
+
+- 2e05277e0: Fix navigation in a page using the table of contents.
+- 4075c6367: Make git config optional for techdocs feedback links
+- Updated dependencies [38ca05168]
+- Updated dependencies [f65adcde7]
+- Updated dependencies [81c54d1f2]
+- Updated dependencies [80888659b]
+- Updated dependencies [7b8272fb7]
+- Updated dependencies [d8b81fd28]
+  - @backstage/integration@0.5.2
+  - @backstage/core@0.7.8
+  - @backstage/plugin-catalog-react@0.1.5
+  - @backstage/theme@0.2.7
+  - @backstage/catalog-model@0.7.8
+  - @backstage/config@0.1.5
+
+## 0.9.0
+
+### Minor Changes
+
+- 21fddf452: Make `techdocsStorageApiRef` and `techdocsApiRef` use interfaces instead of the
+  actual implementation classes.
+
+  This renames the classes `TechDocsApi` to `TechDocsClient` and `TechDocsStorageApi`
+  to `TechDocsStorageClient` and renames the interfaces `TechDocs` to `TechDocsApi`
+  and `TechDocsStorage` to `TechDocsStorageApi` to comply the pattern elsewhere in
+  the project. This also fixes the types returned by some methods on those
+  interfaces.
+
+### Patch Changes
+
+- 6fbd7beca: Use `EntityRefLink` in header and use relations to reference the owner of the
+  document.
+- 15cbe6815: Fix TechDocs landing page table wrong copied link
+- 39bdaa004: Add customization and exportable components for TechDocs landing page
+- cb8c848a3: Disable color transitions on links to avoid issues in dark mode.
+- 17915e29b: Rework state management to avoid rendering multiple while navigating between pages.
+- Updated dependencies [9afcac5af]
+- Updated dependencies [e0c9ed759]
+- Updated dependencies [6eaecbd81]
+  - @backstage/core@0.7.7
+
 ## 0.8.0
 
 ### Minor Changes

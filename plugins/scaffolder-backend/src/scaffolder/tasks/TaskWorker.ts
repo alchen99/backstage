@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-import { PassThrough } from 'stream';
-import { Logger } from 'winston';
-import * as winston from 'winston';
-import { JsonValue, JsonObject } from '@backstage/config';
-import { validate as validateJsonSchema } from 'jsonschema';
-import { TaskBroker, Task } from './types';
-import fs from 'fs-extra';
-import path from 'path';
-import { TemplateActionRegistry } from '../actions/TemplateActionRegistry';
-import * as Handlebars from 'handlebars';
+import { JsonObject, JsonValue } from '@backstage/config';
 import { InputError } from '@backstage/errors';
+import fs from 'fs-extra';
+import * as Handlebars from 'handlebars';
+import { validate as validateJsonSchema } from 'jsonschema';
+import path from 'path';
+import { PassThrough } from 'stream';
+import * as winston from 'winston';
+import { Logger } from 'winston';
 import { parseRepoUrl } from '../actions/builtin/publish/util';
+import { TemplateActionRegistry } from '../actions/TemplateActionRegistry';
+import { isTruthy } from './helper';
+import { Task, TaskBroker } from './types';
 
 type Options = {
   logger: Logger;
@@ -47,7 +48,16 @@ export class TaskWorker {
       return JSON.stringify(parseRepoUrl(repoUrl));
     });
 
+    this.handlebars.registerHelper('projectSlug', repoUrl => {
+      const { owner, repo } = parseRepoUrl(repoUrl);
+      return `${owner}/${repo}`;
+    });
+
     this.handlebars.registerHelper('json', obj => JSON.stringify(obj));
+
+    this.handlebars.registerHelper('not', value => !isTruthy(value));
+
+    this.handlebars.registerHelper('eq', (a, b) => a === b);
   }
 
   start() {
@@ -102,6 +112,51 @@ export class TaskWorker {
           });
 
           taskLogger.add(new winston.transports.Stream({ stream }));
+
+          if (step.if !== undefined) {
+            // Support passing values like false to disable steps
+            let skip = !step.if;
+
+            // Evaluate strings as handlebar templates
+            if (typeof step.if === 'string') {
+              const condition = JSON.parse(
+                JSON.stringify(step.if),
+                (_key, value) => {
+                  if (typeof value === 'string') {
+                    const templated = this.handlebars.compile(value, {
+                      noEscape: true,
+                      data: false,
+                      preventIndent: true,
+                    })(templateCtx);
+
+                    // If it's just an empty string, treat it as undefined
+                    if (templated === '') {
+                      return undefined;
+                    }
+
+                    try {
+                      return JSON.parse(templated);
+                    } catch {
+                      return templated;
+                    }
+                  }
+
+                  return value;
+                },
+              );
+
+              skip = !isTruthy(condition);
+            }
+
+            if (skip) {
+              await task.emitLog(`Skipped step ${step.name}`, {
+                ...metadata,
+                status: 'skipped',
+              });
+              continue;
+            }
+          }
+
           await task.emitLog(`Beginning step ${step.name}`, {
             ...metadata,
             status: 'processing',
@@ -118,13 +173,13 @@ export class TaskWorker {
               if (typeof value === 'string') {
                 const templated = this.handlebars.compile(value, {
                   noEscape: true,
-                  strict: true,
                   data: false,
                   preventIndent: true,
                 })(templateCtx);
 
                 // If it smells like a JSON object then give it a parse as an object and if it fails return the string
                 if (
+                  (templated.startsWith('"') && templated.endsWith('"')) ||
                   (templated.startsWith('{') && templated.endsWith('}')) ||
                   (templated.startsWith('[') && templated.endsWith(']'))
                 ) {
@@ -143,9 +198,10 @@ export class TaskWorker {
             });
 
           if (action.schema?.input) {
-            const validateResult = validateJsonSchema(input, action.schema, {
-              propertyName: 'input',
-            });
+            const validateResult = validateJsonSchema(
+              input,
+              action.schema.input,
+            );
             if (!validateResult.valid) {
               const errors = validateResult.errors.join(', ');
               throw new InputError(
@@ -158,6 +214,10 @@ export class TaskWorker {
 
           // Keep track of all tmp dirs that are created by the action so we can remove them after
           const tmpDirs = new Array<string>();
+
+          this.options.logger.debug(`Running ${action.id} with input`, {
+            input: JSON.stringify(input, null, 2),
+          });
 
           await action.handler({
             baseUrl: task.spec.baseUrl,
@@ -202,12 +262,32 @@ export class TaskWorker {
         JSON.stringify(task.spec.output),
         (_key, value) => {
           if (typeof value === 'string') {
-            return this.handlebars.compile(value, {
+            const templated = this.handlebars.compile(value, {
               noEscape: true,
-              strict: true,
               data: false,
               preventIndent: true,
             })(templateCtx);
+
+            // If it's just an empty string, treat it as undefined
+            if (templated === '') {
+              return undefined;
+            }
+
+            // If it smells like a JSON object then give it a parse as an object and if it fails return the string
+            if (
+              (templated.startsWith('"') && templated.endsWith('"')) ||
+              (templated.startsWith('{') && templated.endsWith('}')) ||
+              (templated.startsWith('[') && templated.endsWith(']'))
+            ) {
+              try {
+                // Don't recursively JSON parse the values of this string.
+                // Shouldn't need to, don't want to encourage the use of returning handlebars from somewhere else
+                return JSON.parse(templated);
+              } catch {
+                return templated;
+              }
+            }
+            return templated;
           }
           return value;
         },

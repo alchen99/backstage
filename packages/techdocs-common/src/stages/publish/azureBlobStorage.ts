@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,11 @@ import JSON5 from 'json5';
 import limiterFactory from 'p-limit';
 import { default as path, default as platformPath } from 'path';
 import { Logger } from 'winston';
-import { getFileTreeRecursively, getHeadersForFileExtension } from './helpers';
+import {
+  getFileTreeRecursively,
+  getHeadersForFileExtension,
+  lowerCaseEntityTripletInStoragePath,
+} from './helpers';
 import {
   PublisherBase,
   PublishRequest,
@@ -221,7 +225,8 @@ export class AzureBlobStoragePublish implements PublisherBase {
             .on('end', () => {
               resolve(Buffer.concat(fileStreamChunks));
             });
-        });
+        })
+        .catch(reject);
     });
   }
 
@@ -253,9 +258,9 @@ export class AzureBlobStoragePublish implements PublisherBase {
    */
   docsRouter(): express.Handler {
     return (req, res) => {
-      // Trim the leading forward slash
+      // Decode and trim the leading forward slash
       // filePath example - /default/Component/documented-component/index.html
-      const filePath = req.path.replace(/^\//, '');
+      const filePath = decodeURI(req.path.replace(/^\//, ''));
       // Files with different extensions (CSS, HTML) need to be served with different headers
       const fileExtension = platformPath.extname(filePath);
       const responseHeaders = getHeadersForFileExtension(fileExtension);
@@ -287,5 +292,62 @@ export class AzureBlobStoragePublish implements PublisherBase {
       .getContainerClient(this.containerName)
       .getBlockBlobClient(`${entityRootDir}/index.html`)
       .exists();
+  }
+
+  protected async renameBlob(
+    originalName: string,
+    newName: string,
+    removeOriginal = false,
+  ): Promise<void> {
+    const container = this.storageClient.getContainerClient(this.containerName);
+    const blob = container.getBlobClient(newName);
+    const { url } = container.getBlobClient(originalName);
+    const response = await blob.beginCopyFromURL(url);
+    await response.pollUntilDone();
+    if (removeOriginal) {
+      await container.deleteBlob(originalName);
+    }
+  }
+
+  protected async renameBlobToLowerCase(
+    originalPath: string,
+    removeOriginal: boolean,
+  ) {
+    let newPath;
+    try {
+      newPath = lowerCaseEntityTripletInStoragePath(originalPath);
+    } catch (e) {
+      this.logger.warn(e.message);
+      return;
+    }
+
+    if (originalPath === newPath) return;
+    try {
+      this.logger.debug(`Migrating ${originalPath}`);
+      await this.renameBlob(originalPath, newPath, removeOriginal);
+    } catch (e) {
+      this.logger.warn(`Unable to migrate ${originalPath}: ${e.message}`);
+    }
+  }
+
+  async migrateDocsCase({
+    removeOriginal = false,
+    concurrency = 25,
+  }): Promise<void> {
+    const promises = [];
+    const limiter = limiterFactory(concurrency);
+    const container = this.storageClient.getContainerClient(this.containerName);
+
+    for await (const blob of container.listBlobsFlat()) {
+      promises.push(
+        limiter(
+          this.renameBlobToLowerCase.bind(this),
+          blob.name,
+          removeOriginal,
+        ),
+      );
+    }
+
+    await Promise.all(promises);
   }
 }

@@ -119,6 +119,7 @@ techdocs:
 
 Create a dedicated AWS S3 bucket for the storage of TechDocs sites.
 [Refer to the official documentation](https://docs.aws.amazon.com/AmazonS3/latest/user-guide/create-bucket.html).
+[Terraform example](https://github.com/backstage/backstage/blob/master/contrib/terraform/techdocs-s3-storage/terraform.tf).
 
 TechDocs will publish documentation to this bucket and will fetch files from
 here to serve documentation in Backstage. Note that the bucket names are
@@ -149,13 +150,48 @@ permissions to:
 - `s3:ListBucket` - To retrieve bucket metadata
 - `s3:GetObject` - To retrieve files from the bucket
 
+> Note: If you need to migrate documentation objects from an older-style path
+> format including case-sensitive entity metadata, you will need to add some
+> additional permissions to be able to perform the migration, including:
+>
+> - `s3:PutBucketAcl` (for copying files,
+>   [more info here](https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObjectAcl.html))
+> - `s3:DeleteObject` and `s3:DeleteObjectVersion` (for deleting migrated files,
+>   [more info here](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObject.html))
+>
+> ...And you will need to ensure the permissions apply to the bucket itself, as
+> well as all resources under the bucket. See the example policy below.
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "TechDocsWithMigration",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObjectVersion",
+        "s3:ListBucket",
+        "s3:DeleteObject",
+        "s3:PutObjectAcl"
+      ],
+      "Resource": ["arn:aws:s3:::your-bucket", "arn:aws:s3:::your-bucket/*"]
+    }
+  ]
+}
+```
+
 **4a. (Recommended) Setup authentication the AWS way, using environment
 variables**
 
 You should follow the
 [AWS security best practices guide for authentication](https://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html).
 
-TechDocs needs access to read files and metadata of the S3 bucket.
+TechDocs needs access to read files and metadata of the S3 bucket. So if you are
+creating a policy for a user you want to make sure it is granted access to
+ListBucket, GetObject and PutObject.
 
 If the environment variables
 
@@ -367,7 +403,7 @@ techdocs:
     openStackSwift:
       containerName: 'name-of-techdocs-storage-bucket'
       credentials:
-        userName: ${OPENSTACK_SWIFT_STORAGE_USERNAME}
+        username: ${OPENSTACK_SWIFT_STORAGE_USERNAME}
         password: ${OPENSTACK_SWIFT_STORAGE_PASSWORD}
       authUrl: ${OPENSTACK_SWIFT_STORAGE_AUTH_URL}
       keystoneAuthVersion: ${OPENSTACK_SWIFT_STORAGE_AUTH_VERSION}

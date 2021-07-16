@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,15 +32,17 @@ import lodash, { Dictionary } from 'lodash';
 import { Logger } from 'winston';
 import {
   ClusterDetails,
-  FetchResponse,
   FetchResponseWrapper,
-  KubernetesErrorTypes,
   KubernetesFetcher,
-  KubernetesFetchError,
   KubernetesObjectTypes,
   ObjectFetchParams,
   CustomResource,
 } from '../types/types';
+import {
+  FetchResponse,
+  KubernetesFetchError,
+  KubernetesErrorTypes,
+} from '@backstage/plugin-kubernetes-common';
 import { KubernetesClientProvider } from './KubernetesClientProvider';
 
 export interface Clients {

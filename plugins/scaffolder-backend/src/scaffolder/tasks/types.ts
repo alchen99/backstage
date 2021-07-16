@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ export type TaskSpec = {
     name: string;
     action: string;
     input?: JsonObject;
+    if?: string | boolean;
   }>;
   output: { [name: string]: string };
 };

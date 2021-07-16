@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 
 export interface ChangeStatistic {
   // The ratio of change from one duration to another, expressed as: (newSum - oldSum) / oldSum
-  ratio: number;
+  // If a ratio cannot be calculated - such as when a new or old sum is zero,
+  // the ratio can be omitted and where applicable, ∞ or -∞ will display based on amount.
+  ratio?: number;
   // The actual USD change between time periods (can be negative if costs decreased)
   amount: number;
 }

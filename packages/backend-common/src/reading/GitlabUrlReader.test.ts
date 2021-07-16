@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import os from 'os';
 import path from 'path';
 import { getVoidLogger } from '../logging';
 import { GitlabUrlReader } from './GitlabUrlReader';
-import { ReadTreeResponseFactory } from './tree';
+import { DefaultReadTreeResponseFactory } from './tree';
 import { NotModifiedError, NotFoundError } from '@backstage/errors';
 import {
   GitLabIntegration,
@@ -33,7 +33,7 @@ import {
 
 const logger = getVoidLogger();
 
-const treeResponseFactory = ReadTreeResponseFactory.create({
+const treeResponseFactory = DefaultReadTreeResponseFactory.create({
   config: new ConfigReader({}),
 });
 
@@ -79,7 +79,7 @@ describe('GitlabUrlReader', () => {
   const worker = setupServer();
   msw.setupDefaultHandlers(worker);
 
-  describe('implementation', () => {
+  describe('read', () => {
     beforeEach(() => {
       worker.use(
         rest.get('*/api/v4/projects/:name', (_, res, ctx) =>
@@ -90,7 +90,7 @@ describe('GitlabUrlReader', () => {
             ctx.status(200),
             ctx.json({
               url: req.url.toString(),
-              headers: req.headers.getAllHeaders(),
+              headers: req.headers.all(),
             }),
           ),
         ),
@@ -180,9 +180,56 @@ describe('GitlabUrlReader', () => {
     });
   });
 
+  describe('readUrl', () => {
+    const [{ reader }] = GitlabUrlReader.factory({
+      config: new ConfigReader({}),
+      logger,
+      treeResponseFactory,
+    });
+
+    it('should throw NotModified on HTTP 304', async () => {
+      worker.use(
+        rest.get('*/api/v4/projects/:name', (_, res, ctx) =>
+          res(ctx.status(200), ctx.json({ id: 12345 })),
+        ),
+        rest.get('*', (req, res, ctx) => {
+          expect(req.headers.get('If-None-Match')).toBe('999');
+          return res(ctx.status(304));
+        }),
+      );
+
+      await expect(
+        reader.readUrl!(
+          'https://gitlab.com/groupA/teams/teamA/subgroupA/repoA/-/blob/branch/my/path/to/file.yaml',
+          {
+            etag: '999',
+          },
+        ),
+      ).rejects.toThrow(NotModifiedError);
+    });
+
+    it('should return etag in response', async () => {
+      worker.use(
+        rest.get('*/api/v4/projects/:name', (_, res, ctx) =>
+          res(ctx.status(200), ctx.json({ id: 12345 })),
+        ),
+        rest.get('*', (_req, res, ctx) => {
+          return res(ctx.status(200), ctx.set('ETag', '999'), ctx.body('foo'));
+        }),
+      );
+
+      const result = await reader.readUrl!(
+        'https://gitlab.com/groupA/teams/teamA/subgroupA/repoA/-/blob/branch/my/path/to/file.yaml',
+      );
+      expect(result.etag).toBe('999');
+      const content = await result.buffer();
+      expect(content.toString()).toBe('foo');
+    });
+  });
+
   describe('readTree', () => {
     const archiveBuffer = fs.readFileSync(
-      path.resolve('src', 'reading', '__fixtures__', 'gitlab-archive.zip'),
+      path.resolve('src', 'reading', '__fixtures__', 'gitlab-archive.tar.gz'),
     );
 
     const projectGitlabApiResponse = {
@@ -190,16 +237,22 @@ describe('GitlabUrlReader', () => {
       default_branch: 'main',
     };
 
-    const branchGitlabApiResponse = {
-      commit: {
+    const commitsGitlabApiResponse = [
+      {
         id: 'sha123abc',
       },
-    };
+    ];
+
+    const specificPathCommitsGitlabApiResponse = [
+      {
+        id: 'sha456def',
+      },
+    ];
 
     beforeEach(() => {
       worker.use(
         rest.get(
-          'https://gitlab.com/api/v4/projects/backstage%2Fmock/repository/archive.zip?sha=main',
+          'https://gitlab.com/api/v4/projects/backstage%2Fmock/repository/archive',
           (_, res, ctx) =>
             res(
               ctx.status(200),
@@ -221,17 +274,29 @@ describe('GitlabUrlReader', () => {
             ),
         ),
         rest.get(
-          'https://gitlab.com/api/v4/projects/backstage%2Fmock/repository/branches/main',
-          (_, res, ctx) =>
-            res(
-              ctx.status(200),
-              ctx.set('Content-Type', 'application/json'),
-              ctx.json(branchGitlabApiResponse),
-            ),
-        ),
-        rest.get(
-          'https://gitlab.com/api/v4/projects/backstage%2Fmock/repository/branches/branchDoesNotExist',
-          (_, res, ctx) => res(ctx.status(404)),
+          'https://gitlab.com/api/v4/projects/backstage%2Fmock/repository/commits',
+          (req, res, ctx) => {
+            const refName = req.url.searchParams.get('ref_name');
+            if (refName === 'main') {
+              const filepath = req.url.searchParams.get('path');
+              if (filepath === 'testFilepath') {
+                return res(
+                  ctx.status(200),
+                  ctx.set('Content-Type', 'application/json'),
+                  ctx.json(specificPathCommitsGitlabApiResponse),
+                );
+              }
+              return res(
+                ctx.status(200),
+                ctx.set('Content-Type', 'application/json'),
+                ctx.json(commitsGitlabApiResponse),
+              );
+            }
+            if (refName === 'branchDoesNotExist') {
+              return res(ctx.status(404));
+            }
+            return res();
+          },
         ),
         rest.get(
           'https://gitlab.mycompany.com/api/v4/projects/backstage%2Fmock',
@@ -243,16 +308,29 @@ describe('GitlabUrlReader', () => {
             ),
         ),
         rest.get(
-          'https://gitlab.mycompany.com/api/v4/projects/backstage%2Fmock/repository/branches/main',
-          (_, res, ctx) =>
-            res(
-              ctx.status(200),
-              ctx.set('Content-Type', 'application/json'),
-              ctx.json(branchGitlabApiResponse),
-            ),
+          'https://gitlab.mycompany.com/api/v4/projects/backstage%2Fmock/repository/commits',
+          (req, res, ctx) => {
+            const refName = req.url.searchParams.get('ref_name');
+            if (refName === 'main') {
+              const filepath = req.url.searchParams.get('path');
+              if (filepath === 'testFilepath') {
+                return res(
+                  ctx.status(200),
+                  ctx.set('Content-Type', 'application/json'),
+                  ctx.json(specificPathCommitsGitlabApiResponse),
+                );
+              }
+              return res(
+                ctx.status(200),
+                ctx.set('Content-Type', 'application/json'),
+                ctx.json(commitsGitlabApiResponse),
+              );
+            }
+            return res();
+          },
         ),
         rest.get(
-          'https://gitlab.mycompany.com/api/v4/projects/backstage%2Fmock/repository/archive.zip?sha=main',
+          'https://gitlab.mycompany.com/api/v4/projects/backstage%2Fmock/repository/archive',
           (_, res, ctx) =>
             res(
               ctx.status(200),
@@ -275,8 +353,8 @@ describe('GitlabUrlReader', () => {
       const files = await response.files();
       expect(files.length).toBe(2);
 
-      const mkDocsFile = await files[0].content();
-      const indexMarkdownFile = await files[1].content();
+      const indexMarkdownFile = await files[0].content();
+      const mkDocsFile = await files[1].content();
 
       expect(mkDocsFile.toString()).toBe('site_name: Test\n');
       expect(indexMarkdownFile.toString()).toBe('# Test\n');
@@ -287,7 +365,7 @@ describe('GitlabUrlReader', () => {
         'https://gitlab.com/backstage/mock',
       );
 
-      const dir = await response.dir({ targetDir: '/tmp' });
+      const dir = await response.dir({ targetDir: tmpDir });
 
       await expect(
         fs.readFile(path.join(dir, 'mkdocs.yml'), 'utf8'),
@@ -300,7 +378,7 @@ describe('GitlabUrlReader', () => {
     it('returns the wanted files from hosted gitlab', async () => {
       worker.use(
         rest.get(
-          'https://gitlab.mycompany.com/backstage/mock/-/archive/main.zip',
+          'https://gitlab.mycompany.com/backstage/mock/-/archive/main.tar.gz',
           (_, res, ctx) =>
             res(
               ctx.status(200),
@@ -344,14 +422,14 @@ describe('GitlabUrlReader', () => {
         'https://gitlab.com/backstage/mock/tree/main/docs',
       );
 
-      const dir = await response.dir({ targetDir: '/tmp' });
+      const dir = await response.dir({ targetDir: tmpDir });
 
       await expect(
         fs.readFile(path.join(dir, 'index.md'), 'utf8'),
       ).resolves.toBe('# Test\n');
     });
 
-    it('throws a NotModifiedError when given a etag in options', async () => {
+    it('throws a NotModifiedError when given a etag in options matching last commit', async () => {
       const fnGitlab = async () => {
         await gitlabProcessor.readTree('https://gitlab.com/backstage/mock', {
           etag: 'sha123abc',
@@ -363,6 +441,29 @@ describe('GitlabUrlReader', () => {
           'https://gitlab.mycompany.com/backstage/mock',
           {
             etag: 'sha123abc',
+          },
+        );
+      };
+
+      await expect(fnGitlab).rejects.toThrow(NotModifiedError);
+      await expect(fnHostedGitlab).rejects.toThrow(NotModifiedError);
+    });
+
+    it('throws a NotModifiedError when given a etag in options matching last commit affecting specified filepath', async () => {
+      const fnGitlab = async () => {
+        await gitlabProcessor.readTree(
+          'https://gitlab.com/backstage/mock/blob/main/testFilepath',
+          {
+            etag: 'sha456def',
+          },
+        );
+      };
+
+      const fnHostedGitlab = async () => {
+        await hostedGitlabProcessor.readTree(
+          'https://gitlab.mycompany.com/backstage/mock/blob/main/testFilepath',
+          {
+            etag: 'sha456def',
           },
         );
       };
@@ -389,18 +490,18 @@ describe('GitlabUrlReader', () => {
     });
 
     it('should throw error on missing branch', async () => {
-      const fnGithub = async () => {
+      const fnGitlab = async () => {
         await gitlabProcessor.readTree(
           'https://gitlab.com/backstage/mock/tree/branchDoesNotExist',
         );
       };
-      await expect(fnGithub).rejects.toThrow(NotFoundError);
+      await expect(fnGitlab).rejects.toThrow(NotFoundError);
     });
   });
 
   describe('search', () => {
     const archiveBuffer = fs.readFileSync(
-      path.resolve('src', 'reading', '__fixtures__', 'gitlab-archive.zip'),
+      path.resolve('src', 'reading', '__fixtures__', 'gitlab-archive.tar.gz'),
     );
 
     const projectGitlabApiResponse = {
@@ -408,16 +509,16 @@ describe('GitlabUrlReader', () => {
       default_branch: 'main',
     };
 
-    const branchGitlabApiResponse = {
-      commit: {
+    const commitsGitlabApiResponse = [
+      {
         id: 'sha123abc',
       },
-    };
+    ];
 
     beforeEach(() => {
       worker.use(
         rest.get(
-          'https://gitlab.com/api/v4/projects/backstage%2Fmock/repository/archive.zip?sha=main',
+          'https://gitlab.com/api/v4/projects/backstage%2Fmock/repository/archive',
           (_, res, ctx) =>
             res(
               ctx.status(200),
@@ -439,13 +540,18 @@ describe('GitlabUrlReader', () => {
             ),
         ),
         rest.get(
-          'https://gitlab.com/api/v4/projects/backstage%2Fmock/repository/branches/main',
-          (_, res, ctx) =>
-            res(
-              ctx.status(200),
-              ctx.set('Content-Type', 'application/json'),
-              ctx.json(branchGitlabApiResponse),
-            ),
+          'https://gitlab.com/api/v4/projects/backstage%2Fmock/repository/commits',
+          (req, res, ctx) => {
+            const refName = req.url.searchParams.get('ref_name');
+            if (refName === 'main') {
+              return res(
+                ctx.status(200),
+                ctx.set('Content-Type', 'application/json'),
+                ctx.json(commitsGitlabApiResponse),
+              );
+            }
+            return res();
+          },
         ),
       );
     });

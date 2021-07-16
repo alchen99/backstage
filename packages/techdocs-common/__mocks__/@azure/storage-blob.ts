@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,9 +71,9 @@ export class BlockBlobClient {
   download() {
     const filePath = path.join(rootDir, this.blobName);
     const emitter = new EventEmitter();
-    process.nextTick(() => {
+    setTimeout(() => {
       if (fs.existsSync(filePath)) {
-        emitter.emit('data', Buffer.from(fs.readFileSync(filePath)));
+        emitter.emit('data', fs.readFileSync(filePath));
         emitter.emit('end');
       } else {
         emitter.emit(
@@ -81,7 +81,7 @@ export class BlockBlobClient {
           new Error(`The file ${filePath} does not exist !`),
         );
       }
-    });
+    }, 0);
     return Promise.resolve({
       readableStreamBody: emitter,
     });

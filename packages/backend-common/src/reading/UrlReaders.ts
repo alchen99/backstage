@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import { AzureUrlReader } from './AzureUrlReader';
 import { BitbucketUrlReader } from './BitbucketUrlReader';
 import { GithubUrlReader } from './GithubUrlReader';
 import { GitlabUrlReader } from './GitlabUrlReader';
-import { ReadTreeResponseFactory } from './tree';
+import { DefaultReadTreeResponseFactory } from './tree';
 import { FetchUrlReader } from './FetchUrlReader';
 import { GoogleGcsUrlReader } from './GoogleGcsUrlReader';
 
@@ -43,8 +43,10 @@ export class UrlReaders {
    * Creates a UrlReader without any known types.
    */
   static create({ logger, config, factories }: CreateOptions): UrlReader {
-    const mux = new UrlReaderPredicateMux();
-    const treeResponseFactory = ReadTreeResponseFactory.create({ config });
+    const mux = new UrlReaderPredicateMux(logger);
+    const treeResponseFactory = DefaultReadTreeResponseFactory.create({
+      config,
+    });
 
     for (const factory of factories ?? []) {
       const tuples = factory({ config, logger: logger, treeResponseFactory });

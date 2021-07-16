@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import {
   KubernetesMigrationDismissForm,
   KubernetesMigrationDismissFormData,
 } from '../forms';
+import { Lifecycle } from '@backstage/core-components';
 
 export interface KubernetesMigrationData {
   startDate: string;
@@ -87,11 +88,13 @@ export class KubernetesMigrationAlert implements KubernetesMigrationApi {
   }
 
   get title() {
-    return `Consider migrating ${pluralize(
-      'service',
-      this.data.services.length,
-      true,
-    )} to Kubernetes.`;
+    return (
+      <span>
+        Consider migrating{' '}
+        {pluralize('service', this.data.services.length, true)} to Kubernetes{' '}
+        <Lifecycle shorthand />
+      </span>
+    );
   }
 
   get element() {

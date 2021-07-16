@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,5 +15,13 @@
  */
 export { EntityContext, useEntity, useEntityFromUrl } from './useEntity';
 export { useEntityCompoundName } from './useEntityCompoundName';
+export {
+  EntityListContext,
+  EntityListProvider,
+  useEntityListProvider,
+} from './useEntityListProvider';
+export type { DefaultEntityFilters } from './useEntityListProvider';
+export { useEntityTypeFilter } from './useEntityTypeFilter';
+export { useOwnUser } from './useOwnUser';
 export { useRelatedEntities } from './useRelatedEntities';
 export { useStarredEntities } from './useStarredEntities';

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ const DEFAULT_CSP = {
   'script-src': ["'self'", "'unsafe-eval'"],
   'script-src-attr': ["'none'"],
   'style-src': ["'self'", 'https:', "'unsafe-inline'"],
-  'upgrade-insecure-requests': [] as string[],
 };
 
 export class ServiceBuilderImpl implements ServiceBuilder {

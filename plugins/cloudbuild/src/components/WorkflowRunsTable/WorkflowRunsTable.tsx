@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,14 @@ import { Link, Typography, Box, IconButton, Tooltip } from '@material-ui/core';
 import RetryIcon from '@material-ui/icons/Replay';
 import GoogleIcon from '@material-ui/icons/CloudCircle';
 import { Link as RouterLink, generatePath } from 'react-router-dom';
-import { Table, TableColumn } from '@backstage/core';
-import { useWorkflowRuns } from '../useWorkflowRuns';
+import { useWorkflowRuns, WorkflowRun } from '../useWorkflowRuns';
 import { WorkflowRunStatus } from '../WorkflowRunStatus';
 import SyncIcon from '@material-ui/icons/Sync';
 import { useProjectName } from '../useProjectName';
 import { Entity } from '@backstage/catalog-model';
-import { Substitutions } from '../../api/types';
-import { buildRouteRef } from '../../plugin';
+import { buildRouteRef } from '../../routes';
 import moment from 'moment';
-
-export type WorkflowRun = {
-  id: string;
-  message: string;
-  url?: string;
-  googleUrl?: string;
-  status: string;
-  substitutions: Substitutions;
-  createTime: string;
-  rerun: () => void;
-};
+import { Table, TableColumn } from '@backstage/core-components';
 
 const generatedColumns: TableColumn[] = [
   {

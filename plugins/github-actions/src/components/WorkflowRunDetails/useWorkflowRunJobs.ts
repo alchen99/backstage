@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,30 @@
  * limitations under the License.
  */
 import { useAsync } from 'react-use';
-import { Jobs } from '../../api/types';
+import { githubActionsApiRef } from '../../api';
+import { buildRouteRef } from '../../routes';
+import { useApi, useRouteRefParams } from '@backstage/core-plugin-api';
 
-export const useWorkflowRunJobs = (jobsUrl?: string) => {
-  const jobs = useAsync(async (): Promise<Jobs> => {
-    if (jobsUrl === undefined) {
-      return {
-        total_count: 0,
-        jobs: [],
-      };
-    }
-
-    const data = await fetch(jobsUrl).then(d => d.json());
-    return data;
-  }, [jobsUrl]);
+export const useWorkflowRunJobs = ({
+  hostname,
+  owner,
+  repo,
+}: {
+  hostname?: string;
+  owner: string;
+  repo: string;
+}) => {
+  const api = useApi(githubActionsApiRef);
+  const { id } = useRouteRefParams(buildRouteRef);
+  const jobs = useAsync(async () => {
+    return repo && owner
+      ? api.listJobsForWorkflowRun({
+          hostname,
+          owner,
+          repo,
+          id: parseInt(id, 10),
+        })
+      : Promise.reject('No repo/owner provided');
+  }, [repo, owner, id]);
   return jobs;
 };

@@ -1,5 +1,42 @@
 # @backstage/plugin-app-backend
 
+## 0.3.15
+
+### Patch Changes
+
+- ae84b20cf: Revert the upgrade to `fs-extra@10.0.0` as that seemed to have broken all installs inexplicably.
+- Updated dependencies
+  - @backstage/backend-common@0.8.6
+  - @backstage/config-loader@0.6.5
+
+## 0.3.14
+
+### Patch Changes
+
+- 3108ff7bf: Make `yarn dev` respect the `PLUGIN_PORT` environment variable.
+- Updated dependencies
+  - @backstage/backend-common@0.8.3
+  - @backstage/config-loader@0.6.4
+
+## 0.3.13
+
+### Patch Changes
+
+- Updated dependencies [22fd8ce2a]
+- Updated dependencies [f9fb4a205]
+  - @backstage/backend-common@0.8.0
+
+## 0.3.12
+
+### Patch Changes
+
+- Updated dependencies [e0bfd3d44]
+- Updated dependencies [38ca05168]
+- Updated dependencies [d8b81fd28]
+  - @backstage/backend-common@0.7.0
+  - @backstage/config-loader@0.6.1
+  - @backstage/config@0.1.5
+
 ## 0.3.11
 
 ### Patch Changes

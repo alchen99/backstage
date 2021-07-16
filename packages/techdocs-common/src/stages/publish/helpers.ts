@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,22 @@
 import mime from 'mime-types';
 import recursiveReadDir from 'recursive-readdir';
 
+/**
+ * Helper to get the expected content-type for a given file extension. Also
+ * takes XSS mitigation into account.
+ */
+const getContentTypeForExtension = (ext: string): string => {
+  const defaultContentType = 'text/plain; charset=utf-8';
+
+  // Prevent sanitization bypass by preventing browsers from directly rendering
+  // the contents of untrusted files.
+  if (ext.match(/htm|xml|svg/i)) {
+    return defaultContentType;
+  }
+
+  return mime.contentType(ext) || defaultContentType;
+};
+
 export type responseHeadersType = {
   'Content-Type': string;
 };
@@ -29,9 +45,8 @@ export const getHeadersForFileExtension = (
   fileExtension: string,
 ): responseHeadersType => {
   return {
-    'Content-Type':
-      mime.contentType(fileExtension) || 'text/plain; charset=utf-8',
-  } as responseHeadersType;
+    'Content-Type': getContentTypeForExtension(fileExtension),
+  };
 };
 
 /**
@@ -66,4 +81,33 @@ export const getFileTreeRecursively = async (
     throw new Error(`Failed to read template directory: ${error.message}`);
   });
   return fileList;
+};
+
+/**
+ * Returns the version of an object's storage path where the first three parts
+ * of the path (the entity triplet of namespace, kind, and name) are
+ * lower-cased.
+ *
+ * Path must not include a starting slash.
+ *
+ * @example
+ * lowerCaseEntityTripletInStoragePath('default/Component/backstage')
+ * // return default/component/backstage
+ */
+export const lowerCaseEntityTripletInStoragePath = (
+  originalPath: string,
+): string => {
+  const trimmedPath =
+    originalPath[0] === '/' ? originalPath.substring(1) : originalPath;
+  const matches = trimmedPath.match(/\//g) || [];
+  if (matches.length <= 2) {
+    throw new Error(
+      `Encountered file unmanaged by TechDocs ${originalPath}. Skipping.`,
+    );
+  }
+  const [namespace, kind, name, ...parts] = originalPath.split('/');
+  const lowerNamespace = namespace.toLowerCase();
+  const lowerKind = kind.toLowerCase();
+  const lowerName = name.toLowerCase();
+  return [lowerNamespace, lowerKind, lowerName, ...parts].join('/');
 };

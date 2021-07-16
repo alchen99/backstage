@@ -1,11 +1,5 @@
 import React from 'react';
 import { Navigate, Route } from 'react-router';
-import {
-  AlertDisplay,
-  createApp,
-  FlatRoutes,
-  OAuthRequestDialog,
-} from '@backstage/core';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import {
   CatalogEntityPage,
@@ -13,7 +7,10 @@ import {
   catalogPlugin,
 } from '@backstage/plugin-catalog';
 import {CatalogImportPage, catalogImportPlugin} from '@backstage/plugin-catalog-import';
-import { ScaffolderPage, scaffolderPlugin } from '@backstage/plugin-scaffolder';
+import { 
+  ScaffolderPage, 
+  scaffolderPlugin 
+} from '@backstage/plugin-scaffolder';
 import { SearchPage } from '@backstage/plugin-search';
 import { TechRadarPage } from '@backstage/plugin-tech-radar';
 import { TechdocsPage } from '@backstage/plugin-techdocs';
@@ -21,6 +18,9 @@ import { UserSettingsPage } from '@backstage/plugin-user-settings';
 import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
 import { Root } from './components/Root';
+
+import { AlertDisplay, OAuthRequestDialog } from '@backstage/core-components';
+import { createApp, FlatRoutes } from '@backstage/core-app-api';
 
 const app = createApp({
   apis,

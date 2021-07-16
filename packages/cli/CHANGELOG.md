@@ -1,5 +1,166 @@
 # @backstage/cli
 
+## 0.7.4
+
+### Patch Changes
+
+- ae84b20cf: Revert the upgrade to `fs-extra@10.0.0` as that seemed to have broken all installs inexplicably.
+- Updated dependencies
+  - @backstage/config-loader@0.6.5
+
+## 0.7.3
+
+### Patch Changes
+
+- a93e60fdc: Updated dependencies
+- 55f49fcc7: Update dependencies
+- ab5cc376f: Use new `isChildPath` export from `@backstage/cli-common`
+- Updated dependencies
+  - @backstage/cli-common@0.1.2
+
+## 0.7.2
+
+### Patch Changes
+
+- 953a7e66f: updated plugin template to generate path equals plugin id for the root page
+- 04248b8f9: chore: bump `msw` dependency in `create-plugin`
+- e3d31b381: Make the `create-github-app` command disable webhooks by default.
+- 8f100db75: chore: bump `@typescript-eslint/eslint-plugin` from 4.26.0 to 4.27.0
+- 95e572305: chore: bump `del` from 5.1.0 to 6.0.0
+- ece2b5dd1: chore: bump `@spotify/eslint-config-typescript` from 9.0.0 to 10.0.0
+- 0ec31e596: chore: bump `@rollup/plugin-node-resolve` from 11.2.1 to 13.0.0
+- 48c9fcd33: Migrated to use the new `@backstage/core-*` packages rather than `@backstage/core`.
+
+## 0.7.1
+
+### Patch Changes
+
+- 3108ff7bf: Make `yarn dev` in newly created backend plugins respect the `PLUGIN_PORT` environment variable.
+
+  You can achieve the same in your created backend plugins by making sure to properly call the port and CORS methods on your service builder. Typically in a file named `src/service/standaloneServer.ts` inside your backend plugin package, replace the following:
+
+  ```ts
+  const service = createServiceBuilder(module)
+    .enableCors({ origin: 'http://localhost:3000' })
+    .addRouter('/my-plugin', router);
+  ```
+
+  With something like the following:
+
+  ```ts
+  let service = createServiceBuilder(module)
+    .setPort(options.port)
+    .addRouter('/my-plugin', router);
+  if (options.enableCors) {
+    service = service.enableCors({ origin: 'http://localhost:3000' });
+  }
+  ```
+
+- Updated dependencies
+  - @backstage/config-loader@0.6.4
+
+## 0.7.0
+
+### Minor Changes
+
+- 9cd3c533c: Switch from `ts-jest` to `@sucrase/jest-plugin`, improving performance and aligning transpilation with bundling.
+
+  In order to switch back to `ts-jest`, install `ts-jest@^26.4.3` as a dependency in the root of your repo and add the following in the root `package.json`:
+
+  ```json
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "isolatedModules": true
+      }
+    },
+    "transform": {
+      "\\.esm\\.js$": "@backstage/cli/config/jestEsmTransform.js",
+      "\\.(js|jsx|ts|tsx)$": "ts-jest",
+      "\\.(bmp|gif|jpg|jpeg|png|frag|xml|svg)$": "@backstage/cli/config/jestFileTransform.js",
+      "\\.(yaml)$": "yaml-jest"
+    }
+  }
+  ```
+
+  Note that this will override the default jest transforms included with the `@backstage/cli`.
+
+  It is possible that some test code needs a small migration as a result of this change, which stems from a difference in how `sucrase` and `ts-jest` transform module re-exports.
+
+  Consider the following code:
+
+  ```ts
+  import * as utils from './utils';
+
+  jest.spyOn(utils, 'myUtility').mockReturnValue(3);
+  ```
+
+  If the `./utils` import for example refers to an index file that in turn re-exports from `./utils/myUtility`, you would have to change the code to the following to work around the fact that the exported object from `./utils` ends up not having configurable properties, thus breaking `jest.spyOn`.
+
+  ```ts
+  import * as utils from './utils/myUtility';
+
+  jest.spyOn(utils, 'myUtility').mockReturnValue(3);
+  ```
+
+### Patch Changes
+
+- 7f7443308: Updated dependencies
+- 21e8ebef5: Fix error message formatting in the packaging process.
+
+  error.errors can be undefined which will lead to a TypeError, swallowing the actual error message in the process.
+
+  For instance, if you break your tsconfig.json with invalid syntax, backstage-cli will not be able to build anything and it will be very hard to find out why because the underlying error message is hidden behind a TypeError.
+
+## 0.6.14
+
+### Patch Changes
+
+- ee4eb5b40: Adjust the Webpack `devtool` module filename template to correctly resolve via the source maps to the source files.
+- 84160313e: Mark the `create-github-app` command as ready for use and reveal it in the command list.
+- 7e7c71417: Exclude core packages from package dependency diff.
+- e7c5e4b30: Update installation instructions in README.
+- 2305ab8fc: chore(deps): bump `@spotify/eslint-config-react` from 9.0.0 to 10.0.0
+- 054bcd029: Deprecated the `backend:build-image` command, pointing to the newer `backend:bundle` command.
+
+## 0.6.13
+
+### Patch Changes
+
+- 1cd0cacd9: Add support for transforming yaml files in jest with 'yaml-jest'
+- 7a7da5146: Bumped `eslint-config-prettier` to `8.x`.
+- 3a181cff1: Bump webpack-node-externals from `2.5.2` to `3.0.0`.
+- Updated dependencies [2cf98d279]
+- Updated dependencies [438a512eb]
+  - @backstage/config-loader@0.6.3
+
+## 0.6.12
+
+### Patch Changes
+
+- 2bfec55a6: Update `fork-ts-checker-webpack-plugin`
+- Updated dependencies [290405276]
+  - @backstage/config-loader@0.6.2
+
+## 0.6.11
+
+### Patch Changes
+
+- 2cd70e164: Add context for versions:bump on what version it was bumped to. Updated tests for the same.
+- 3be844496: chore: bump `ts-node` versions to 9.1.1
+- e3fc89df6: update plugins created to use react-use 17.2.4
+
+## 0.6.10
+
+### Patch Changes
+
+- f65adcde7: Fix some transitive dependency warnings in yarn
+- fc79a6dd3: Added lax option to backstage-cli app:build command
+- d8b81fd28: Bump `json-schema` dependency from `0.2.5` to `0.3.0`.
+- Updated dependencies [d8b81fd28]
+  - @backstage/config-loader@0.6.1
+  - @backstage/config@0.1.5
+
 ## 0.6.9
 
 ### Patch Changes

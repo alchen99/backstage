@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-export { createPublishGithubAction } from './github';
-export { createPublishGithubPullRequestAction } from './githubPullRequest';
 export { createPublishAzureAction } from './azure';
-export { createPublishGitlabAction } from './gitlab';
 export { createPublishBitbucketAction } from './bitbucket';
 export { createPublishFileAction } from './file';
+export { createPublishGithubAction } from './github';
+export { createPublishGithubPullRequestAction } from './githubPullRequest';
+export { createPublishGitlabAction } from './gitlab';

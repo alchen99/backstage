@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,12 @@ export const MOCK_TEAM: Team = {
   memberCount: 1,
   version: 1,
   isDefaultTeam: false,
+};
+
+export const MOCK_TEAM_NO_INCIDENTS: Team = {
+  ...MOCK_TEAM,
+  name: 'test-noincidents',
+  slug: 'team-O9SqT13fsnCstjMj',
 };
 
 export const ESCALATION_POLICIES: EscalationPolicyInfo[] = [

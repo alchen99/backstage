@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@ import {
   CustomResource,
   KubernetesFetcher,
   KubernetesObjectTypes,
-  KubernetesRequestBody,
   KubernetesServiceLocator,
 } from '../types/types';
+import { KubernetesRequestBody } from '@backstage/plugin-kubernetes-common';
 import { KubernetesAuthTranslator } from '../kubernetes-auth-translator/types';
 import { KubernetesAuthTranslatorGenerator } from '../kubernetes-auth-translator/KubernetesAuthTranslatorGenerator';
 

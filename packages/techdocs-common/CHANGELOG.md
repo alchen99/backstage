@@ -1,5 +1,154 @@
 # @backstage/techdocs-common
 
+## 0.6.8
+
+### Patch Changes
+
+- d5eaab91d: Adds custom docker image support to the techdocs generator. This change adds a new `techdocs.generator` configuration key and deprecates the existing `techdocs.generators.techdocs` key.
+
+  ```yaml
+  techdocs:
+    # recommended, going forward:
+    generator:
+      runIn: 'docker' # or 'local'
+      # New optional settings
+      dockerImage: my-org/techdocs # use a custom docker image
+      pullImage: false # disable automatic pulling of image (e.g. if custom docker login is required)
+    # legacy (deprecated):
+    generators:
+      techdocs: 'docker' # or 'local'
+  ```
+
+- c18e8eb91: Provide optional `logger: Logger` and `logStream: Writable` arguments to the `GeneratorBase#run(...)` command.
+  They receive all log messages that are emitted during the generator run.
+- ae84b20cf: Revert the upgrade to `fs-extra@10.0.0` as that seemed to have broken all installs inexplicably.
+- Updated dependencies
+  - @backstage/backend-common@0.8.6
+
+## 0.6.7
+
+### Patch Changes
+
+- 683308ecf: Fix openStack swift publisher encoding issue. Remove utf8 forced encoding on binary files
+- 6841e0113: fix minor version of git-url-parse as 11.5.x introduced a bug for Bitbucket Server
+- Updated dependencies
+  - @backstage/integration@0.5.8
+  - @backstage/catalog-model@0.9.0
+  - @backstage/backend-common@0.8.5
+
+## 0.6.6
+
+### Patch Changes
+
+- ab5cc376f: Use new utilities from `@backstage/backend-common` for safely resolving child paths
+- b47fc34bc: Update "service catalog" references to "software catalog"
+- Updated dependencies
+  - @backstage/backend-common@0.8.4
+  - @backstage/integration@0.5.7
+
+## 0.6.5
+
+### Patch Changes
+
+- c17c0fcf9: Adding additional checks on tech docs to prevent folder traversal via mkdocs.yml docs_dir value.
+- Updated dependencies
+  - @backstage/catalog-model@0.8.4
+
+## 0.6.4
+
+### Patch Changes
+
+- aad98c544: Fixes multiple XSS and sanitization bypass vulnerabilities in TechDocs.
+- 090594755: Support parsing `mkdocs.yml` files that are using custom yaml tags like
+  `!!python/name:materialx.emoji.twemoji`.
+- Updated dependencies [ebe802bc4]
+- Updated dependencies [49d7ec169]
+  - @backstage/catalog-model@0.8.1
+  - @backstage/integration@0.5.5
+
+## 0.6.3
+
+### Patch Changes
+
+- 8cefadca0: Adding validation to mkdocs.yml parsing to prevent directory tree traversing
+- Updated dependencies [0fd4ea443]
+- Updated dependencies [add62a455]
+- Updated dependencies [704875e26]
+  - @backstage/integration@0.5.4
+  - @backstage/catalog-model@0.8.0
+
+## 0.6.2
+
+### Patch Changes
+
+- 65e6c4541: Remove circular dependencies
+- Updated dependencies [f7f7783a3]
+- Updated dependencies [c7dad9218]
+- Updated dependencies [65e6c4541]
+- Updated dependencies [68fdbf014]
+- Updated dependencies [5001de908]
+  - @backstage/catalog-model@0.7.10
+  - @backstage/backend-common@0.8.1
+  - @backstage/integration@0.5.3
+
+## 0.6.1
+
+### Patch Changes
+
+- e04f1ccfb: Fixed a bug that prevented loading static assets from GCS, S3, Azure, and OpenStackSwift whose keys contain spaces or other special characters.
+- Updated dependencies [22fd8ce2a]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [f9fb4a205]
+- Updated dependencies [16be1d093]
+  - @backstage/backend-common@0.8.0
+  - @backstage/catalog-model@0.7.9
+
+## 0.6.0
+
+### Minor Changes
+
+- e0bfd3d44: Migrate the package to use the `ContainerRunner` interface instead of `runDockerContainer(…)`.
+  It also no longer provides the `ContainerRunner` as an input to the `GeneratorBase#run(…)` function, but expects it as a constructor parameter instead.
+
+  If you use the `TechdocsGenerator` you need to update the usage:
+
+  ```diff
+  + const containerRunner = new DockerContainerRunner({ dockerClient });
+
+  - const generator = new TechdocsGenerator(logger, config);
+  + const techdocsGenerator = new TechdocsGenerator({
+  +   logger,
+  +   containerRunner,
+  +   config,
+  + });
+
+    await this.generator.run({
+      inputDir: preparedDir,
+      outputDir,
+  -   dockerClient: this.dockerClient,
+      parsedLocationAnnotation,
+      etag: newEtag,
+    });
+  ```
+
+### Patch Changes
+
+- e9e56b01a: Adding optional config to enable S3-like API for tech-docs using s3ForcePathStyle option.
+  This allows providers like LocalStack, Minio and Wasabi (+possibly others) to be used to host tech docs.
+- Updated dependencies [e0bfd3d44]
+- Updated dependencies [38ca05168]
+- Updated dependencies [d8b81fd28]
+  - @backstage/backend-common@0.7.0
+  - @backstage/integration@0.5.2
+  - @backstage/catalog-model@0.7.8
+  - @backstage/config@0.1.5
+
+## 0.5.1
+
+### Patch Changes
+
+- f4af06ebe: Gracefully handle HTTP request failures in download method of AzureBlobStorage publisher.
+
 ## 0.5.0
 
 ### Minor Changes

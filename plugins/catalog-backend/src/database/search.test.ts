@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,6 +99,12 @@ describe('search', () => {
       const input = [{ key: 'fOo', value: 'BaR' }];
       const output = mapToRows(input, 'eid');
       expect(output).toEqual([{ entity_id: 'eid', key: 'foo', value: 'bar' }]);
+    });
+
+    it('skips very large keys', () => {
+      const input = [{ key: 'a'.repeat(10000), value: 'foo' }];
+      const output = mapToRows(input, 'eid');
+      expect(output).toEqual([]);
     });
 
     it('skips very large values', () => {

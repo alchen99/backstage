@@ -1,5 +1,51 @@
 # @backstage/plugin-kafka-backend
 
+## 0.2.8
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/catalog-model@0.9.0
+  - @backstage/backend-common@0.8.5
+
+## 0.2.7
+
+### Patch Changes
+
+- 8ab897e01: Properly return a 404 when an unknown cluster is given
+- Updated dependencies
+  - @backstage/backend-common@0.8.4
+
+## 0.2.6
+
+### Patch Changes
+
+- Updated dependencies [add62a455]
+- Updated dependencies [704875e26]
+  - @backstage/catalog-model@0.8.0
+
+## 0.2.5
+
+### Patch Changes
+
+- Updated dependencies [22fd8ce2a]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [f9fb4a205]
+- Updated dependencies [16be1d093]
+  - @backstage/backend-common@0.8.0
+  - @backstage/catalog-model@0.7.9
+
+## 0.2.4
+
+### Patch Changes
+
+- Updated dependencies [e0bfd3d44]
+- Updated dependencies [38ca05168]
+- Updated dependencies [d8b81fd28]
+  - @backstage/backend-common@0.7.0
+  - @backstage/catalog-model@0.7.8
+  - @backstage/config@0.1.5
+
 ## 0.2.3
 
 ### Patch Changes

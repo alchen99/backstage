@@ -1,5 +1,110 @@
 # @backstage/plugin-api-docs
 
+## 0.6.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-catalog@0.6.7
+  - @backstage/plugin-catalog-react@0.3.0
+
+## 0.6.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/core-components@0.1.5
+  - @backstage/catalog-model@0.9.0
+  - @backstage/plugin-catalog@0.6.6
+  - @backstage/plugin-catalog-react@0.2.6
+
+## 0.6.0
+
+### Minor Changes
+
+- d719926d2: **BREAKING CHANGE** Remove deprecated route registrations, meaning that it is no longer enough to only import the plugin in the app and the exported page extension must be used instead.
+
+### Patch Changes
+
+- 48c9fcd33: Migrated to use the new `@backstage/core-*` packages rather than `@backstage/core`.
+- 7bd46b19d: Move `EntityTypePicker` to be consistent with `CatalogPage` and remove `api:` prefix from entity names
+- Updated dependencies
+  - @backstage/plugin-catalog@0.6.4
+  - @backstage/core-plugin-api@0.1.3
+  - @backstage/catalog-model@0.8.4
+  - @backstage/plugin-catalog-react@0.2.4
+
+## 0.5.0
+
+### Minor Changes
+
+- 2ebc430c4: Rework `ApiExplorerPage` to utilize `EntityListProvider` to provide a consistent UI with the `CatalogIndexPage` which now exposes support for starring entities, pagination, and customizing columns.
+
+### Patch Changes
+
+- 14ce64b4f: Add pagination to ApiExplorerTable
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.2.3
+  - @backstage/plugin-catalog@0.6.3
+  - @backstage/catalog-model@0.8.3
+  - @backstage/core@0.7.13
+
+## 0.4.15
+
+### Patch Changes
+
+- Updated dependencies [add62a455]
+- Updated dependencies [cc592248b]
+- Updated dependencies [17c497b81]
+- Updated dependencies [704875e26]
+  - @backstage/catalog-model@0.8.0
+  - @backstage/core@0.7.11
+  - @backstage/plugin-catalog-react@0.2.0
+
+## 0.4.14
+
+### Patch Changes
+
+- 65e6c4541: Remove circular dependencies
+- Updated dependencies [f7f7783a3]
+- Updated dependencies [65e6c4541]
+- Updated dependencies [68fdbf014]
+- Updated dependencies [5da6a561d]
+  - @backstage/catalog-model@0.7.10
+  - @backstage/core@0.7.10
+
+## 0.4.13
+
+### Patch Changes
+
+- 062bbf90f: chore: bump `@testing-library/user-event` from 12.8.3 to 13.1.8
+- 889d89b6e: Fix state persisted in the URL make search input in the table toolbar lose their
+  focus.
+- 675a569a9: chore: bump `react-use` dependency in all packages
+- Updated dependencies [062bbf90f]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [889d89b6e]
+- Updated dependencies [16be1d093]
+- Updated dependencies [3f988cb63]
+- Updated dependencies [675a569a9]
+  - @backstage/core@0.7.9
+  - @backstage/plugin-catalog-react@0.1.6
+  - @backstage/catalog-model@0.7.9
+
+## 0.4.12
+
+### Patch Changes
+
+- 1ce80ff02: Resolve issues with AsyncAPI rendering by updating `@asyncapi/react-component`
+  to `0.23.0`. The theming of the component is adjusted to the latest styling
+  changes.
+- c614ede9a: Updated README to have up-to-date install instructions.
+- 07a7806c3: Added fields filtering in get API entities to avoid the requesting of unused data
+- Updated dependencies [9afcac5af]
+- Updated dependencies [e0c9ed759]
+- Updated dependencies [6eaecbd81]
+  - @backstage/core@0.7.7
+
 ## 0.4.11
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import { TechDocsPageHeader } from './TechDocsPageHeader';
 import { act } from '@testing-library/react';
 import { renderInTestApp } from '@backstage/test-utils';
 import { entityRouteRef } from '@backstage/plugin-catalog-react';
-import { rootRouteRef } from '../../plugin';
+import { rootRouteRef } from '../../routes';
 
 describe('<TechDocsPageHeader />', () => {
   it('should render a techdocs page header', async () => {

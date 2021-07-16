@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,20 @@
 
 import { CatalogClient } from '@backstage/catalog-client';
 import {
-  createApiFactory,
-  createComponentExtension,
-  createPlugin,
-  createRoutableExtension,
-  discoveryApiRef,
-  identityApiRef,
-} from '@backstage/core';
-import {
   catalogApiRef,
   catalogRouteRef,
   entityRouteRef,
 } from '@backstage/plugin-catalog-react';
 import { CatalogClientWrapper } from './CatalogClientWrapper';
 import { createComponentRouteRef } from './routes';
+import {
+  createApiFactory,
+  createComponentExtension,
+  createPlugin,
+  createRoutableExtension,
+  discoveryApiRef,
+  identityApiRef,
+} from '@backstage/core-plugin-api';
 
 export const catalogPlugin = createPlugin({
   id: 'catalog',
@@ -110,6 +110,48 @@ export const EntityHasSubcomponentsCard = catalogPlugin.provide(
       lazy: () =>
         import('./components/HasSubcomponentsCard').then(
           m => m.HasSubcomponentsCard,
+        ),
+    },
+  }),
+);
+
+export const EntityHasResourcesCard = catalogPlugin.provide(
+  createComponentExtension({
+    component: {
+      lazy: () =>
+        import('./components/HasResourcesCard').then(m => m.HasResourcesCard),
+    },
+  }),
+);
+
+export const EntityDependsOnComponentsCard = catalogPlugin.provide(
+  createComponentExtension({
+    component: {
+      lazy: () =>
+        import('./components/DependsOnComponentsCard').then(
+          m => m.DependsOnComponentsCard,
+        ),
+    },
+  }),
+);
+
+export const EntityDependencyOfComponentsCard = catalogPlugin.provide(
+  createComponentExtension({
+    component: {
+      lazy: () =>
+        import('./components/DependencyOfComponentsCard').then(
+          m => m.DependencyOfComponentsCard,
+        ),
+    },
+  }),
+);
+
+export const EntityDependsOnResourcesCard = catalogPlugin.provide(
+  createComponentExtension({
+    component: {
+      lazy: () =>
+        import('./components/DependsOnResourcesCard').then(
+          m => m.DependsOnResourcesCard,
         ),
     },
   }),

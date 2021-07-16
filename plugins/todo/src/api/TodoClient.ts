@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 import { serializeEntityRef } from '@backstage/catalog-model';
 import { ResponseError } from '@backstage/errors';
-import { DiscoveryApi, IdentityApi } from '@backstage/core';
 import { TodoApi, TodoListOptions, TodoListResult } from './types';
+import { DiscoveryApi, IdentityApi } from '@backstage/core-plugin-api';
 
 interface Options {
   discoveryApi: DiscoveryApi;

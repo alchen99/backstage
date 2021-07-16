@@ -1,5 +1,95 @@
 # @backstage/integration
 
+## 0.5.8
+
+### Patch Changes
+
+- 43a4ef644: Do not throw in `ScmIntegration` `byUrl` for invalid URLs
+- 6841e0113: fix minor version of git-url-parse as 11.5.x introduced a bug for Bitbucket Server
+- b691a938e: Fix downloads from repositories located at bitbucket.org
+
+## 0.5.7
+
+### Patch Changes
+
+- 22a60518c: Support ingesting multiple GitHub organizations via a new `GithubMultiOrgReaderProcessor`.
+
+  This new processor handles namespacing created groups according to the org of the associated GitHub team to prevent potential name clashes between organizations. Be aware that this processor is considered alpha and may not be compatible with future org structures in the catalog.
+
+  NOTE: This processor only fully supports auth via GitHub Apps
+
+  To install this processor, import and add it as follows:
+
+  ```typescript
+  // Typically in packages/backend/src/plugins/catalog.ts
+  import { GithubMultiOrgReaderProcessor } from '@backstage/plugin-catalog-backend';
+  // ...
+  export default async function createPlugin(env: PluginEnvironment) {
+    const builder = new CatalogBuilder(env);
+    builder.addProcessor(
+      GithubMultiOrgReaderProcessor.fromConfig(env.config, {
+        logger: env.logger,
+      }),
+    );
+    // ...
+  }
+  ```
+
+  Configure in your `app-config.yaml` by pointing to your GitHub instance and optionally list which GitHub organizations you wish to import. You can also configure what namespace you want to set for teams from each org. If unspecified, the org name will be used as the namespace. If no organizations are listed, by default this processor will import from all organizations accessible by all configured GitHub Apps:
+
+  ```yaml
+  catalog:
+    locations:
+      - type: github-multi-org
+        target: https://github.myorg.com
+
+    processors:
+      githubMultiOrg:
+        orgs:
+          - name: fooOrg
+            groupNamespace: foo
+          - name: barOrg
+            groupNamespace: bar
+          - name: awesomeOrg
+          - name: anotherOrg
+  ```
+
+## 0.5.6
+
+### Patch Changes
+
+- eda9dbd5f: Download archives as compressed tar files for Bitbucket to keep executable permissions.
+
+## 0.5.5
+
+### Patch Changes
+
+- 49d7ec169: GitHub App ID can be a string too for environment variables otherwise it will fail validation
+
+## 0.5.4
+
+### Patch Changes
+
+- 0fd4ea443: Updates the `GithubCredentialsProvider` to return the token type, it can either be `token` or `app` depending on the authentication method.
+
+  Update the `GithubOrgReaderProcessor` NOT to query for email addresses if GitHub Apps is used for authentication, this is due to inconsistencies in the GitHub API when using server to server communications and installation tokens. https://github.community/t/api-v4-unable-to-retrieve-email-resource-not-accessible-by-integration/13831/4 for more info.
+
+  **Removes** deprecated GithubOrgReaderProcessor provider configuration(`catalog.processors.githubOrg`). If you're using the deprecated config section make sure to migrate to [integrations](https://backstage.io/docs/integrations/github/locations) instead.
+
+## 0.5.3
+
+### Patch Changes
+
+- 65e6c4541: Remove circular dependencies
+
+## 0.5.2
+
+### Patch Changes
+
+- 38ca05168: The default `@octokit/rest` dependency was bumped to `"^18.5.3"`.
+- Updated dependencies [d8b81fd28]
+  - @backstage/config@0.1.5
+
 ## 0.5.1
 
 ### Patch Changes

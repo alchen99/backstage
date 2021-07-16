@@ -19,9 +19,9 @@ their state, rather than using SQLite.
 By default, in an app created with `@backstage/create-app`, the frontend is
 bundled and served from the backend. This is done using the
 `@backstage/plugin-app-backend` plugin, which also injects the frontend
-configuration into the app. This means you that you only need to build and
-deploy a single container in a minimal setup of Backstage. If you wish to
-separate the serving of the frontend out from the backend, see the
+configuration into the app. This means that you only need to build and deploy a
+single container in a minimal setup of Backstage. If you wish to separate the
+serving of the frontend out from the backend, see the
 [separate frontend](#separate-frontend) topic below.
 
 ## Host Build
@@ -59,16 +59,17 @@ Once the host build is complete, we are ready to build our image. The following
 FROM node:14-buster-slim
 
 WORKDIR /app
-
 # Copy repo skeleton first, to avoid unnecessary docker cache invalidation.
 # The skeleton contains the package.json of each package in the monorepo,
 # and along with yarn.lock and the root package.json, that's enough to run yarn install.
-ADD yarn.lock package.json packages/backend/dist/skeleton.tar.gz ./
+COPY yarn.lock package.json packages/backend/dist/skeleton.tar.gz ./
+RUN tar xzf skeleton.tar.gz && rm skeleton.tar.gz
 
 RUN yarn install --frozen-lockfile --production --network-timeout 300000 && rm -rf "$(yarn cache dir)"
 
 # Then copy the rest of the backend bundle, along with any other files we might want.
-ADD packages/backend/dist/bundle.tar.gz app-config.yaml ./
+COPY packages/backend/dist/bundle.tar.gz app-config.yaml ./
+RUN tar xzf bundle.tar.gz && rm bundle.tar.gz
 
 CMD ["node", "packages/backend", "--config", "app-config.yaml"]
 ```

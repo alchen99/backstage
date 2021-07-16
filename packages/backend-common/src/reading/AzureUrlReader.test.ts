@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,11 @@ import path from 'path';
 import { NotModifiedError } from '@backstage/errors';
 import { getVoidLogger } from '../logging';
 import { AzureUrlReader } from './AzureUrlReader';
-import { ReadTreeResponseFactory } from './tree';
+import { DefaultReadTreeResponseFactory } from './tree';
 
 const logger = getVoidLogger();
 
-const treeResponseFactory = ReadTreeResponseFactory.create({
+const treeResponseFactory = DefaultReadTreeResponseFactory.create({
   config: new ConfigReader({}),
 });
 
@@ -61,7 +61,7 @@ describe('AzureUrlReader', () => {
             ctx.status(200),
             ctx.json({
               url: req.url.toString(),
-              headers: req.headers.getAllHeaders(),
+              headers: req.headers.all(),
             }),
           ),
         ),

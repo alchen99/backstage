@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,7 +156,7 @@ export class OpenStackSwiftPublish implements PublisherBase {
         const uploadFile = limiter(
           () =>
             new Promise((res, rej) => {
-              const readStream = fs.createReadStream(filePath, 'utf8');
+              const readStream = fs.createReadStream(filePath);
 
               const writeStream = this.storageClient.upload(params);
 
@@ -221,10 +221,9 @@ export class OpenStackSwiftPublish implements PublisherBase {
    */
   docsRouter(): express.Handler {
     return async (req, res) => {
-      // Trim the leading forward slash
+      // Decode and trim the leading forward slash
       // filePath example - /default/Component/documented-component/index.html
-
-      const filePath = req.path.replace(/^\//, '');
+      const filePath = decodeURI(req.path.replace(/^\//, ''));
 
       // Files with different extensions (CSS, HTML) need to be served with different headers
       const fileExtension = path.extname(filePath);

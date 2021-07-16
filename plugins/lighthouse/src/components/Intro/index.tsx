@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
-import { ContentHeader, InfoCard, MarkdownContent } from '@backstage/core';
 import { Button, Grid, makeStyles, Tab, Tabs } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import React, { useState } from 'react';
 import { useLocalStorage } from 'react-use';
 import LighthouseSupportButton from '../SupportButton';
+import {
+  ContentHeader,
+  InfoCard,
+  MarkdownContent,
+} from '@backstage/core-components';
 
 // TODO(freben): move all of this out of index
 
@@ -46,22 +50,16 @@ with the environment variable \`LAS_CORS\` set to \`true\`._
 When you have an instance running that Backstage can hook into, first install the plugin into your app:
 
 \`\`\`sh
-$ yarn add @backstage/plugin-lighthouse
+cd packages/app
+yarn add @backstage/plugin-lighthouse
 \`\`\`
 
-Then make sure to export the plugin in your app's [\`plugins.ts\`](https://github.com/backstage/backstage/blob/master/packages/app/src/plugins.ts) to enable the plugin:
+Modify your app routes in \`App.tsx\` to include the \`LighthousePage\` component exported from the plugin, for example:
 
-\`\`\`js
-export { plugin as LighthousePlugin } from '@backstage/plugin-lighthouse';
-\`\`\`
-
-Modify your app routes in \`App.tsx\` or \`App.jsx\` to include the Router component exported from the plugin, for example:
-
-\`\`\`js
+\`\`\`tsx
 // At the top imports
 import { LighthousePage } from '@backstage/plugin-lighthouse';
 
-// Inside App component
 <FlatRoutes>
   // ...
   <Route path="/lighthouse" element={<LighthousePage />} />

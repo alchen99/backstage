@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 
 import { Entity } from '@backstage/catalog-model';
-import { IconComponent, IconKey, InfoCard, useApp } from '@backstage/core';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import LanguageIcon from '@material-ui/icons/Language';
 import React from 'react';
@@ -23,23 +22,27 @@ import { EntityLinksEmptyState } from './EntityLinksEmptyState';
 import { LinksGridList } from './LinksGridList';
 import { ColumnBreakpoints } from './types';
 
+import { IconComponent, useApp } from '@backstage/core-plugin-api';
+import { InfoCard } from '@backstage/core-components';
+
 type Props = {
   /** @deprecated The entity is now grabbed from context instead */
   entity?: Entity;
   cols?: ColumnBreakpoints | number;
+  variant?: 'gridItem';
 };
 
-export const EntityLinksCard = ({ cols = undefined }: Props) => {
+export const EntityLinksCard = ({ cols = undefined, variant }: Props) => {
   const { entity } = useEntity();
   const app = useApp();
 
-  const iconResolver = (key: IconKey | undefined): IconComponent =>
+  const iconResolver = (key?: string): IconComponent =>
     key ? app.getSystemIcon(key) ?? LanguageIcon : LanguageIcon;
 
   const links = entity?.metadata?.links;
 
   return (
-    <InfoCard title="Links">
+    <InfoCard title="Links" variant={variant}>
       {!links || links.length === 0 ? (
         <EntityLinksEmptyState />
       ) : (

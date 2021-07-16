@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,17 @@ import parseGitUrl from 'git-url-parse';
 import { Minimatch } from 'minimatch';
 import { Readable } from 'stream';
 import { NotFoundError, NotModifiedError } from '@backstage/errors';
-import { ReadTreeResponseFactory } from './tree';
 import { stripFirstDirectoryFromPath } from './tree/util';
 import {
+  ReadTreeResponseFactory,
   ReaderFactory,
   ReadTreeOptions,
   ReadTreeResponse,
   SearchOptions,
   SearchResponse,
   UrlReader,
+  ReadUrlOptions,
+  ReadUrlResponse,
 } from './types';
 
 export class AzureUrlReader implements UrlReader {
@@ -76,6 +78,15 @@ export class AzureUrlReader implements UrlReader {
       throw new NotFoundError(message);
     }
     throw new Error(message);
+  }
+
+  async readUrl(
+    url: string,
+    _options?: ReadUrlOptions,
+  ): Promise<ReadUrlResponse> {
+    // TODO etag is not implemented yet.
+    const buffer = await this.read(url);
+    return { buffer: async () => buffer };
   }
 
   async readTree(

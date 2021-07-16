@@ -1,5 +1,125 @@
 # @backstage/plugin-auth-backend
 
+## 0.3.17
+
+### Patch Changes
+
+- 40b3c60e2: Configuration updates for the `OpenID Connect` auth provider to allow `prompt` configuration and some sensible defaults.
+- f55f9df10: Add Sign In and Handler resolver for Microsoft provider
+- ae84b20cf: Revert the upgrade to `fs-extra@10.0.0` as that seemed to have broken all installs inexplicably.
+- Updated dependencies
+  - @backstage/backend-common@0.8.6
+
+## 0.3.16
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/catalog-model@0.9.0
+  - @backstage/backend-common@0.8.5
+  - @backstage/catalog-client@0.3.16
+
+## 0.3.15
+
+### Patch Changes
+
+- 6ca29b66c: Unbreak `.well-known` OIDC routes
+- 72574ac4d: Show better error message when configs defined under auth.providers.<provider> are undefined.
+- Updated dependencies
+  - @backstage/backend-common@0.8.4
+  - @backstage/catalog-client@0.3.15
+
+## 0.3.14
+
+### Patch Changes
+
+- 36e9a4084: Don't export the `defaultGoogleAuthProvider`
+- c467cc4b9: Adds support for custom sign-in resolvers and profile transformations for the
+  Google auth provider.
+
+  Adds an `ent` claim in Backstage tokens, with a list of
+  [entity references](https://backstage.io/docs/features/software-catalog/references)
+  related to your signed-in user's identities and groups across multiple systems.
+
+  Adds an optional `providerFactories` argument to the `createRouter` exported by
+  the `auth-backend` plugin.
+
+  Updates `BackstageIdentity` so that
+
+  - `idToken` is deprecated in favor of `token`
+  - An optional `entity` field is added which represents the entity that the user is represented by within Backstage.
+
+  More information:
+
+  - [The identity resolver documentation](https://backstage.io/docs/auth/identity-resolver)
+    explains the concepts and shows how to implement your own.
+  - The [From Identity to Ownership](https://github.com/backstage/backstage/issues/4089)
+    RFC contains details about how this affects ownership in the catalog
+
+- Updated dependencies
+  - @backstage/catalog-client@0.3.14
+  - @backstage/catalog-model@0.8.4
+  - @backstage/test-utils@0.1.14
+
+## 0.3.13
+
+### Patch Changes
+
+- 1aa31f0af: Add support for refreshing GitLab auth sessions.
+- Updated dependencies
+  - @backstage/backend-common@0.8.3
+  - @backstage/catalog-model@0.8.3
+
+## 0.3.12
+
+### Patch Changes
+
+- Updated dependencies [add62a455]
+- Updated dependencies [704875e26]
+  - @backstage/catalog-client@0.3.12
+  - @backstage/catalog-model@0.8.0
+
+## 0.3.11
+
+### Patch Changes
+
+- 65e6c4541: Remove circular dependencies
+- Updated dependencies [f7f7783a3]
+- Updated dependencies [c7dad9218]
+- Updated dependencies [65e6c4541]
+- Updated dependencies [68fdbf014]
+- Updated dependencies [5001de908]
+- Updated dependencies [61c3f927c]
+  - @backstage/catalog-model@0.7.10
+  - @backstage/backend-common@0.8.1
+  - @backstage/test-utils@0.1.12
+
+## 0.3.10
+
+### Patch Changes
+
+- Updated dependencies [062bbf90f]
+- Updated dependencies [22fd8ce2a]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [f9fb4a205]
+- Updated dependencies [16be1d093]
+  - @backstage/test-utils@0.1.11
+  - @backstage/backend-common@0.8.0
+  - @backstage/catalog-model@0.7.9
+
+## 0.3.9
+
+### Patch Changes
+
+- Updated dependencies [e0bfd3d44]
+- Updated dependencies [38ca05168]
+- Updated dependencies [d8b81fd28]
+- Updated dependencies [d1b1306d9]
+  - @backstage/backend-common@0.7.0
+  - @backstage/catalog-model@0.7.8
+  - @backstage/config@0.1.5
+  - @backstage/catalog-client@0.3.11
+
 ## 0.3.8
 
 ### Patch Changes

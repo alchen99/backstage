@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,46 @@
  */
 
 import React from 'react';
-import { Routes, Route } from 'react-router';
+import { Routes, Route, useOutlet } from 'react-router';
 import { ScaffolderPage } from './ScaffolderPage';
 import { TemplatePage } from './TemplatePage';
 import { TaskPage } from './TaskPage';
 import { ActionsPage } from './ActionsPage';
 
-export const Router = () => (
-  <Routes>
-    <Route path="/" element={<ScaffolderPage />} />
-    <Route path="/templates/:templateName" element={<TemplatePage />} />
-    <Route path="/tasks/:taskId" element={<TaskPage />} />
-    <Route path="/actions" element={<ActionsPage />} />
-  </Routes>
-);
+import {
+  FieldExtensionOptions,
+  FIELD_EXTENSION_WRAPPER_KEY,
+  FIELD_EXTENSION_KEY,
+  DEFAULT_SCAFFOLDER_FIELD_EXTENSIONS,
+} from '../extensions';
+import { useElementFilter } from '@backstage/core-plugin-api';
+
+export const Router = () => {
+  const outlet = useOutlet();
+
+  const foundExtensions = useElementFilter(outlet, elements =>
+    elements
+      .selectByComponentData({
+        key: FIELD_EXTENSION_WRAPPER_KEY,
+      })
+      .findComponentData<FieldExtensionOptions>({
+        key: FIELD_EXTENSION_KEY,
+      }),
+  );
+
+  const fieldExtensions = foundExtensions.length
+    ? foundExtensions
+    : DEFAULT_SCAFFOLDER_FIELD_EXTENSIONS;
+
+  return (
+    <Routes>
+      <Route path="/" element={<ScaffolderPage />} />
+      <Route
+        path="/templates/:templateName"
+        element={<TemplatePage customFieldExtensions={fieldExtensions} />}
+      />
+      <Route path="/tasks/:taskId" element={<TaskPage />} />
+      <Route path="/actions" element={<ActionsPage />} />
+    </Routes>
+  );
+};

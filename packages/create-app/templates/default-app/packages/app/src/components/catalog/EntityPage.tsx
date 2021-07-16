@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 import React from 'react';
 import { Button, Grid } from '@material-ui/core';
-import { EmptyState } from '@backstage/core';
 import {
   EntityApiDefinitionCard,
   EntityConsumedApisCard,
@@ -26,10 +25,15 @@ import {
 } from '@backstage/plugin-api-docs';
 import {
   EntityAboutCard,
+  EntityDependsOnComponentsCard,
+  EntityDependsOnResourcesCard,
   EntitySystemDiagramCard,
   EntityHasComponentsCard,
+  EntityHasResourcesCard,
+  EntityHasSubcomponentsCard,
   EntityHasSystemsCard,
   EntityLayout,
+  EntityLinksCard,
   EntitySwitch,
   isComponentType,
   isKind,
@@ -45,6 +49,7 @@ import {
   EntityOwnershipCard,
 } from '@backstage/plugin-org';
 import { EntityTechdocsContent } from '@backstage/plugin-techdocs';
+import { EmptyState } from '@backstage/core-components';
 
 const cicdContent = (
   // This is an example of how you can implement your company's logic in entity page.
@@ -78,6 +83,12 @@ const overviewContent = (
     <Grid item md={6}>
       <EntityAboutCard variant="gridItem" />
     </Grid>
+    <Grid item md={4} xs={12}>
+      <EntityLinksCard />
+    </Grid>
+    <Grid item md={8} xs={12}>
+      <EntityHasSubcomponentsCard variant="gridItem" />
+    </Grid>
   </Grid>
 );
 
@@ -102,6 +113,17 @@ const serviceEntityPage = (
       </Grid>
     </EntityLayout.Route>
 
+    <EntityLayout.Route path="/dependencies" title="Dependencies">
+      <Grid container spacing={3} alignItems="stretch">
+        <Grid item md={6}>
+          <EntityDependsOnComponentsCard variant="gridItem" />
+        </Grid>
+        <Grid item md={6}>
+          <EntityDependsOnResourcesCard variant="gridItem" />
+        </Grid>
+      </Grid>
+    </EntityLayout.Route>
+
     <EntityLayout.Route path="/docs" title="Docs">
       <EntityTechdocsContent />
     </EntityLayout.Route>
@@ -116,6 +138,17 @@ const websiteEntityPage = (
 
     <EntityLayout.Route path="/ci-cd" title="CI/CD">
       {cicdContent}
+    </EntityLayout.Route>
+
+    <EntityLayout.Route path="/dependencies" title="Dependencies">
+      <Grid container spacing={3} alignItems="stretch">
+        <Grid item md={6}>
+          <EntityDependsOnComponentsCard variant="gridItem" />
+        </Grid>
+        <Grid item md={6}>
+          <EntityDependsOnResourcesCard variant="gridItem" />
+        </Grid>
+      </Grid>
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/docs" title="Docs">
@@ -223,6 +256,9 @@ const systemPage = (
         </Grid>
         <Grid item md={6}>
           <EntityHasApisCard variant="gridItem" />
+        </Grid>
+        <Grid item md={6}>
+          <EntityHasResourcesCard variant="gridItem" />
         </Grid>
       </Grid>
     </EntityLayout.Route>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,14 @@ describe('FileReaderProcessor', () => {
 
     expect(emit).toBeCalledTimes(2);
     expect(emit.mock.calls[0][0].entity).toEqual({ kind: 'Component' });
+    expect(emit.mock.calls[0][0].location).toEqual({
+      type: 'file',
+      target: expect.stringMatching(/^[^*]*$/),
+    });
     expect(emit.mock.calls[1][0].entity).toEqual({ kind: 'API' });
+    expect(emit.mock.calls[1][0].location).toEqual({
+      type: 'file',
+      target: expect.stringMatching(/^[^*]*$/),
+    });
   });
 });

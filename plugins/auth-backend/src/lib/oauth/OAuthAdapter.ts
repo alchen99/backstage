@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import {
   AuthProviderConfig,
 } from '../../providers/types';
 import { InputError } from '@backstage/errors';
-import { TokenIssuer } from '../../identity';
+import { TokenIssuer } from '../../identity/types';
 import { verifyNonce } from './helpers';
 import { postMessageResponse, ensuresXRequestedWith } from '../flow';
 import { OAuthHandlers, OAuthStartRequest, OAuthRefreshRequest } from './types';

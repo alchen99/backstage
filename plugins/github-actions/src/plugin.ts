@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,16 @@
  * limitations under the License.
  */
 
+import { githubActionsApiRef, GithubActionsClient } from './api';
+import { rootRouteRef } from './routes';
 import {
   configApiRef,
   createPlugin,
-  createRouteRef,
   createApiFactory,
   githubAuthApiRef,
   createRoutableExtension,
   createComponentExtension,
-} from '@backstage/core';
-import { githubActionsApiRef, GithubActionsClient } from './api';
-
-// TODO(freben): This is just a demo route for now
-export const rootRouteRef = createRouteRef({
-  path: '',
-  title: 'GitHub Actions',
-});
-
-export const buildRouteRef = createRouteRef({
-  path: ':id',
-  params: ['id'],
-  title: 'GitHub Actions Workflow Run',
-});
+} from '@backstage/core-plugin-api';
 
 export const githubActionsPlugin = createPlugin({
   id: 'github-actions',

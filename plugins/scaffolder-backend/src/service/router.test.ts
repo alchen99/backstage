@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,20 +29,18 @@ jest.doMock('fs-extra', () => ({
 }));
 
 import {
-  SingleConnectionDatabaseManager,
-  PluginDatabaseManager,
   getVoidLogger,
+  PluginDatabaseManager,
+  DatabaseManager,
   UrlReaders,
+  DockerContainerRunner,
 } from '@backstage/backend-common';
+import { CatalogApi } from '@backstage/catalog-client';
 import { ConfigReader } from '@backstage/config';
 import express from 'express';
 import request from 'supertest';
+import { TemplateEntityV1beta2 } from '@backstage/catalog-model';
 import { createRouter } from './router';
-import { Templaters, Preparers, Publishers } from '../scaffolder';
-import Docker from 'dockerode';
-import { CatalogApi } from '@backstage/catalog-client';
-
-jest.mock('dockerode');
 
 const createCatalogClient = (templates: any[] = []) =>
   ({
@@ -50,7 +48,7 @@ const createCatalogClient = (templates: any[] = []) =>
   } as CatalogApi);
 
 function createDatabase(): PluginDatabaseManager {
-  return SingleConnectionDatabaseManager.fromConfig(
+  return DatabaseManager.fromConfig(
     new ConfigReader({
       backend: {
         database: {
@@ -67,127 +65,10 @@ const mockUrlReader = UrlReaders.default({
   config: new ConfigReader({}),
 });
 
-describe('createRouter - working directory', () => {
-  const mockPrepare = jest.fn();
-  const mockPreparers = new Preparers();
-
-  beforeAll(() => {
-    const mockPreparer = {
-      prepare: mockPrepare,
-    };
-    mockPreparers.register('dev.azure.com', mockPreparer);
-  });
-
-  beforeEach(() => {
-    jest.resetAllMocks();
-  });
-
-  const workDirConfig = (path: string) => ({
-    backend: {
-      workingDirectory: path,
-    },
-  });
-
-  const template = {
-    apiVersion: 'backstage.io/v1alpha1',
-    kind: 'Template',
-    metadata: {
-      annotations: {
-        'backstage.io/managed-by-location': 'url:https://dev.azure.com',
-      },
-    },
-    spec: {
-      owner: 'template@backstage.io',
-      path: '.',
-      schema: {},
-    },
-  };
-
-  it('should throw an error when working directory does not exist or is not writable', async () => {
-    mockAccess.mockImplementation(() => {
-      throw new Error('access error');
-    });
-
-    await expect(
-      createRouter({
-        logger: getVoidLogger(),
-        preparers: new Preparers(),
-        templaters: new Templaters(),
-        publishers: new Publishers(),
-        config: new ConfigReader(workDirConfig('/path')),
-        dockerClient: new Docker(),
-        database: createDatabase(),
-        catalogClient: createCatalogClient([template]),
-        reader: mockUrlReader,
-      }),
-    ).rejects.toThrow('access error');
-  });
-
-  it('should use the working directory when configured', async () => {
-    const router = await createRouter({
-      logger: getVoidLogger(),
-      preparers: mockPreparers,
-      templaters: new Templaters(),
-      publishers: new Publishers(),
-      config: new ConfigReader(workDirConfig('/path')),
-      dockerClient: new Docker(),
-      database: createDatabase(),
-      catalogClient: createCatalogClient([template]),
-      reader: mockUrlReader,
-    });
-
-    const app = express().use(router);
-    await request(app)
-      .post('/v1/jobs')
-      .send({
-        templateName: '',
-        values: {
-          storePath: 'https://github.com/backstage/good',
-        },
-      });
-
-    expect(mockPrepare).toBeCalledWith({
-      logger: expect.anything(),
-      workspacePath: expect.stringContaining('path'),
-      url: expect.anything(),
-    });
-  });
-
-  it('should not pass along anything when no working directory is configured', async () => {
-    const router = await createRouter({
-      logger: getVoidLogger(),
-      preparers: mockPreparers,
-      templaters: new Templaters(),
-      publishers: new Publishers(),
-      config: new ConfigReader({}),
-      dockerClient: new Docker(),
-      database: createDatabase(),
-      catalogClient: createCatalogClient([template]),
-      reader: mockUrlReader,
-    });
-
-    const app = express().use(router);
-    await request(app)
-      .post('/v1/jobs')
-      .send({
-        templateName: '',
-        values: {
-          storePath: 'https://github.com/backstage/goodrepo',
-        },
-      });
-
-    expect(mockPrepare).toBeCalledWith({
-      logger: expect.anything(),
-      workspacePath: expect.anything(),
-      url: expect.anything(),
-    });
-  });
-});
-
 describe('createRouter', () => {
   let app: express.Express;
-  const template = {
-    apiVersion: 'backstage.io/v1alpha1',
+  const template: TemplateEntityV1beta2 = {
+    apiVersion: 'backstage.io/v1beta2',
     kind: 'Template',
     metadata: {
       description: 'Create a new CRA website project',
@@ -200,43 +81,28 @@ describe('createRouter', () => {
     },
     spec: {
       owner: 'web@example.com',
-      path: '.',
-      schema: {
+      type: 'website',
+      steps: [],
+      parameters: {
+        type: 'object',
+        required: ['required'],
         properties: {
-          component_id: {
-            description: 'Unique name of the component',
-            title: 'Name',
+          required: {
             type: 'string',
-          },
-          description: {
-            description: 'Description of the component',
-            title: 'Description',
-            type: 'string',
-          },
-          use_typescript: {
-            default: true,
-            description: 'Include TypeScript',
-            title: 'Use TypeScript',
-            type: 'boolean',
+            description: 'Required parameter',
           },
         },
-        required: ['component_id', 'use_typescript'],
       },
-      templater: 'cra',
-      type: 'website',
     },
   };
 
   beforeAll(async () => {
     const router = await createRouter({
       logger: getVoidLogger(),
-      preparers: new Preparers(),
-      templaters: new Templaters(),
-      publishers: new Publishers(),
       config: new ConfigReader({}),
-      dockerClient: new Docker(),
       database: createDatabase(),
       catalogClient: createCatalogClient([template]),
+      containerRunner: new DockerContainerRunner({} as any),
       reader: mockUrlReader,
     });
     app = express().use(router);
@@ -244,21 +110,6 @@ describe('createRouter', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
-  });
-
-  describe('POST /v1/jobs', () => {
-    it('rejects template values which do not match the template schema definition', async () => {
-      const response = await request(app)
-        .post('/v1/jobs')
-        .send({
-          templateName: '',
-          values: {
-            storePath: 'https://github.com/backstage/backstage',
-          },
-        });
-
-      expect(response.status).toEqual(400);
-    });
   });
 
   describe('GET /v2/actions', () => {
@@ -275,7 +126,7 @@ describe('createRouter', () => {
       const response = await request(app)
         .post('/v2/tasks')
         .send({
-          templateName: '',
+          templateName: 'create-react-app-template',
           values: {
             storePath: 'https://github.com/backstage/backstage',
           },
@@ -290,10 +141,7 @@ describe('createRouter', () => {
         .send({
           templateName: 'create-react-app-template',
           values: {
-            storePath: 'https://github.com/backstage/backstage',
-            component_id: '123',
-            name: 'test',
-            use_typescript: false,
+            required: 'required-value',
           },
         });
 
@@ -310,10 +158,7 @@ describe('createRouter', () => {
         .send({
           templateName: 'create-react-app-template',
           values: {
-            storePath: 'https://github.com/backstage/backstage',
-            component_id: '123',
-            name: 'test',
-            use_typescript: false,
+            required: 'required-value',
           },
         });
 

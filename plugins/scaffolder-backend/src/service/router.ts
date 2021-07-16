@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,70 +15,43 @@
  */
 
 import { Config } from '@backstage/config';
-import Docker from 'dockerode';
 import express from 'express';
-import { resolve as resolvePath, dirname } from 'path';
 import Router from 'express-promise-router';
 import { Logger } from 'winston';
-import {
-  JobProcessor,
-  PreparerBuilder,
-  TemplaterBuilder,
-  TemplaterValues,
-  PublisherBuilder,
-  parseLocationAnnotation,
-  joinGitUrlPath,
-  FilePreparer,
-} from '../scaffolder';
 import { CatalogEntityClient } from '../lib/catalog';
-import { validate, ValidatorResult } from 'jsonschema';
-import parseGitUrl from 'git-url-parse';
+import { validate } from 'jsonschema';
 import {
   DatabaseTaskStore,
   StorageTaskBroker,
   TaskWorker,
 } from '../scaffolder/tasks';
-import { templateEntityToSpec } from '../scaffolder/tasks/TemplateConverter';
 import { TemplateActionRegistry } from '../scaffolder/actions/TemplateActionRegistry';
-import { createLegacyActions } from '../scaffolder/stages/legacy';
 import { getEntityBaseUrl, getWorkingDirectory } from './helpers';
-import { PluginDatabaseManager, UrlReader } from '@backstage/backend-common';
+import {
+  ContainerRunner,
+  PluginDatabaseManager,
+  UrlReader,
+} from '@backstage/backend-common';
 import { InputError, NotFoundError } from '@backstage/errors';
 import { CatalogApi } from '@backstage/catalog-client';
-import {
-  TemplateEntityV1alpha1,
-  TemplateEntityV1beta2,
-  Entity,
-} from '@backstage/catalog-model';
+import { TemplateEntityV1beta2, Entity } from '@backstage/catalog-model';
 import { ScmIntegrations } from '@backstage/integration';
 import { TemplateAction } from '../scaffolder/actions';
 import { createBuiltinActions } from '../scaffolder/actions/builtin/createBuiltinActions';
 
 export interface RouterOptions {
-  preparers: PreparerBuilder;
-  templaters: TemplaterBuilder;
-  publishers: PublisherBuilder;
-
   logger: Logger;
   config: Config;
   reader: UrlReader;
-  dockerClient: Docker;
   database: PluginDatabaseManager;
   catalogClient: CatalogApi;
   actions?: TemplateAction<any>[];
-}
-
-function isAlpha1Template(
-  entity: TemplateEntityV1alpha1 | TemplateEntityV1beta2,
-): entity is TemplateEntityV1alpha1 {
-  return (
-    entity.apiVersion === 'backstage.io/v1alpha1' ||
-    entity.apiVersion === 'backstage.io/v1beta1'
-  );
+  taskWorkers?: number;
+  containerRunner: ContainerRunner;
 }
 
 function isBeta2Template(
-  entity: TemplateEntityV1alpha1 | TemplateEntityV1beta2,
+  entity: TemplateEntityV1beta2,
 ): entity is TemplateEntityV1beta2 {
   return entity.apiVersion === 'backstage.io/v1beta2';
 }
@@ -90,21 +63,18 @@ export async function createRouter(
   router.use(express.json());
 
   const {
-    preparers,
-    templaters,
-    publishers,
     logger: parentLogger,
     config,
     reader,
-    dockerClient,
     database,
     catalogClient,
     actions,
+    containerRunner,
+    taskWorkers,
   } = options;
 
   const logger = parentLogger.child({ plugin: 'scaffolder' });
   const workingDirectory = await getWorkingDirectory(config, logger);
-  const jobProcessor = await JobProcessor.fromConfig({ config, logger });
   const entityClient = new CatalogEntityClient(catalogClient);
   const integrations = ScmIntegrations.fromConfig(config);
 
@@ -113,164 +83,30 @@ export async function createRouter(
   );
   const taskBroker = new StorageTaskBroker(databaseTaskStore, logger);
   const actionRegistry = new TemplateActionRegistry();
-  const worker = new TaskWorker({
-    logger,
-    taskBroker,
-    actionRegistry,
-    workingDirectory,
-  });
+  const workers = [];
+  for (let i = 0; i < (taskWorkers || 1); i++) {
+    const worker = new TaskWorker({
+      logger,
+      taskBroker,
+      actionRegistry,
+      workingDirectory,
+    });
+    workers.push(worker);
+  }
 
   const actionsToRegister = Array.isArray(actions)
     ? actions
-    : [
-        ...createLegacyActions({
-          dockerClient,
-          preparers,
-          publishers,
-          templaters,
-        }),
-        ...createBuiltinActions({
-          dockerClient,
-          integrations,
-          catalogClient,
-          templaters,
-          reader,
-        }),
-      ];
+    : createBuiltinActions({
+        integrations,
+        catalogClient,
+        containerRunner,
+        reader,
+        config,
+      });
 
   actionsToRegister.forEach(action => actionRegistry.register(action));
+  workers.forEach(worker => worker.start());
 
-  worker.start();
-
-  router
-    .get('/v1/job/:jobId', ({ params }, res) => {
-      const job = jobProcessor.get(params.jobId);
-
-      if (!job) {
-        res.status(404).json({ error: 'job not found' });
-        return;
-      }
-
-      res.json({
-        id: job.id,
-        metadata: {
-          ...job.context,
-          logger: undefined,
-          logStream: undefined,
-        },
-        status: job.status,
-        stages: job.stages.map(stage => ({
-          ...stage,
-          handler: undefined,
-        })),
-        error: job.error,
-      });
-    })
-    .post('/v1/jobs', async (req, res) => {
-      const templateName: string = req.body.templateName;
-      const values: TemplaterValues = {
-        ...req.body.values,
-        destination: {
-          git: parseGitUrl(req.body.values.storePath),
-        },
-      };
-
-      // Forward authorization from client
-      const template = await entityClient.findTemplate(templateName, {
-        token: getBearerToken(req.headers.authorization),
-      });
-      if (!isAlpha1Template(template)) {
-        throw new InputError(
-          `This endpoint does not support templates with version ${template.apiVersion}`,
-        );
-      }
-
-      const validationResult: ValidatorResult = validate(
-        values,
-        template.spec.schema,
-      );
-
-      if (!validationResult.valid) {
-        res.status(400).json({ errors: validationResult.errors });
-        return;
-      }
-
-      const job = jobProcessor.create({
-        entity: template,
-        values,
-        stages: [
-          {
-            name: 'Prepare the skeleton',
-            async handler(ctx) {
-              const {
-                protocol,
-                location: templateEntityLocation,
-              } = parseLocationAnnotation(ctx.entity);
-
-              if (protocol === 'file') {
-                const preparer = new FilePreparer();
-
-                const path = resolvePath(
-                  dirname(templateEntityLocation),
-                  template.spec.path || '.',
-                );
-
-                await preparer.prepare({
-                  url: `file://${path}`,
-                  logger: ctx.logger,
-                  workspacePath: ctx.workspacePath,
-                });
-                return;
-              }
-
-              const preparer = preparers.get(templateEntityLocation);
-
-              const url = joinGitUrlPath(
-                templateEntityLocation,
-                template.spec.path,
-              );
-
-              await preparer.prepare({
-                url,
-                logger: ctx.logger,
-                workspacePath: ctx.workspacePath,
-              });
-            },
-          },
-          {
-            name: 'Run the templater',
-            async handler(ctx) {
-              const templater = templaters.get(ctx.entity.spec.templater);
-              await templater.run({
-                workspacePath: ctx.workspacePath,
-                dockerClient,
-                logStream: ctx.logStream,
-                values: ctx.values,
-              });
-            },
-          },
-          {
-            name: 'Publish template',
-            handler: async ctx => {
-              const publisher = publishers.get(ctx.values.storePath);
-              ctx.logger.info('Will now store the template');
-              const result = await publisher.publish({
-                values: ctx.values,
-                workspacePath: ctx.workspacePath,
-                logger: ctx.logger,
-              });
-              return result;
-            },
-          },
-        ],
-      });
-
-      jobProcessor.run(job);
-
-      res.status(201).json({ id: job.id });
-    });
-
-  // NOTE: The v2 API is unstable
   router
     .get(
       '/v2/templates/:namespace/:kind/:name/parameter-schema',
@@ -300,42 +136,6 @@ export async function createRouter(
               schema,
             })),
           });
-        } else if (isAlpha1Template(template)) {
-          res.json({
-            title: template.metadata.title ?? template.metadata.name,
-            steps: [
-              {
-                title: 'Fill in template parameters',
-                schema: template.spec.schema,
-              },
-              {
-                title: 'Choose owner and repo',
-                schema: {
-                  type: 'object',
-                  required: ['storePath', 'owner'],
-                  properties: {
-                    owner: {
-                      type: 'string',
-                      title: 'Owner',
-                      description: 'Who is going to own this component',
-                    },
-                    storePath: {
-                      type: 'string',
-                      title: 'Store path',
-                      description:
-                        'A full URL to the repository that should be created. e.g https://github.com/backstage/new-repo',
-                    },
-                    access: {
-                      type: 'string',
-                      title: 'Access',
-                      description:
-                        'Who should have access, in org/team or user format',
-                    },
-                  },
-                },
-              },
-            ],
-          });
         } else {
           throw new InputError(
             `Unsupported apiVersion field in schema entity, ${
@@ -357,23 +157,15 @@ export async function createRouter(
     })
     .post('/v2/tasks', async (req, res) => {
       const templateName: string = req.body.templateName;
-      const values: TemplaterValues = req.body.values;
+      const values = req.body.values;
       const token = getBearerToken(req.headers.authorization);
       const template = await entityClient.findTemplate(templateName, {
         token,
       });
 
       let taskSpec;
-      if (isAlpha1Template(template)) {
-        const result = validate(values, template.spec.schema);
 
-        if (!result.valid) {
-          res.status(400).json({ errors: result.errors });
-          return;
-        }
-
-        taskSpec = templateEntityToSpec(template, values);
-      } else if (isBeta2Template(template)) {
+      if (isBeta2Template(template)) {
         for (const parameters of [template.spec.parameters ?? []].flat()) {
           const result = validate(values, parameters);
 
@@ -441,17 +233,19 @@ export async function createRouter(
             );
           }
 
+          let shouldUnsubscribe = false;
           for (const event of events) {
             res.write(
               `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`,
             );
             if (event.type === 'completion') {
-              unsubscribe();
+              shouldUnsubscribe = true;
               // Closing the event stream here would cause the frontend
               // to automatically reconnect because it lost connection.
             }
           }
           res.flush();
+          if (shouldUnsubscribe) unsubscribe();
         },
       );
       // When client closes connection we update the clients list

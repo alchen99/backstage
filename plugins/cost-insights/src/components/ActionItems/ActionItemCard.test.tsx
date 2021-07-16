@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,5 +42,23 @@ describe('<ActionItemCard/>', () => {
     expect(rendered.getByText('1')).toBeInTheDocument();
     expect(rendered.getByText(alert.title)).toBeInTheDocument();
     expect(rendered.getByText(alert.subtitle)).toBeInTheDocument();
+  });
+
+  it('renders custom title elements', async () => {
+    const rendered = await renderInTestApp(
+      <MockScrollProvider>
+        <ActionItemCard
+          alert={{
+            ...alert,
+            title: <span>Foo</span>,
+            subtitle: <span>Bar</span>,
+          }}
+          avatar={<div>1</div>}
+        />
+      </MockScrollProvider>,
+    );
+
+    expect(rendered.getByText('Foo')).toBeInTheDocument();
+    expect(rendered.getByText('Bar')).toBeInTheDocument();
   });
 });

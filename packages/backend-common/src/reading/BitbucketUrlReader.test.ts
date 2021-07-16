@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,9 @@ import os from 'os';
 import path from 'path';
 import { NotModifiedError } from '@backstage/errors';
 import { BitbucketUrlReader } from './BitbucketUrlReader';
-import { ReadTreeResponseFactory } from './tree';
+import { DefaultReadTreeResponseFactory } from './tree';
 
-const treeResponseFactory = ReadTreeResponseFactory.create({
+const treeResponseFactory = DefaultReadTreeResponseFactory.create({
   config: new ConfigReader({}),
 });
 
@@ -74,7 +74,24 @@ describe('BitbucketUrlReader', () => {
   const worker = setupServer();
   msw.setupDefaultHandlers(worker);
 
-  describe('implementation', () => {
+  describe('readUrl', () => {
+    worker.use(
+      rest.get(
+        'https://api.bitbucket.org/2.0/repositories/backstage-verification/test-template/src/master/template.yaml',
+        (_, res, ctx) => res(ctx.status(200), ctx.body('foo')),
+      ),
+    );
+
+    it('should be able to readUrl', async () => {
+      const result = await bitbucketProcessor.readUrl(
+        'https://bitbucket.org/backstage-verification/test-template/src/master/template.yaml',
+      );
+      const buffer = await result.buffer();
+      expect(buffer.toString()).toBe('foo');
+    });
+  });
+
+  describe('read', () => {
     it('rejects unknown targets', async () => {
       await expect(
         bitbucketProcessor.read('https://not.bitbucket.com/apa'),
@@ -90,7 +107,7 @@ describe('BitbucketUrlReader', () => {
         'src',
         'reading',
         '__fixtures__',
-        'bitbucket-repo-with-commit-hash.zip',
+        'bitbucket-repo-with-commit-hash.tar.gz',
       ),
     );
 
@@ -99,7 +116,7 @@ describe('BitbucketUrlReader', () => {
         'src',
         'reading',
         '__fixtures__',
-        'bitbucket-server-repo.zip',
+        'bitbucket-server-repo.tar.gz',
       ),
     );
 
@@ -119,14 +136,14 @@ describe('BitbucketUrlReader', () => {
             ),
         ),
         rest.get(
-          'https://bitbucket.org/backstage/mock/get/master.zip',
+          'https://bitbucket.org/backstage/mock/get/master.tar.gz',
           (_, res, ctx) =>
             res(
               ctx.status(200),
               ctx.set('Content-Type', 'application/zip'),
               ctx.set(
                 'content-disposition',
-                'attachment; filename=backstage-mock-12ab34cd56ef.zip',
+                'attachment; filename=backstage-mock-12ab34cd56ef.tar.gz',
               ),
               ctx.body(repoBuffer),
             ),
@@ -142,14 +159,14 @@ describe('BitbucketUrlReader', () => {
             ),
         ),
         rest.get(
-          'https://api.bitbucket.mycompany.net/rest/api/1.0/projects/backstage/repos/mock/archive?format=zip&prefix=mock&path=docs',
+          'https://api.bitbucket.mycompany.net/rest/api/1.0/projects/backstage/repos/mock/archive',
           (_, res, ctx) =>
             res(
               ctx.status(200),
               ctx.set('Content-Type', 'application/zip'),
               ctx.set(
                 'content-disposition',
-                'attachment; filename=backstage-mock.zip',
+                'attachment; filename=backstage-mock.tgz',
               ),
               ctx.body(privateBitbucketRepoBuffer),
             ),
@@ -177,8 +194,8 @@ describe('BitbucketUrlReader', () => {
       const files = await response.files();
 
       expect(files.length).toBe(2);
-      const indexMarkdownFile = await files[0].content();
-      const mkDocsFile = await files[1].content();
+      const mkDocsFile = await files[0].content();
+      const indexMarkdownFile = await files[1].content();
 
       expect(indexMarkdownFile.toString()).toBe('# Test\n');
       expect(mkDocsFile.toString()).toBe('site_name: Test\n');
@@ -189,7 +206,7 @@ describe('BitbucketUrlReader', () => {
         'https://bitbucket.org/backstage/mock',
       );
 
-      const dir = await response.dir({ targetDir: '/tmp' });
+      const dir = await response.dir({ targetDir: tmpDir });
 
       await expect(
         fs.readFile(path.join(dir, 'mkdocs.yml'), 'utf8'),
@@ -234,7 +251,7 @@ describe('BitbucketUrlReader', () => {
         'https://bitbucket.org/backstage/mock/src/master/docs',
       );
 
-      const dir = await response.dir({ targetDir: '/tmp' });
+      const dir = await response.dir({ targetDir: tmpDir });
 
       await expect(
         fs.readFile(path.join(dir, 'index.md'), 'utf8'),
@@ -284,7 +301,7 @@ describe('BitbucketUrlReader', () => {
         'src',
         'reading',
         '__fixtures__',
-        'bitbucket-repo-with-commit-hash.zip',
+        'bitbucket-repo-with-commit-hash.tar.gz',
       ),
     );
 
@@ -304,14 +321,14 @@ describe('BitbucketUrlReader', () => {
             ),
         ),
         rest.get(
-          'https://bitbucket.org/backstage/mock/get/master.zip',
+          'https://bitbucket.org/backstage/mock/get/master.tar.gz',
           (_, res, ctx) =>
             res(
               ctx.status(200),
               ctx.set('Content-Type', 'application/zip'),
               ctx.set(
                 'content-disposition',
-                'attachment; filename=backstage-mock-12ab34cd56ef.zip',
+                'attachment; filename=backstage-mock-12ab34cd56ef.tar.gz',
               ),
               ctx.body(repoBuffer),
             ),
@@ -359,21 +376,21 @@ describe('BitbucketUrlReader', () => {
         'src',
         'reading',
         '__fixtures__',
-        'bitbucket-server-repo.zip',
+        'bitbucket-server-repo.tar.gz',
       ),
     );
 
     beforeEach(() => {
       worker.use(
         rest.get(
-          'https://api.bitbucket.mycompany.net/rest/api/1.0/projects/backstage/repos/mock/archive?format=zip&prefix=mock&path=docs',
+          'https://api.bitbucket.mycompany.net/rest/api/1.0/projects/backstage/repos/mock/archive',
           (_, res, ctx) =>
             res(
               ctx.status(200),
               ctx.set('Content-Type', 'application/zip'),
               ctx.set(
                 'content-disposition',
-                'attachment; filename=backstage-mock.zip',
+                'attachment; filename=backstage-mock.tgz',
               ),
               ctx.body(privateBitbucketRepoBuffer),
             ),

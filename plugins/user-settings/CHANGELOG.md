@@ -1,5 +1,39 @@
 # @backstage/plugin-user-settings
 
+## 0.3.0
+
+### Minor Changes
+
+- 71afed7f3: Exported and renamed components from the `@backstage/plugin-user-settings` plugin , to be able to use it in the consumer side and customize the `SettingPage`
+
+## 0.2.12
+
+### Patch Changes
+
+- 48c9fcd33: Migrated to use the new `@backstage/core-*` packages rather than `@backstage/core`.
+- Updated dependencies
+  - @backstage/core-plugin-api@0.1.3
+
+## 0.2.11
+
+### Patch Changes
+
+- 42a2d2ebc: Fix a bug that prevented changing themes on the user settings page when the theme `id` didn't match exactly the theme `variant`.
+- Updated dependencies
+  - @backstage/core@0.7.13
+
+## 0.2.10
+
+### Patch Changes
+
+- 062bbf90f: chore: bump `@testing-library/user-event` from 12.8.3 to 13.1.8
+- 675a569a9: chore: bump `react-use` dependency in all packages
+- Updated dependencies [062bbf90f]
+- Updated dependencies [889d89b6e]
+- Updated dependencies [3f988cb63]
+- Updated dependencies [675a569a9]
+  - @backstage/core@0.7.9
+
 ## 0.2.9
 
 ### Patch Changes

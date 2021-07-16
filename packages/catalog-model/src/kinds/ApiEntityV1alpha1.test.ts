@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,5 +167,17 @@ components:
   it('rejects empty system', async () => {
     (entity as any).spec.system = '';
     await expect(validator.check(entity)).rejects.toThrow(/system/);
+  });
+
+  it('rejects additional properties', async () => {
+    (entity as any).annotations = 'Test';
+    await expect(validator.check(entity)).rejects.toThrow(
+      /additional properties/,
+    );
+  });
+
+  it('rejects with useful error message', async () => {
+    (entity as any).annotations = 'Test';
+    await expect(validator.check(entity)).rejects.toThrow(/annotations/);
   });
 });

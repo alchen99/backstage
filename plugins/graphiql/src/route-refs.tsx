@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-import { createRouteRef } from '@backstage/core';
-import GraphiQLIcon from './assets/graphiql.icon.svg';
+import { createRouteRef } from '@backstage/core-plugin-api';
 
 export const graphiQLRouteRef = createRouteRef({
-  icon: GraphiQLIcon,
-  path: '/graphiql',
-  title: 'GraphiQL',
+  id: 'graphiql-root',
 });

@@ -1,5 +1,139 @@
 # @backstage/plugin-catalog-import
 
+## 0.5.13
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.3.0
+
+## 0.5.12
+
+### Patch Changes
+
+- 43a4ef644: More helpful error message when trying to import by folder from non-github
+- 6841e0113: fix minor version of git-url-parse as 11.5.x introduced a bug for Bitbucket Server
+- Updated dependencies
+  - @backstage/integration@0.5.8
+  - @backstage/core-components@0.1.5
+  - @backstage/catalog-model@0.9.0
+  - @backstage/catalog-client@0.3.16
+  - @backstage/plugin-catalog-react@0.2.6
+
+## 0.5.11
+
+### Patch Changes
+
+- 48c9fcd33: Migrated to use the new `@backstage/core-*` packages rather than `@backstage/core`.
+- Updated dependencies
+  - @backstage/core-plugin-api@0.1.3
+  - @backstage/catalog-client@0.3.14
+  - @backstage/catalog-model@0.8.4
+  - @backstage/integration-react@0.1.4
+  - @backstage/plugin-catalog-react@0.2.4
+
+## 0.5.10
+
+### Patch Changes
+
+- 873116e5d: Fix a react warning in `<EntityListComponent>`.
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.2.3
+  - @backstage/catalog-model@0.8.3
+  - @backstage/core@0.7.13
+
+## 0.5.9
+
+### Patch Changes
+
+- 70bc30c5b: Display preview result final step.
+- Updated dependencies [27a9b503a]
+- Updated dependencies [f4e3ac5ce]
+- Updated dependencies [7028ee1ca]
+- Updated dependencies [70bc30c5b]
+- Updated dependencies [eda9dbd5f]
+  - @backstage/catalog-model@0.8.2
+  - @backstage/integration-react@0.1.3
+  - @backstage/plugin-catalog-react@0.2.2
+  - @backstage/catalog-client@0.3.13
+  - @backstage/integration@0.5.6
+
+## 0.5.8
+
+### Patch Changes
+
+- Updated dependencies [0fd4ea443]
+- Updated dependencies [add62a455]
+- Updated dependencies [cc592248b]
+- Updated dependencies [17c497b81]
+- Updated dependencies [704875e26]
+  - @backstage/integration@0.5.4
+  - @backstage/catalog-client@0.3.12
+  - @backstage/catalog-model@0.8.0
+  - @backstage/core@0.7.11
+  - @backstage/plugin-catalog-react@0.2.0
+
+## 0.5.7
+
+### Patch Changes
+
+- ca6e0ab69: Make UI errors friendlier when importing existing components
+- Updated dependencies [f7f7783a3]
+- Updated dependencies [65e6c4541]
+- Updated dependencies [68fdbf014]
+- Updated dependencies [5da6a561d]
+  - @backstage/catalog-model@0.7.10
+  - @backstage/core@0.7.10
+  - @backstage/integration@0.5.3
+
+## 0.5.6
+
+### Patch Changes
+
+- 062bbf90f: chore: bump `@testing-library/user-event` from 12.8.3 to 13.1.8
+- 675a569a9: chore: bump `react-use` dependency in all packages
+- Updated dependencies [062bbf90f]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [889d89b6e]
+- Updated dependencies [16be1d093]
+- Updated dependencies [3f988cb63]
+- Updated dependencies [675a569a9]
+  - @backstage/core@0.7.9
+  - @backstage/integration-react@0.1.2
+  - @backstage/plugin-catalog-react@0.1.6
+  - @backstage/catalog-model@0.7.9
+
+## 0.5.5
+
+### Patch Changes
+
+- 38ca05168: The default `@octokit/rest` dependency was bumped to `"^18.5.3"`.
+- 80888659b: Bump react-hook-form version to be the same for the entire project.
+- 8aedbb4af: Fixes a typo and minor wording changes to the catalog import UI
+- Updated dependencies [38ca05168]
+- Updated dependencies [f65adcde7]
+- Updated dependencies [81c54d1f2]
+- Updated dependencies [80888659b]
+- Updated dependencies [7b8272fb7]
+- Updated dependencies [d8b81fd28]
+- Updated dependencies [d1b1306d9]
+  - @backstage/integration@0.5.2
+  - @backstage/core@0.7.8
+  - @backstage/plugin-catalog-react@0.1.5
+  - @backstage/theme@0.2.7
+  - @backstage/catalog-model@0.7.8
+  - @backstage/catalog-client@0.3.11
+
+## 0.5.4
+
+### Patch Changes
+
+- c614ede9a: Updated README to have up-to-date install instructions.
+- Updated dependencies [9afcac5af]
+- Updated dependencies [e0c9ed759]
+- Updated dependencies [6eaecbd81]
+  - @backstage/core@0.7.7
+
 ## 0.5.3
 
 ### Patch Changes

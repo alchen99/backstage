@@ -2,9 +2,9 @@ app:
   title: Backstage Example App
   baseUrl: http://localhost:3000
   googleAnalyticsTrackingId: # UA-000000-0
-  datadogRum:
-    clientToken: '123456789'
-    applicationId: qwerty
+  #datadogRum:
+  #  clientToken: '123456789'
+  #  applicationId: qwerty
   #   site: # datadoghq.eu default = datadoghq.com
   #   env: # optional
 
@@ -29,12 +29,16 @@ backend:
   database:
     client: sqlite3
     connection: ':memory:'
+  cache:
+    store: memory
   cors:
     origin: http://localhost:3000
     methods: [GET, POST, PUT, DELETE]
     credentials: true
   csp:
     connect-src: ["'self'", 'http:', 'https:']
+    # Content-Security-Policy directives follow the Helmet format: https://helmetjs.github.io/#reference
+    # Default Helmet Content-Security-Policy values can be removed by setting the key to false
   reading:
     allow:
       - host: example.com
@@ -68,7 +72,7 @@ proxy:
   '/pagerduty':
     target: https://api.pagerduty.com
     headers:
-      Authorization: ${PAGERDUTY_TOKEN}
+      Authorization: Token token=${PAGERDUTY_TOKEN}
 
   '/buildkite/api':
     target: https://api.buildkite.com/v2/
@@ -81,6 +85,13 @@ proxy:
     headers:
       Authorization: ${SENTRY_TOKEN}
 
+  '/ilert':
+    target: https://api.ilert.com
+    allowedMethods: ['GET', 'POST', 'PUT']
+    allowedHeaders: ['Authorization']
+    headers:
+      Authorization: ${ILERT_AUTH_HEADER}
+
 organization:
   name: My Company
 
@@ -90,8 +101,10 @@ organization:
 # https://backstage.io/docs/features/techdocs/how-to-guides#how-to-migrate-from-techdocs-basic-to-recommended-deployment-approach
 techdocs:
   builder: 'local' # Alternatives - 'external'
-  generators:
-    techdocs: 'docker' # Alternatives - 'local'
+  generator:
+    runIn: 'docker'
+    # dockerImage: my-org/techdocs # use a custom docker image
+    # pullImage: true # or false to disable automatic pulling of image (e.g. if custom docker login is required)
   publisher:
     type: 'local' # Alternatives - 'googleGcs' or 'awsS3' or 'azureBlobStorage' or 'openStackSwift'. Read documentation for using alternatives.
 
@@ -239,6 +252,10 @@ catalog:
       target: ../catalog-model/examples/acme-corp.yaml
 
 scaffolder:
+  # Use to customize default commit author info used when new components are created
+  # defaultAuthor:
+  #   name: Scaffolder
+  #   email: scaffolder@backstage.io
   github:
     token: ${GITHUB_TOKEN}
     visibility: public # or 'internal' or 'private'
@@ -297,13 +314,20 @@ auth:
         #
         # scope: saml-login-selector openid profile email
     oidc:
+      # Note that you must define a session secret (see above) since the oidc provider requires session support.
+      # Note that by default, this provider will use the 'none' prompt which assumes that your are already logged on in the IDP.
+      # You should set prompt to:
+      # - auto: will let the IDP decide if you need to log on or if you can skip login when you have an active SSO session
+      # - login: will force the IDP to always present a login form to the user
       development:
         metadataUrl: ${AUTH_OIDC_METADATA_URL}
         clientId: ${AUTH_OIDC_CLIENT_ID}
         clientSecret: ${AUTH_OIDC_CLIENT_SECRET}
         authorizationUrl: ${AUTH_OIDC_AUTH_URL}
         tokenUrl: ${AUTH_OIDC_TOKEN_URL}
-        tokenSignedResponseAlg: ${AUTH_OIDC_TOKEN_SIGNED_RESPONSE_ALG}
+        tokenSignedResponseAlg: ${AUTH_OIDC_TOKEN_SIGNED_RESPONSE_ALG} # default='RS256'
+        scope: ${AUTH_OIDC_SCOPE} # default='openid profile email'
+        prompt: ${AUTH_OIDC_PROMPT} # default=none (allowed values: auto, none, consent, login)
     auth0:
       development:
         clientId: ${AUTH_AUTH0_CLIENT_ID}
@@ -355,3 +379,9 @@ homepage:
       timezone: 'Asia/Tokyo'
 pagerduty:
   eventsBaseUrl: 'https://events.pagerduty.com/v2'
+jenkins:
+  instances:
+    - name: default
+      baseUrl: https://jenkins.example.com
+      username: backstage-bot
+      apiKey: 123456789abcdef0123456789abcedf012

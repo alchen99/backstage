@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,10 @@ import ModuleScopePlugin from 'react-dev-utils/ModuleScopePlugin';
 import StartServerPlugin from 'start-server-webpack-plugin';
 import webpack from 'webpack';
 import nodeExternals from 'webpack-node-externals';
+import { isChildPath } from '@backstage/cli-common';
 import { optimization } from './optimization';
 import { Config } from '@backstage/config';
-import { BundlingPaths, isChildPath } from './paths';
+import { BundlingPaths } from './paths';
 import { transforms } from './transforms';
 import { LinkedPackageResolvePlugin } from './LinkedPackageResolvePlugin';
 import { BundlingOptions, BackendBundlingOptions, LernaPackage } from './types';
@@ -97,15 +98,18 @@ export async function createConfig(
   if (checksEnabled) {
     plugins.push(
       new ForkTsCheckerWebpackPlugin({
-        tsconfig: paths.targetTsConfig,
-        eslint: true,
-        eslintOptions: {
-          parserOptions: {
-            project: paths.targetTsConfig,
-            tsconfigRootDir: paths.targetPath,
+        typescript: {
+          configFile: paths.targetTsConfig,
+        },
+        eslint: {
+          files: ['**', '!**/__tests__/**', '!**/?(*.)(spec|test).*'],
+          options: {
+            parserOptions: {
+              project: paths.targetTsConfig,
+              tsconfigRootDir: paths.targetPath,
+            },
           },
         },
-        reportFiles: ['**', '!**/__tests__/**', '!**/?(*.)(spec|test).*'],
       }),
     );
   }
@@ -194,6 +198,15 @@ export async function createConfig(
       chunkFilename: isDev
         ? '[name].chunk.js'
         : 'static/[name].[chunkhash:8].chunk.js',
+      ...(isDev
+        ? {
+            devtoolModuleFilenameTemplate: info =>
+              `file:///${resolvePath(info.absoluteResourcePath).replace(
+                /\\/g,
+                '/',
+              )}`,
+          }
+        : {}),
     },
     plugins,
   };
@@ -278,7 +291,11 @@ export async function createBackendConfig(
         : '[name].[chunkhash:8].chunk.js',
       ...(isDev
         ? {
-            devtoolModuleFilenameTemplate: 'file:///[absolute-resource-path]',
+            devtoolModuleFilenameTemplate: info =>
+              `file:///${resolvePath(info.absoluteResourcePath).replace(
+                /\\/g,
+                '/',
+              )}`,
           }
         : {}),
     },
@@ -291,15 +308,18 @@ export async function createBackendConfig(
       ...(checksEnabled
         ? [
             new ForkTsCheckerWebpackPlugin({
-              tsconfig: paths.targetTsConfig,
-              eslint: true,
-              eslintOptions: {
-                parserOptions: {
-                  project: paths.targetTsConfig,
-                  tsconfigRootDir: paths.targetPath,
+              typescript: {
+                configFile: paths.targetTsConfig,
+              },
+              eslint: {
+                files: ['**', '!**/__tests__/**', '!**/?(*.)(spec|test).*'],
+                options: {
+                  parserOptions: {
+                    project: paths.targetTsConfig,
+                    tsconfigRootDir: paths.targetPath,
+                  },
                 },
               },
-              reportFiles: ['**', '!**/__tests__/**', '!**/?(*.)(spec|test).*'],
             }),
           ]
         : []),

@@ -1,5 +1,173 @@
 # example-backend
 
+## 0.2.37
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/backend-common@0.8.6
+  - @backstage/plugin-scaffolder-backend@0.14.0
+  - @backstage/plugin-catalog-backend@0.13.0
+  - @backstage/plugin-auth-backend@0.3.17
+  - @backstage/plugin-scaffolder-backend-module-rails@0.1.3
+  - @backstage/plugin-search-backend-node@0.4.0
+  - @backstage/plugin-techdocs-backend@0.8.7
+  - @backstage/plugin-app-backend@0.3.15
+  - @backstage/plugin-kubernetes-backend@0.3.10
+  - @backstage/plugin-rollbar-backend@0.1.13
+  - example-app@0.2.37
+  - @backstage/plugin-search-backend@0.2.3
+
+## 0.2.36
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/integration@0.5.8
+  - @backstage/plugin-scaffolder-backend@0.13.0
+  - @backstage/catalog-model@0.9.0
+  - @backstage/plugin-catalog-backend@0.12.0
+  - @backstage/backend-common@0.8.5
+  - @backstage/plugin-search-backend-node@0.3.0
+  - example-app@0.2.36
+  - @backstage/plugin-scaffolder-backend-module-rails@0.1.2
+  - @backstage/catalog-client@0.3.16
+  - @backstage/plugin-auth-backend@0.3.16
+  - @backstage/plugin-badges-backend@0.1.8
+  - @backstage/plugin-code-coverage-backend@0.1.8
+  - @backstage/plugin-kafka-backend@0.2.8
+  - @backstage/plugin-kubernetes-backend@0.3.9
+  - @backstage/plugin-techdocs-backend@0.8.6
+  - @backstage/plugin-todo-backend@0.1.8
+  - @backstage/plugin-search-backend@0.2.2
+
+## 0.2.35
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-scaffolder-backend@0.12.4
+  - @backstage/backend-common@0.8.4
+  - @backstage/plugin-auth-backend@0.3.15
+  - @backstage/plugin-catalog-backend@0.11.0
+  - @backstage/plugin-techdocs-backend@0.8.5
+  - @backstage/catalog-client@0.3.15
+  - @backstage/plugin-kafka-backend@0.2.7
+
+## 0.2.32
+
+### Patch Changes
+
+- Updated dependencies [9c63be545]
+- Updated dependencies [92963779b]
+- Updated dependencies [27a9b503a]
+- Updated dependencies [66c6bfebd]
+- Updated dependencies [55a253de2]
+- Updated dependencies [70bc30c5b]
+- Updated dependencies [db1c8f93b]
+- Updated dependencies [5aff84759]
+- Updated dependencies [f26e6008f]
+- Updated dependencies [eda9dbd5f]
+- Updated dependencies [4f8cf50fe]
+- Updated dependencies [875809a59]
+  - @backstage/plugin-catalog-backend@0.10.2
+  - @backstage/backend-common@0.8.2
+  - @backstage/catalog-model@0.8.2
+  - @backstage/plugin-scaffolder-backend@0.12.0
+  - @backstage/catalog-client@0.3.13
+  - @backstage/plugin-search-backend-node@0.2.0
+  - @backstage/plugin-search-backend@0.2.0
+  - @backstage/plugin-proxy-backend@0.2.9
+  - example-app@0.2.32
+
+## 0.2.30
+
+### Patch Changes
+
+- Updated dependencies [0fd4ea443]
+- Updated dependencies [add62a455]
+- Updated dependencies [260aaa684]
+- Updated dependencies [704875e26]
+  - @backstage/plugin-catalog-backend@0.10.0
+  - @backstage/catalog-client@0.3.12
+  - @backstage/catalog-model@0.8.0
+  - @backstage/plugin-scaffolder-backend@0.11.4
+  - example-app@0.2.30
+  - @backstage/plugin-auth-backend@0.3.12
+  - @backstage/plugin-badges-backend@0.1.6
+  - @backstage/plugin-code-coverage-backend@0.1.6
+  - @backstage/plugin-kafka-backend@0.2.6
+  - @backstage/plugin-kubernetes-backend@0.3.8
+  - @backstage/plugin-techdocs-backend@0.8.2
+  - @backstage/plugin-todo-backend@0.1.6
+
+## 0.2.28
+
+### Patch Changes
+
+- Updated dependencies [062bbf90f]
+- Updated dependencies [22fd8ce2a]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [82ca1ac22]
+- Updated dependencies [f9fb4a205]
+- Updated dependencies [9a207f052]
+- Updated dependencies [16be1d093]
+- Updated dependencies [fd39d4662]
+- Updated dependencies [f9f9d633d]
+  - @backstage/plugin-scaffolder-backend@0.11.1
+  - @backstage/backend-common@0.8.0
+  - @backstage/catalog-model@0.7.9
+  - @backstage/plugin-catalog-backend@0.9.0
+  - @backstage/plugin-kubernetes-backend@0.3.7
+  - example-app@0.2.28
+  - @backstage/plugin-app-backend@0.3.13
+  - @backstage/plugin-auth-backend@0.3.10
+  - @backstage/plugin-badges-backend@0.1.4
+  - @backstage/plugin-code-coverage-backend@0.1.5
+  - @backstage/plugin-graphql-backend@0.1.8
+  - @backstage/plugin-kafka-backend@0.2.5
+  - @backstage/plugin-proxy-backend@0.2.8
+  - @backstage/plugin-rollbar-backend@0.1.11
+  - @backstage/plugin-search-backend@0.1.5
+  - @backstage/plugin-techdocs-backend@0.8.1
+  - @backstage/plugin-todo-backend@0.1.5
+
+## 0.2.27
+
+### Patch Changes
+
+- Updated dependencies [e0bfd3d44]
+- Updated dependencies [e0bfd3d44]
+- Updated dependencies [e0bfd3d44]
+- Updated dependencies [38ca05168]
+- Updated dependencies [b219821a0]
+- Updated dependencies [69eefb5ae]
+- Updated dependencies [f53fba29f]
+- Updated dependencies [75c8cec39]
+- Updated dependencies [227439a72]
+- Updated dependencies [cdb3426e5]
+- Updated dependencies [d8b81fd28]
+- Updated dependencies [d1b1306d9]
+  - @backstage/plugin-scaffolder-backend@0.11.0
+  - @backstage/backend-common@0.7.0
+  - @backstage/plugin-techdocs-backend@0.8.0
+  - @backstage/plugin-catalog-backend@0.8.2
+  - @backstage/plugin-kubernetes-backend@0.3.6
+  - @backstage/plugin-proxy-backend@0.2.7
+  - @backstage/catalog-model@0.7.8
+  - @backstage/config@0.1.5
+  - @backstage/catalog-client@0.3.11
+  - example-app@0.2.27
+  - @backstage/plugin-app-backend@0.3.12
+  - @backstage/plugin-auth-backend@0.3.9
+  - @backstage/plugin-badges-backend@0.1.3
+  - @backstage/plugin-code-coverage-backend@0.1.4
+  - @backstage/plugin-graphql-backend@0.1.7
+  - @backstage/plugin-kafka-backend@0.2.4
+  - @backstage/plugin-rollbar-backend@0.1.10
+  - @backstage/plugin-search-backend@0.1.4
+  - @backstage/plugin-todo-backend@0.1.4
+
 ## 0.2.25
 
 ### Patch Changes

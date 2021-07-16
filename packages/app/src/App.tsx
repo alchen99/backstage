@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
+import { createApp, FlatRoutes } from '@backstage/core-app-api';
 import {
   AlertDisplay,
-  createApp,
-  FlatRoutes,
   OAuthRequestDialog,
   SignInPage,
-} from '@backstage/core';
+} from '@backstage/core-components';
 import { apiDocsPlugin, ApiExplorerPage } from '@backstage/plugin-api-docs';
 import {
   CatalogEntityPage,
@@ -43,7 +42,7 @@ import { GraphiQLPage } from '@backstage/plugin-graphiql';
 import { LighthousePage } from '@backstage/plugin-lighthouse';
 import { NewRelicPage } from '@backstage/plugin-newrelic';
 import { ScaffolderPage, scaffolderPlugin } from '@backstage/plugin-scaffolder';
-import { SearchPage, SearchPageNext } from '@backstage/plugin-search';
+import { SearchPage } from '@backstage/plugin-search';
 import { TechRadarPage } from '@backstage/plugin-tech-radar';
 import { TechdocsPage } from '@backstage/plugin-techdocs';
 import { UserSettingsPage } from '@backstage/plugin-user-settings';
@@ -54,6 +53,7 @@ import { Navigate, Route } from 'react-router';
 import { apis } from './apis';
 import { Root } from './components/Root';
 import { entityPage } from './components/catalog/EntityPage';
+import { searchPage } from './components/search/SearchPage';
 import { providers } from './identityProviders';
 import * as plugins from './plugins';
 
@@ -64,6 +64,7 @@ const app = createApp({
     // Custom icon example
     alert: AlarmIcon,
   },
+
   components: {
     SignInPage: props => {
       return (
@@ -115,14 +116,13 @@ const routes = (
     />
     <Route path="/graphiql" element={<GraphiQLPage />} />
     <Route path="/lighthouse" element={<LighthousePage />} />
+
     <Route path="/api-docs" element={<ApiExplorerPage />} />
     <Route path="/gcp-projects" element={<GcpProjectsPage />} />
     <Route path="/newrelic" element={<NewRelicPage />} />
-    <Route path="/search" element={<SearchPage />} />
-    <Route
-      path="/search-next"
-      element={<SearchPageNext /* TODO: illustrate customization */ />}
-    />
+    <Route path="/search" element={<SearchPage />}>
+      {searchPage}
+    </Route>
     <Route path="/cost-insights" element={<CostInsightsPage />} />
     <Route
       path="/cost-insights/investigating-growth"

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,6 @@ import {
   UserEntity,
 } from '@backstage/catalog-model';
 import {
-  Avatar,
-  InfoCard,
-  Progress,
-  ResponseErrorPanel,
-  useApi,
-} from '@backstage/core';
-import {
   catalogApiRef,
   entityRouteParams,
   useEntity,
@@ -40,9 +33,18 @@ import {
   Theme,
   Typography,
 } from '@material-ui/core';
+import Pagination from '@material-ui/lab/Pagination';
 import React from 'react';
 import { generatePath, Link as RouterLink } from 'react-router-dom';
 import { useAsync } from 'react-use';
+
+import {
+  Avatar,
+  InfoCard,
+  Progress,
+  ResponseErrorPanel,
+} from '@backstage/core-components';
+import { useApi } from '@backstage/core-plugin-api';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -120,6 +122,12 @@ export const MembersListCard = (_props: {
 
   const groupNamespace = grpNamespace || ENTITY_DEFAULT_NAMESPACE;
 
+  const [page, setPage] = React.useState(1);
+  const pageChange = (_: React.ChangeEvent<unknown>, pageIndex: number) => {
+    setPage(pageIndex);
+  };
+  const pageSize = 50;
+
   const { loading, error, value: members } = useAsync(async () => {
     const membersList = await catalogApi.getEntities({
       filter: { kind: 'User' },
@@ -144,17 +152,33 @@ export const MembersListCard = (_props: {
     return <ResponseErrorPanel error={error} />;
   }
 
+  const nbPages = Math.ceil((members?.length || 0) / pageSize);
+  const paginationLabel = nbPages < 2 ? '' : `, page ${page} of ${nbPages}`;
+
+  const pagination = (
+    <Pagination
+      count={nbPages}
+      page={page}
+      onChange={pageChange}
+      showFirstButton
+      showLastButton
+    />
+  );
+
   return (
     <Grid item>
       <InfoCard
-        title={`Members (${members?.length || 0})`}
+        title={`Members (${members?.length || 0}${paginationLabel})`}
         subheader={`of ${displayName}`}
+        actions={pagination}
       >
         <Grid container spacing={3}>
           {members && members.length > 0 ? (
-            members.map(member => (
-              <MemberComponent member={member} key={member.metadata.uid} />
-            ))
+            members
+              .slice(pageSize * (page - 1), pageSize * page)
+              .map(member => (
+                <MemberComponent member={member} key={member.metadata.uid} />
+              ))
           ) : (
             <Box p={2}>
               <Typography>This group has no members.</Typography>

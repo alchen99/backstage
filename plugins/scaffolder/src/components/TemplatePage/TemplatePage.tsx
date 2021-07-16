@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { JsonObject, JsonValue } from '@backstage/config';
+import { LinearProgress } from '@material-ui/core';
+import { FormValidation, IChangeEvent } from '@rjsf/core';
+import React, { useCallback, useState } from 'react';
+import { generatePath, Navigate, useNavigate } from 'react-router';
+import { useParams } from 'react-router-dom';
+import { useAsync } from 'react-use';
+import { scaffolderApiRef } from '../../api';
+import { CustomFieldValidator, FieldExtensionOptions } from '../../extensions';
+import { rootRouteRef } from '../../routes';
+import { MultistepJsonForm } from '../MultistepJsonForm';
+
 import {
   Content,
-  errorApiRef,
   Header,
   InfoCard,
   Lifecycle,
   Page,
+} from '@backstage/core-components';
+import {
+  ApiHolder,
+  errorApiRef,
   useApi,
+  useApiHolder,
   useRouteRef,
-} from '@backstage/core';
-import { LinearProgress } from '@material-ui/core';
-import { FormValidation, IChangeEvent } from '@rjsf/core';
-import parseGitUrl from 'git-url-parse';
-import React, { useCallback, useState } from 'react';
-import { generatePath, useNavigate, Navigate } from 'react-router';
-import { useParams } from 'react-router-dom';
-import { useAsync } from 'react-use';
-import { scaffolderApiRef } from '../../api';
-import { rootRouteRef } from '../../routes';
-import { MultistepJsonForm } from '../MultistepJsonForm';
-import { RepoUrlPicker, OwnerPicker } from '../fields';
-import { JsonObject } from '@backstage/config';
+} from '@backstage/core-plugin-api';
 
 const useTemplateParameterSchema = (templateName: string) => {
   const scaffolderApi = useApi(scaffolderApiRef);
@@ -54,7 +58,13 @@ function isObject(obj: unknown): obj is JsonObject {
   return typeof obj === 'object' && obj !== null && !Array.isArray(obj);
 }
 
-export const createValidator = (rootSchema: JsonObject) => {
+export const createValidator = (
+  rootSchema: JsonObject,
+  validators: Record<string, undefined | CustomFieldValidator<unknown>>,
+  context: {
+    apiHolder: ApiHolder;
+  },
+) => {
   function validate(
     schema: JsonObject,
     formData: JsonObject,
@@ -66,7 +76,7 @@ export const createValidator = (rootSchema: JsonObject) => {
     }
 
     for (const [key, propData] of Object.entries(formData)) {
-      const propErrors = errors[key];
+      const propValidation = errors[key];
 
       if (isObject(propData)) {
         const propSchemaProps = schemaProps[key];
@@ -74,27 +84,19 @@ export const createValidator = (rootSchema: JsonObject) => {
           validate(
             propSchemaProps,
             propData as JsonObject,
-            propErrors as FormValidation,
+            propValidation as FormValidation,
           );
         }
       } else {
         const propSchema = schemaProps[key];
-        if (
-          isObject(propSchema) &&
-          propSchema['ui:field'] === 'RepoUrlPicker'
-        ) {
-          try {
-            const { host, searchParams } = new URL(`https://${propData}`);
-            if (
-              !host ||
-              !searchParams.get('owner') ||
-              !searchParams.get('repo')
-            ) {
-              propErrors.addError('Incomplete repository location provided');
-            }
-          } catch {
-            propErrors.addError('Unable to parse the Repository URL');
-          }
+        const fieldName =
+          isObject(propSchema) && (propSchema['ui:field'] as string);
+        if (fieldName && typeof validators[fieldName] === 'function') {
+          validators[fieldName]!(
+            propData as JsonValue,
+            propValidation,
+            context,
+          );
         }
       }
     }
@@ -106,40 +108,12 @@ export const createValidator = (rootSchema: JsonObject) => {
   };
 };
 
-const storePathValidator = (
-  formData: { storePath?: string },
-  errors: FormValidation,
-) => {
-  const { storePath } = formData;
-  if (!storePath) {
-    errors.storePath.addError('Store path is required and not present');
-    return errors;
-  }
-
-  try {
-    const parsedUrl = parseGitUrl(storePath);
-
-    if (!parsedUrl.resource || !parsedUrl.owner || !parsedUrl.name) {
-      if (parsedUrl.resource === 'dev.azure.com') {
-        errors.storePath.addError(
-          "The store path should be formatted like https://dev.azure.com/{org}/{project}/_git/{repo} for Azure URL's",
-        );
-      } else {
-        errors.storePath.addError(
-          'The store path should be a complete Git URL to the new repository location. For example: https://github.com/{owner}/{repo}',
-        );
-      }
-    }
-  } catch (ex) {
-    errors.storePath.addError(
-      `Failed validation of the store path with message ${ex.message}`,
-    );
-  }
-
-  return errors;
-};
-
-export const TemplatePage = () => {
+export const TemplatePage = ({
+  customFieldExtensions = [],
+}: {
+  customFieldExtensions?: FieldExtensionOptions[];
+}) => {
+  const apiHolder = useApiHolder();
   const errorApi = useApi(errorApiRef);
   const scaffolderApi = useApi(scaffolderApiRef);
   const { templateName } = useParams();
@@ -148,10 +122,9 @@ export const TemplatePage = () => {
   const { schema, loading, error } = useTemplateParameterSchema(templateName);
   const [formState, setFormState] = useState({});
   const handleFormReset = () => setFormState({});
-
   const handleChange = useCallback(
-    (e: IChangeEvent) => setFormState({ ...formState, ...e.formData }),
-    [setFormState, formState],
+    (e: IChangeEvent) => setFormState(e.formData),
+    [setFormState],
   );
 
   const handleCreate = async () => {
@@ -172,6 +145,14 @@ export const TemplatePage = () => {
     errorApi.post(new Error('Template was not found.'));
     return <Navigate to={rootLink()} />;
   }
+
+  const customFieldComponents = Object.fromEntries(
+    customFieldExtensions.map(({ name, component }) => [name, component]),
+  );
+
+  const customFieldValidators = Object.fromEntries(
+    customFieldExtensions.map(({ name, validation }) => [name, validation]),
+  );
 
   return (
     <Page themeId="home">
@@ -194,23 +175,18 @@ export const TemplatePage = () => {
           >
             <MultistepJsonForm
               formData={formState}
-              fields={{ RepoUrlPicker, OwnerPicker }}
+              fields={customFieldComponents}
               onChange={handleChange}
               onReset={handleFormReset}
               onFinish={handleCreate}
               steps={schema.steps.map(step => {
-                // TODO: Can delete this function when the migration from v1 to v2 beta is completed
-                // And just have the default validator for all fields.
-                if ((step.schema as any)?.properties?.storePath) {
-                  return {
-                    ...step,
-                    validate: (a, b) => storePathValidator(a, b),
-                  };
-                }
-
                 return {
                   ...step,
-                  validate: createValidator(step.schema),
+                  validate: createValidator(
+                    step.schema,
+                    customFieldValidators,
+                    { apiHolder },
+                  ),
                 };
               })}
             />

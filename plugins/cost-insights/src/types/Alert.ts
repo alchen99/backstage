@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ import { Maybe } from './Maybe';
  */
 
 export type Alert = {
-  title: string;
-  subtitle: string;
+  title: string | JSX.Element;
+  subtitle: string | JSX.Element;
   element?: JSX.Element;
   status?: AlertStatus;
   url?: string;

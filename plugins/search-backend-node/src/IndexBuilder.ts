@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-import { DocumentCollator, DocumentDecorator } from '@backstage/search-common';
+import {
+  DocumentCollator,
+  DocumentDecorator,
+  IndexableDocument,
+} from '@backstage/search-common';
 import { Logger } from 'winston';
-
+import { Scheduler } from './index';
 import {
   RegisterCollatorParameters,
   RegisterDecoratorParameters,
@@ -55,28 +59,25 @@ export class IndexBuilder {
    * given refresh interval.
    */
   addCollator({
-    type,
     collator,
     defaultRefreshIntervalSeconds,
   }: RegisterCollatorParameters): void {
     this.logger.info(
-      `Added ${collator.constructor.name} collator for type ${type}`,
+      `Added ${collator.constructor.name} collator for type ${collator.type}`,
     );
-    this.collators[type] = {
+    this.collators[collator.type] = {
       refreshInterval: defaultRefreshIntervalSeconds,
       collate: collator,
     };
   }
 
   /**
-   * Makes the index builder aware of a decorator. If no types are provided, it
-   * will be applied to documents from all known collators, otherwise it will
-   * only be applied to documents of the given types.
+   * Makes the index builder aware of a decorator. If no types are provided on
+   * the decorator, it will be applied to documents from all known collators,
+   * otherwise it will only be applied to documents of the given types.
    */
-  addDecorator({
-    types = ['*'],
-    decorator,
-  }: RegisterDecoratorParameters): void {
+  addDecorator({ decorator }: RegisterDecoratorParameters): void {
+    const types = decorator.types || ['*'];
     this.logger.info(
       `Added decorator ${decorator.constructor.name} to types ${types.join(
         ', ',
@@ -92,37 +93,59 @@ export class IndexBuilder {
   }
 
   /**
-   * Starts the process of executing collators and decorators and building the
-   * search index.
-   *
-   * TODO: But like with coordination, timing, error handling, and what have you.
+   * Compiles collators and decorators into tasks, which are added to a
+   * scheduler returned to the caller.
    */
-  async build() {
-    return Promise.all(
-      Object.keys(this.collators).map(async type => {
+  async build(): Promise<{ scheduler: Scheduler }> {
+    const scheduler = new Scheduler({ logger: this.logger });
+
+    Object.keys(this.collators).forEach(type => {
+      scheduler.addToSchedule(async () => {
+        // Collate, Decorate, Index.
         const decorators: DocumentDecorator[] = (
           this.decorators['*'] || []
         ).concat(this.decorators[type] || []);
 
-        this.logger.info(
+        this.logger.debug(
           `Collating documents for ${type} via ${this.collators[type].collate.constructor.name}`,
         );
-        let documents = await this.collators[type].collate.execute();
+        let documents: IndexableDocument[];
+
+        try {
+          documents = await this.collators[type].collate.execute();
+        } catch (e) {
+          this.logger.error(
+            `Collating documents for ${type} via ${this.collators[type].collate.constructor.name} failed: ${e}`,
+          );
+          return;
+        }
+
         for (let i = 0; i < decorators.length; i++) {
-          this.logger.info(
+          this.logger.debug(
             `Decorating ${type} documents via ${decorators[i].constructor.name}`,
           );
-          documents = await decorators[i].execute(documents);
+          try {
+            documents = await decorators[i].execute(documents);
+          } catch (e) {
+            this.logger.error(
+              `Decorating ${type} documents via ${decorators[i].constructor.name} failed: ${e}`,
+            );
+            return;
+          }
         }
 
         if (!documents || documents.length === 0) {
-          this.logger.info(`No documents for type "${type}" to index`);
+          this.logger.debug(`No documents for type "${type}" to index`);
           return;
         }
 
         // pushing documents to index to a configured search engine.
-        this.searchEngine.index(type, documents);
-      }),
-    );
+        await this.searchEngine.index(type, documents);
+      }, this.collators[type].refreshInterval * 1000);
+    });
+
+    return {
+      scheduler,
+    };
   }
 }

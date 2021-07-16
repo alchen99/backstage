@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,9 @@ import { version as catalogClient } from '../../../catalog-client/package.json';
 import { version as catalogModel } from '../../../catalog-model/package.json';
 import { version as cli } from '../../../cli/package.json';
 import { version as config } from '../../../config/package.json';
-import { version as core } from '../../../core/package.json';
+import { version as coreAppApi } from '../../../core-app-api/package.json';
+import { version as coreComponents } from '../../../core-components/package.json';
+import { version as corePluginApi } from '../../../core-plugin-api/package.json';
 import { version as errors } from '../../../errors/package.json';
 import { version as integrationReact } from '../../../integration-react/package.json';
 import { version as testUtils } from '../../../test-utils/package.json';
@@ -58,6 +60,8 @@ import { version as pluginRollbarBackend } from '../../../../plugins/rollbar-bac
 import { version as pluginScaffolder } from '../../../../plugins/scaffolder/package.json';
 import { version as pluginScaffolderBackend } from '../../../../plugins/scaffolder-backend/package.json';
 import { version as pluginSearch } from '../../../../plugins/search/package.json';
+import { version as pluginSearchBackend } from '../../../../plugins/search-backend/package.json';
+import { version as pluginSearchBackendNode } from '../../../../plugins/search-backend-node/package.json';
 import { version as pluginTechRadar } from '../../../../plugins/tech-radar/package.json';
 import { version as pluginTechdocs } from '../../../../plugins/techdocs/package.json';
 import { version as pluginTechdocsBackend } from '../../../../plugins/techdocs-backend/package.json';
@@ -69,7 +73,9 @@ export const packageVersions = {
   '@backstage/catalog-model': catalogModel,
   '@backstage/cli': cli,
   '@backstage/config': config,
-  '@backstage/core': core,
+  '@backstage/core-app-api': coreAppApi,
+  '@backstage/core-components': coreComponents,
+  '@backstage/core-plugin-api': corePluginApi,
   '@backstage/errors': errors,
   '@backstage/integration-react': integrationReact,
   '@backstage/plugin-api-docs': pluginApiDocs,
@@ -89,6 +95,8 @@ export const packageVersions = {
   '@backstage/plugin-scaffolder': pluginScaffolder,
   '@backstage/plugin-scaffolder-backend': pluginScaffolderBackend,
   '@backstage/plugin-search': pluginSearch,
+  '@backstage/plugin-search-backend': pluginSearchBackend,
+  '@backstage/plugin-search-backend-node': pluginSearchBackendNode,
   '@backstage/plugin-tech-radar': pluginTechRadar,
   '@backstage/plugin-techdocs': pluginTechdocs,
   '@backstage/plugin-techdocs-backend': pluginTechdocsBackend,

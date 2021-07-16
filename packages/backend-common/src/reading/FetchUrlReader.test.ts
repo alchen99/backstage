@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import { msw } from '@backstage/test-utils';
 import { setupServer } from 'msw/node';
 import { getVoidLogger } from '../logging';
 import { FetchUrlReader } from './FetchUrlReader';
-import { ReadTreeResponseFactory } from './tree';
+import { DefaultReadTreeResponseFactory } from './tree';
 
 describe('FetchUrlReader', () => {
   const worker = setupServer();
@@ -45,7 +45,7 @@ describe('FetchUrlReader', () => {
         },
       }),
       logger: getVoidLogger(),
-      treeResponseFactory: ReadTreeResponseFactory.create({
+      treeResponseFactory: DefaultReadTreeResponseFactory.create({
         config: new ConfigReader({}),
       }),
     });

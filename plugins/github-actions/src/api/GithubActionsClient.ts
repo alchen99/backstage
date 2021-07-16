@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { ConfigApi, OAuthApi } from '@backstage/core';
 import { readGitHubIntegrationConfigs } from '@backstage/integration';
 import { GithubActionsApi } from './GithubActionsApi';
 import { Octokit, RestEndpointMethodTypes } from '@octokit/rest';
+import { ConfigApi, OAuthApi } from '@backstage/core-plugin-api';
 
 export class GithubActionsClient implements GithubActionsApi {
   private readonly configApi: ConfigApi;
@@ -127,6 +127,33 @@ export class GithubActionsClient implements GithubActionsApi {
       run_id: id,
     });
     return run.data;
+  }
+  async listJobsForWorkflowRun({
+    hostname,
+    owner,
+    repo,
+    id,
+    pageSize = 100,
+    page = 0,
+  }: {
+    hostname?: string;
+    owner: string;
+    repo: string;
+    id: number;
+    pageSize?: number;
+    page?: number;
+  }): Promise<
+    RestEndpointMethodTypes['actions']['listJobsForWorkflowRun']['response']['data']
+  > {
+    const octokit = await this.getOctokit(hostname);
+    const jobs = await octokit.actions.listJobsForWorkflowRun({
+      owner,
+      repo,
+      run_id: id,
+      per_page: pageSize,
+      page,
+    });
+    return jobs.data;
   }
   async downloadJobLogsForWorkflowRun({
     hostname,

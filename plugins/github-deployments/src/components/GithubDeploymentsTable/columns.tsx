@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 import React from 'react';
+import { GithubDeployment } from '../../api';
+import { DateTime } from 'luxon';
+import { Box, Typography } from '@material-ui/core';
 import {
   StatusPending,
   StatusRunning,
@@ -22,10 +25,7 @@ import {
   StatusAborted,
   StatusError,
   Link,
-} from '@backstage/core';
-import { GithubDeployment } from '../../api';
-import { DateTime } from 'luxon';
-import { Box, Typography } from '@material-ui/core';
+} from '@backstage/core-components';
 
 export const GithubStateIndicator = ({ state }: { state: string }) => {
   switch (state) {
@@ -66,11 +66,12 @@ export function createStatusColumn(): TableColumn<GithubDeployment> {
 export function createCommitColumn(): TableColumn<GithubDeployment> {
   return {
     title: 'Commit',
-    render: (row: GithubDeployment): JSX.Element => (
-      <Link to={row.commit.commitUrl} target="_blank" rel="noopener">
-        {row.commit.abbreviatedOid}
-      </Link>
-    ),
+    render: (row: GithubDeployment) =>
+      row.commit && (
+        <Link to={row.commit.commitUrl} target="_blank" rel="noopener">
+          {row.commit.abbreviatedOid}
+        </Link>
+      ),
   };
 }
 

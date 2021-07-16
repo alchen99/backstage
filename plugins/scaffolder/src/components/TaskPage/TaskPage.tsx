@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { Page, Header, Lifecycle, Content, ErrorPage } from '@backstage/core';
 import React, { useState, useEffect, memo, useMemo } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
@@ -40,6 +39,13 @@ import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
 import classNames from 'classnames';
 import { BackstageTheme } from '@backstage/theme';
 import { TaskPageLinks } from './TaskPageLinks';
+import {
+  Page,
+  Header,
+  Lifecycle,
+  Content,
+  ErrorPage,
+} from '@backstage/core-components';
 
 // typings are wrong for this library, so fallback to not parsing types.
 const humanizeDuration = require('humanize-duration');
@@ -172,6 +178,8 @@ export const TaskStatusStepper = memo(
             const isCompleted = step.status === 'completed';
             const isFailed = step.status === 'failed';
             const isActive = step.status === 'processing';
+            const isSkipped = step.status === 'skipped';
+
             return (
               <Step key={String(index)} expanded>
                 <StepButton onClick={() => onUserStepChange(step.id)}>
@@ -186,7 +194,11 @@ export const TaskStatusStepper = memo(
                   >
                     <div className={classes.labelWrapper}>
                       <Typography variant="subtitle2">{step.name}</Typography>
-                      <StepTimeTicker step={step} />
+                      {isSkipped ? (
+                        <Typography variant="caption">Skipped</Typography>
+                      ) : (
+                        <StepTimeTicker step={step} />
+                      )}
                     </div>
                   </StepLabel>
                 </StepButton>

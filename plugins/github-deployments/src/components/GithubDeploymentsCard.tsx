@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 import React from 'react';
-import {
-  MissingAnnotationEmptyState,
-  ResponseErrorPanel,
-  TableColumn,
-  useApi,
-} from '@backstage/core';
 import { useAsyncRetry } from 'react-use';
 import { GithubDeployment, githubDeploymentsApiRef } from '../api';
 import { useEntity } from '@backstage/plugin-catalog-react';
@@ -28,21 +22,43 @@ import {
   isGithubDeploymentsAvailable,
 } from '../Router';
 import { GithubDeploymentsTable } from './GithubDeploymentsTable/GithubDeploymentsTable';
+import {
+  LOCATION_ANNOTATION,
+  SOURCE_LOCATION_ANNOTATION,
+} from '@backstage/catalog-model';
+
+import {
+  MissingAnnotationEmptyState,
+  ResponseErrorPanel,
+  TableColumn,
+} from '@backstage/core-components';
+import { useApi } from '@backstage/core-plugin-api';
 
 const GithubDeploymentsComponent = ({
   projectSlug,
   last,
+  lastStatuses,
   columns,
+  host,
 }: {
   projectSlug: string;
   last: number;
+  lastStatuses: number;
   columns: TableColumn<GithubDeployment>[];
+  host: string | undefined;
 }) => {
   const api = useApi(githubDeploymentsApiRef);
   const [owner, repo] = projectSlug.split('/');
 
   const { loading, value, error, retry: reload } = useAsyncRetry(
-    async () => await api.listDeployments({ owner, repo, last }),
+    async () =>
+      await api.listDeployments({
+        host,
+        owner,
+        repo,
+        last,
+        lastStatuses,
+      }),
   );
 
   if (error) {
@@ -61,12 +77,18 @@ const GithubDeploymentsComponent = ({
 
 export const GithubDeploymentsCard = ({
   last,
+  lastStatuses,
   columns,
 }: {
   last?: number;
+  lastStatuses?: number;
   columns?: TableColumn<GithubDeployment>[];
 }) => {
   const { entity } = useEntity();
+  const [host] = [
+    entity?.metadata.annotations?.[SOURCE_LOCATION_ANNOTATION],
+    entity?.metadata.annotations?.[LOCATION_ANNOTATION],
+  ].filter(Boolean);
 
   return !isGithubDeploymentsAvailable(entity) ? (
     <MissingAnnotationEmptyState annotation={GITHUB_PROJECT_SLUG_ANNOTATION} />
@@ -76,6 +98,8 @@ export const GithubDeploymentsCard = ({
         entity?.metadata.annotations?.[GITHUB_PROJECT_SLUG_ANNOTATION] || ''
       }
       last={last || 10}
+      lastStatuses={lastStatuses || 5}
+      host={host}
       columns={columns || GithubDeploymentsTable.defaultDeploymentColumns}
     />
   );

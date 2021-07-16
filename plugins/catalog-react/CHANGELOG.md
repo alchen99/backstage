@@ -1,5 +1,152 @@
 # @backstage/plugin-catalog-react
 
+## 0.3.0
+
+### Minor Changes
+
+- 976b61080: Updated the software templates list page (`ScaffolderPage`) to use the `useEntityListProvider` hook from #5643. This reduces the code footprint, making it easier to customize the display of this page, and consolidates duplicate approaches to querying the catalog with filters.
+
+  - The `useEntityTypeFilter` hook has been updated along with the underlying `EntityTypeFilter` to work with multiple values, to allow more flexibility for different user interfaces. It's unlikely that this change affects you; however, if you're using either of these directly, you'll need to update your usage.
+  - `SearchToolbar` was renamed to `EntitySearchBar` and moved to `catalog-react` to be usable by other entity list pages
+  - `UserListPicker` now has an `availableTypes` prop to restrict which user-related options to present
+
+### Patch Changes
+
+- d84778c25: Store filter values set in `EntityListProvider` in query parameters. This allows selected filters to be restored when returning to pages that list catalog entities.
+- e13f0fb9d: Fix `EntityTypeFilter` so it produces unique case-insensitive set of available types
+
+## 0.2.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/integration@0.5.8
+  - @backstage/core-components@0.1.5
+  - @backstage/catalog-model@0.9.0
+  - @backstage/catalog-client@0.3.16
+
+## 0.2.5
+
+### Patch Changes
+
+- 35a3e4e4c: Fix repetitive error reporting in EntityTypePicker
+- Updated dependencies
+  - @backstage/core-app-api@0.1.4
+  - @backstage/core-components@0.1.4
+  - @backstage/integration@0.5.7
+  - @backstage/catalog-client@0.3.15
+
+## 0.2.4
+
+### Patch Changes
+
+- 48c9fcd33: Migrated to use the new `@backstage/core-*` packages rather than `@backstage/core`.
+- Updated dependencies
+  - @backstage/core-app-api@0.1.3
+  - @backstage/core-plugin-api@0.1.3
+  - @backstage/catalog-client@0.3.14
+  - @backstage/catalog-model@0.8.4
+
+## 0.2.3
+
+### Patch Changes
+
+- 172c97324: Add `EntityLifecyclePicker` and `EntityOwnerPicker` UI components to allow filtering by `spec.lifecycle` and `spec.owner` on catalog-related pages.
+- Updated dependencies
+  - @backstage/catalog-model@0.8.3
+  - @backstage/core@0.7.13
+
+## 0.2.2
+
+### Patch Changes
+
+- 7028ee1ca: Expose `getEntitySourceLocation`, `getEntityMetadataViewUrl`, and
+  `getEntityMetadataEditUrl` from `@backstage/plugin-catalog-react`.
+- Updated dependencies [75b8537ce]
+- Updated dependencies [27a9b503a]
+- Updated dependencies [da8cba44f]
+- Updated dependencies [70bc30c5b]
+- Updated dependencies [eda9dbd5f]
+  - @backstage/core-plugin-api@0.1.2
+  - @backstage/catalog-model@0.8.2
+  - @backstage/catalog-client@0.3.13
+  - @backstage/integration@0.5.6
+
+## 0.2.1
+
+### Patch Changes
+
+- deaba2e13: Sort `EntityTagPicker` entries.
+- 8e919a6f8: Tweak the `EntityListProvider` to do single-cycle updates
+- Updated dependencies [031ccd45f]
+- Updated dependencies [e7c5e4b30]
+- Updated dependencies [ebe802bc4]
+- Updated dependencies [1cf1d351f]
+  - @backstage/core-plugin-api@0.1.1
+  - @backstage/catalog-model@0.8.1
+  - @backstage/core@0.7.12
+
+## 0.2.0
+
+### Minor Changes
+
+- 17c497b81: The default `CatalogPage` has been reworked to be more composable and make
+  customization easier. This change only affects those who have replaced the
+  default `CatalogPage` with a custom implementation; others can safely ignore the
+  rest of this changelog.
+
+  If you created a custom `CatalogPage` to **add or remove tabs** from the
+  catalog, a custom page is no longer necessary. The fixed tabs have been replaced
+  with a `spec.type` dropdown that shows all available `Component` types in the
+  catalog.
+
+  For other needs, customizing the `CatalogPage` should now be easier. The new
+  [CatalogPage.tsx](https://github.com/backstage/backstage/blob/9a4baa74509b6452d7dc054d34cf079f9997166d/plugins/catalog/src/components/CatalogPage/CatalogPage.tsx)
+  shows the default implementation. Overriding this with your own, similar
+  `CatalogPage` component in your `App.tsx` routing allows you to adjust the
+  layout, header, and which filters are available.
+
+  See the documentation added on [Catalog
+  Customization](https://backstage.io/docs/features/software-catalog/catalog-customization)
+  for instructions.
+
+### Patch Changes
+
+- Updated dependencies [add62a455]
+- Updated dependencies [cc592248b]
+- Updated dependencies [704875e26]
+  - @backstage/catalog-client@0.3.12
+  - @backstage/catalog-model@0.8.0
+  - @backstage/core@0.7.11
+
+## 0.1.6
+
+### Patch Changes
+
+- 062bbf90f: chore: bump `@testing-library/user-event` from 12.8.3 to 13.1.8
+- 675a569a9: chore: bump `react-use` dependency in all packages
+- Updated dependencies [062bbf90f]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [889d89b6e]
+- Updated dependencies [16be1d093]
+- Updated dependencies [3f988cb63]
+- Updated dependencies [675a569a9]
+  - @backstage/core@0.7.9
+  - @backstage/catalog-model@0.7.9
+
+## 0.1.5
+
+### Patch Changes
+
+- 81c54d1f2: Fetch relations in batches in `useRelatedEntities`
+- Updated dependencies [f65adcde7]
+- Updated dependencies [80888659b]
+- Updated dependencies [d8b81fd28]
+- Updated dependencies [d1b1306d9]
+  - @backstage/core@0.7.8
+  - @backstage/catalog-model@0.7.8
+  - @backstage/catalog-client@0.3.11
+
 ## 0.1.4
 
 ### Patch Changes

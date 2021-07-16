@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 import { Entity, EntityName } from '@backstage/catalog-model';
 import { Config } from '@backstage/config';
 import aws, { Credentials } from 'aws-sdk';
-import { ManagedUpload } from 'aws-sdk/clients/s3';
+import { ListObjectsV2Output, ManagedUpload } from 'aws-sdk/clients/s3';
 import { CredentialsOptions } from 'aws-sdk/lib/credentials';
 import express from 'express';
 import fs from 'fs-extra';
@@ -25,7 +25,11 @@ import createLimiter from 'p-limit';
 import path from 'path';
 import { Readable } from 'stream';
 import { Logger } from 'winston';
-import { getFileTreeRecursively, getHeadersForFileExtension } from './helpers';
+import {
+  getFileTreeRecursively,
+  getHeadersForFileExtension,
+  lowerCaseEntityTripletInStoragePath,
+} from './helpers';
 import {
   PublisherBase,
   PublishRequest,
@@ -80,10 +84,17 @@ export class AwsS3Publish implements PublisherBase {
       'techdocs.publisher.awsS3.endpoint',
     );
 
+    // AWS forcePathStyle is an optional config. If missing, it defaults to false. Needs to be enabled for cases
+    // where endpoint url points to locally hosted S3 compatible storage like Localstack
+    const s3ForcePathStyle = config.getOptionalBoolean(
+      'techdocs.publisher.awsS3.s3ForcePathStyle',
+    );
+
     const storageClient = new aws.S3({
       credentials,
       ...(region && { region }),
       ...(endpoint && { endpoint }),
+      ...(s3ForcePathStyle && { s3ForcePathStyle }),
     });
 
     return new AwsS3Publish(storageClient, bucketName, logger);
@@ -256,9 +267,9 @@ export class AwsS3Publish implements PublisherBase {
    */
   docsRouter(): express.Handler {
     return async (req, res) => {
-      // Trim the leading forward slash
+      // Decode and trim the leading forward slash
       // filePath example - /default/Component/documented-component/index.html
-      const filePath = req.path.replace(/^\//, '');
+      const filePath = decodeURI(req.path.replace(/^\//, ''));
 
       // Files with different extensions (CSS, HTML) need to be served with different headers
       const fileExtension = path.extname(filePath);
@@ -300,5 +311,79 @@ export class AwsS3Publish implements PublisherBase {
     } catch (e) {
       return Promise.resolve(false);
     }
+  }
+
+  async migrateDocsCase({
+    removeOriginal = false,
+    concurrency = 25,
+  }): Promise<void> {
+    // Iterate through every file in the root of the publisher.
+    const allObjects = await this.getAllObjectsFromBucket();
+    const limiter = createLimiter(concurrency);
+    await Promise.all(
+      allObjects.map(f =>
+        limiter(async file => {
+          let newPath;
+          try {
+            newPath = lowerCaseEntityTripletInStoragePath(file);
+          } catch (e) {
+            this.logger.warn(e.message);
+            return;
+          }
+
+          // If all parts are already lowercase, ignore.
+          if (file === newPath) {
+            return;
+          }
+
+          try {
+            this.logger.debug(`Migrating ${file}`);
+            await this.storageClient
+              .copyObject({
+                Bucket: this.bucketName,
+                CopySource: [this.bucketName, file].join('/'),
+                Key: newPath,
+              })
+              .promise();
+
+            if (removeOriginal) {
+              await this.storageClient
+                .deleteObject({
+                  Bucket: this.bucketName,
+                  Key: file,
+                })
+                .promise();
+            }
+          } catch (e) {
+            this.logger.warn(`Unable to migrate ${file}: ${e.message}`);
+          }
+        }, f),
+      ),
+    );
+  }
+
+  /**
+   * Returns a list of all object keys from the configured bucket.
+   */
+  protected async getAllObjectsFromBucket(): Promise<string[]> {
+    const objects: string[] = [];
+    let nextContinuation: string | undefined;
+    let allObjects: ListObjectsV2Output;
+
+    // Iterate through every file in the root of the publisher.
+    do {
+      allObjects = await this.storageClient
+        .listObjectsV2({
+          Bucket: this.bucketName,
+          ContinuationToken: nextContinuation,
+        })
+        .promise();
+      objects.push(
+        ...(allObjects.Contents || []).map(f => f.Key || '').filter(f => !!f),
+      );
+      nextContinuation = allObjects.NextContinuationToken;
+    } while (nextContinuation);
+
+    return objects;
   }
 }

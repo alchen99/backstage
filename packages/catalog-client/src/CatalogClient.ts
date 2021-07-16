@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import {
   Location,
   LOCATION_ANNOTATION,
   ORIGIN_LOCATION_ANNOTATION,
+  stringifyEntityRef,
   stringifyLocationReference,
 } from '@backstage/catalog-model';
 import { ResponseError } from '@backstage/errors';
@@ -31,8 +32,8 @@ import {
   CatalogEntitiesRequest,
   CatalogListResponse,
   CatalogRequestOptions,
-  DiscoveryApi,
-} from './types';
+} from './types/api';
+import { DiscoveryApi } from './types/discovery';
 
 export class CatalogClient implements CatalogApi {
   private readonly discoveryApi: DiscoveryApi;
@@ -56,18 +57,27 @@ export class CatalogClient implements CatalogApi {
     request?: CatalogEntitiesRequest,
     options?: CatalogRequestOptions,
   ): Promise<CatalogListResponse<Entity>> {
-    const { filter = {}, fields = [] } = request ?? {};
+    const { filter = [], fields = [] } = request ?? {};
+    const filterItems = [filter].flat();
     const params: string[] = [];
 
-    const filterParts: string[] = [];
-    for (const [key, value] of Object.entries(filter)) {
-      for (const v of [value].flat()) {
-        filterParts.push(`${encodeURIComponent(key)}=${encodeURIComponent(v)}`);
+    // filter param can occur multiple times, for example
+    // /api/catalog/entities?filter=metadata.name=wayback-search,kind=component&filter=metadata.name=www-artist,kind=component'
+    // the "outer array" defined by `filter` occurrences corresponds to "anyOf" filters
+    // the "inner array" defined within a `filter` param corresponds to "allOf" filters
+    for (const filterItem of filterItems) {
+      const filterParts: string[] = [];
+      for (const [key, value] of Object.entries(filterItem)) {
+        for (const v of [value].flat()) {
+          filterParts.push(
+            `${encodeURIComponent(key)}=${encodeURIComponent(v)}`,
+          );
+        }
       }
-    }
 
-    if (filterParts.length) {
-      params.push(`filter=${filterParts.join(',')}`);
+      if (filterParts.length) {
+        params.push(`filter=${filterParts.join(',')}`);
+      }
     }
 
     if (fields.length) {
@@ -80,7 +90,30 @@ export class CatalogClient implements CatalogApi {
       `/entities${query}`,
       options,
     );
-    return { items: entities };
+
+    const refCompare = (a: Entity, b: Entity) => {
+      // in case field filtering is used, these fields might not be part of the response
+      if (
+        a.metadata?.name === undefined ||
+        a.kind === undefined ||
+        b.metadata?.name === undefined ||
+        b.kind === undefined
+      ) {
+        return 0;
+      }
+
+      const aRef = stringifyEntityRef(a);
+      const bRef = stringifyEntityRef(b);
+      if (aRef < bRef) {
+        return -1;
+      }
+      if (aRef > bRef) {
+        return 1;
+      }
+      return 0;
+    };
+
+    return { items: entities.sort(refCompare) };
   }
 
   async getEntityByName(
@@ -125,11 +158,6 @@ export class CatalogClient implements CatalogApi {
       throw new Error(`Location wasn't added: ${target}`);
     }
 
-    if (entities.length === 0) {
-      throw new Error(
-        `Location was added but has no entities specified yet: ${target}`,
-      );
-    }
     return {
       location,
       entities,

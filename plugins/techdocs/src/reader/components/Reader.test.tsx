@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-import { ApiProvider, ApiRegistry } from '@backstage/core';
+import { ConfigReader } from '@backstage/config';
+import {
+  ScmIntegrationsApi,
+  scmIntegrationsApiRef,
+} from '@backstage/integration-react';
 import { wrapInTestApp } from '@backstage/test-utils';
 import { act, render } from '@testing-library/react';
 import React from 'react';
 import { TechDocsStorageApi, techdocsStorageApiRef } from '../../api';
 import { Reader } from './Reader';
+import { ApiProvider, ApiRegistry } from '@backstage/core-app-api';
 
 jest.mock('react-router-dom', () => {
   const actual = jest.requireActual('react-router-dom');
@@ -39,9 +44,15 @@ describe('<Reader />', () => {
       entityId: 'Component::backstage',
     });
 
+    const scmIntegrationsApi: ScmIntegrationsApi = ScmIntegrationsApi.fromConfig(
+      new ConfigReader({
+        integrations: {},
+      }),
+    );
     const techdocsStorageApi: Partial<TechDocsStorageApi> = {};
 
     const apiRegistry = ApiRegistry.from([
+      [scmIntegrationsApiRef, scmIntegrationsApi],
       [techdocsStorageApiRef, techdocsStorageApi],
     ]);
 

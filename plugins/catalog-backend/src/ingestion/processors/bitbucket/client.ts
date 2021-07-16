@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,15 +39,6 @@ export class BitbucketClient {
       `${this.config.apiBaseUrl}/projects/${projectKey}/repos`,
       options,
     );
-  }
-
-  async getRaw(
-    projectKey: string,
-    repo: string,
-    path: string,
-  ): Promise<Response> {
-    const request = `${this.config.apiBaseUrl}/projects/${projectKey}/repos/${repo}/raw/${path}`;
-    return fetch(request, getBitbucketRequestOptions(this.config));
   }
 
   private async pagedRequest(

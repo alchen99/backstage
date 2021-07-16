@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,38 +15,38 @@
  */
 
 import React, { useEffect } from 'react';
-import { Progress, useApi, errorApiRef, ErrorApi } from '@backstage/core';
 import { useAsync } from 'react-use';
 import Radar from '../components/Radar';
-import { TechRadarComponentProps, TechRadarLoaderResponse } from '../api';
-import getSampleData from '../sampleData';
+import {
+  techRadarApiRef,
+  TechRadarComponentProps,
+  TechRadarLoaderResponse,
+} from '../api';
 import { Entry } from '../utils/types';
 
-const useTechRadarLoader = (props: TechRadarComponentProps) => {
-  const errorApi = useApi<ErrorApi>(errorApiRef);
+import { Progress } from '@backstage/core-components';
+import { useApi, errorApiRef } from '@backstage/core-plugin-api';
 
-  const { getData } = props;
+const useTechRadarLoader = (id: string | undefined) => {
+  const errorApi = useApi(errorApiRef);
+  const techRadarApi = useApi(techRadarApiRef);
 
-  const state = useAsync(async () => {
-    if (getData) {
-      const response: TechRadarLoaderResponse = await getData();
-      return response;
-    }
-    return undefined;
-  }, [getData, errorApi]);
+  const { error, value, loading } = useAsync(
+    async () => techRadarApi.load(id),
+    [techRadarApi],
+  );
 
   useEffect(() => {
-    const { error } = state;
     if (error) {
       errorApi.post(error);
     }
-  }, [errorApi, state]);
+  }, [error, errorApi]);
 
-  return state;
+  return { loading, value, error };
 };
 
 const RadarComponent = (props: TechRadarComponentProps): JSX.Element => {
-  const { loading, error, value: data } = useTechRadarLoader(props);
+  const { loading, error, value: data } = useTechRadarLoader(props.id);
 
   const mapToEntries = (
     loaderResponse: TechRadarLoaderResponse | undefined,
@@ -87,10 +87,6 @@ const RadarComponent = (props: TechRadarComponentProps): JSX.Element => {
       )}
     </>
   );
-};
-
-RadarComponent.defaultProps = {
-  getData: getSampleData,
 };
 
 export default RadarComponent;

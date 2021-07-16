@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@ import {
 } from '@backstage/integration';
 import { LocationSpec } from '@backstage/catalog-model';
 import {
-  Repository,
   BitbucketRepositoryParser,
   BitbucketClient,
   defaultRepositoryParser,
   paginated,
+  BitbucketRepository,
 } from './bitbucket';
 import { CatalogProcessor, CatalogProcessorEmit } from './types';
 
@@ -66,33 +66,34 @@ export class BitbucketDiscoveryProcessor implements CatalogProcessor {
       return false;
     }
 
-    const bitbucketConfig = this.integrations.bitbucket.byUrl(location.target)
-      ?.config;
-    if (!bitbucketConfig) {
+    const integration = this.integrations.bitbucket.byUrl(location.target);
+    if (!integration) {
       throw new Error(
         `There is no Bitbucket integration that matches ${location.target}. Please add a configuration entry for it under integrations.bitbucket`,
       );
-    } else if (bitbucketConfig.host === 'bitbucket.org') {
+    } else if (integration.config.host === 'bitbucket.org') {
       throw new Error(
         `Component discovery for Bitbucket Cloud is not yet supported`,
       );
     }
 
     const client = new BitbucketClient({
-      config: bitbucketConfig,
+      config: integration.config,
     });
     const startTimestamp = Date.now();
     this.logger.info(`Reading Bitbucket repositories from ${location.target}`);
 
     const { catalogPath } = parseUrl(location.target);
+    const expandedCatalogPath =
+      catalogPath === '/' ? '/catalog-info.yaml' : catalogPath;
 
     const result = await readBitbucketOrg(client, location.target);
 
     for (const repository of result.matches) {
       for await (const entity of this.parser({
-        client: client,
-        repository: repository,
-        path: catalogPath,
+        integration: integration,
+        target: `${repository.links.self[0].href}${expandedCatalogPath}`,
+        logger: this.logger,
       })) {
         emit(entity);
       }
@@ -159,5 +160,5 @@ function escapeRegExp(str: string): RegExp {
 
 type Result = {
   scanned: number;
-  matches: Repository[];
+  matches: BitbucketRepository[];
 };

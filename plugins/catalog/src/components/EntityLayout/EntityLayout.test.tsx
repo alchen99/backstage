@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,6 @@
  */
 import { CatalogApi } from '@backstage/catalog-client';
 import { Entity } from '@backstage/catalog-model';
-import {
-  AlertApi,
-  alertApiRef,
-  ApiProvider,
-  ApiRegistry,
-} from '@backstage/core';
 import { catalogApiRef, EntityContext } from '@backstage/plugin-catalog-react';
 import { renderInTestApp } from '@backstage/test-utils';
 import { fireEvent } from '@testing-library/react';
@@ -28,6 +22,9 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { Route, Routes } from 'react-router';
 import { EntityLayout } from './EntityLayout';
+
+import { AlertApi, alertApiRef } from '@backstage/core-plugin-api';
+import { ApiProvider, ApiRegistry } from '@backstage/core-app-api';
 
 const mockEntityData = {
   loading: false,
@@ -100,5 +97,40 @@ describe('EntityLayout', () => {
 
     expect(rendered.getByText('tabbed-test-title-2')).toBeInTheDocument();
     expect(rendered.queryByText('tabbed-test-content-2')).toBeInTheDocument();
+  });
+
+  it('should conditionally render tabs', async () => {
+    const shouldRenderTab = (e: Entity) => e.metadata.name === 'my-entity';
+    const shouldNotRenderTab = (e: Entity) => e.metadata.name === 'some-entity';
+
+    const rendered = await renderInTestApp(
+      <ApiProvider apis={mockApis}>
+        <EntityContext.Provider value={mockEntityData}>
+          <EntityLayout>
+            <EntityLayout.Route path="/" title="tabbed-test-title">
+              <div>tabbed-test-content</div>
+            </EntityLayout.Route>
+            <EntityLayout.Route
+              path="/some-other-path"
+              title="tabbed-test-title-2"
+              if={shouldNotRenderTab}
+            >
+              <div>tabbed-test-content-2</div>
+            </EntityLayout.Route>
+            <EntityLayout.Route
+              path="/some-other-other-path"
+              title="tabbed-test-title-3"
+              if={shouldRenderTab}
+            >
+              <div>tabbed-test-content-3</div>
+            </EntityLayout.Route>
+          </EntityLayout>
+        </EntityContext.Provider>
+      </ApiProvider>,
+    );
+
+    expect(rendered.queryByText('tabbed-test-title')).toBeInTheDocument();
+    expect(rendered.queryByText('tabbed-test-title-2')).not.toBeInTheDocument();
+    expect(rendered.queryByText('tabbed-test-title-3')).toBeInTheDocument();
   });
 });

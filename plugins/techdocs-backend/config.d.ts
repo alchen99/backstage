@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,31 @@ export interface Config {
     /**
      * Techdocs generator information
      */
+    generator?: {
+      /**
+       * Where to run the techdocs (mkdocs) generator
+       */
+      runIn: 'local' | 'docker';
+
+      /**
+       * Override the default techdocs docker image
+       */
+      dockerImage?: string;
+
+      /**
+       * Pull the latest docker image
+       */
+      pullImage?: boolean;
+    };
+
+    /**
+     * Techdocs generator information
+     * @deprecated Replaced with techdocs.generator
+     */
     generators?: {
+      /**
+       * @deprecated Use techdocs.generator.runIn
+       */
       techdocs: 'local' | 'docker';
     };
 
@@ -90,6 +114,13 @@ export interface Config {
              * @visibility secret
              */
             endpoint?: string;
+            /**
+             * (Optional) Whether to use path style URLs when communicating with S3.
+             * Defaults to false.
+             * This allows providers like LocalStack, Minio and Wasabi (and possibly others) to be used to host tech docs.
+             * @visibility backend
+             */
+            s3ForcePathStyle?: boolean;
           };
         }
       | {

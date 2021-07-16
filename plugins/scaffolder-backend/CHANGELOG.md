@@ -1,5 +1,369 @@
 # @backstage/plugin-scaffolder-backend
 
+## 0.14.0
+
+### Minor Changes
+
+- 96fc27698: Updated inputs for the `publish:github:pull-request` action.
+
+  Now requires a `repoUrl` instead of separate `owner` and `repo` inputs. This aligns with the output of the `RepoUrlPicker` ui field used by the pull-request sample template.
+
+### Patch Changes
+
+- e75506fe7: Unsubscribe from broker after response is flushed
+- ea1d956ef: Updating fs-extra to 10.0.0 to handle broken symbolic links correctly
+- 31de5f27f: Add new `fetch:template` action which handles the same responsibilities as `fetch:cookiecutter` without the external dependency on `cookiecutter`. For information on migrating from `fetch:cookiecutter` to `fetch:template`, see the [migration guide](https://backstage.io/docs/features/software-templates/builtin-actions#migrating-from-fetch-cookiecutter-to-fetch-template) in the docs.
+- 84d329e2a: Scaffolder: Added an 'eq' handlebars helper for use in software template YAML files. This can be used to execute a step depending on the value of an input, e.g.:
+
+  ```yaml
+  steps:
+    id: 'conditional-step'
+    action: 'custom-action'
+    if: '{{ eq parameters.myvalue "custom" }}',
+  ```
+
+- ae84b20cf: Revert the upgrade to `fs-extra@10.0.0` as that seemed to have broken all installs inexplicably.
+- Updated dependencies
+  - @backstage/backend-common@0.8.6
+
+## 0.13.0
+
+### Minor Changes
+
+- 60e830222: Support for `Template` kinds with version `backstage.io/v1alpha1` has now been removed. This means that the old method of running templates with `Preparers`, `Templaters` and `Publishers` has also been removed. If you had any logic in these abstractions, they should now be moved to `actions` instead, and you can find out more about those in the [documentation](https://backstage.io/docs/features/software-templates/writing-custom-actions)
+
+  If you need any help migrating existing templates, there's a [migration guide](https://backstage.io/docs/features/software-templates/migrating-from-v1alpha1-to-v1beta2). Reach out to us on Discord in the #support channel if you're having problems.
+
+  The `scaffolder-backend` now no longer requires these `Preparers`, `Templaters`, and `Publishers` to be passed in, now all it needs is the `containerRunner`.
+
+  Please update your `packages/backend/src/plugins/scaffolder.ts` like the following
+
+  ```diff
+  - import {
+  -  DockerContainerRunner,
+  -  SingleHostDiscovery,
+  - } from '@backstage/backend-common';
+  + import { DockerContainerRunner } from '@backstage/backend-common';
+    import { CatalogClient } from '@backstage/catalog-client';
+  - import {
+  -   CookieCutter,
+  -   CreateReactAppTemplater,
+  -   createRouter,
+  -   Preparers,
+  -   Publishers,
+  -   Templaters,
+  - } from '@backstage/plugin-scaffolder-backend';
+  + import { createRouter } from '@backstage/plugin-scaffolder-backend';
+    import Docker from 'dockerode';
+    import { Router } from 'express';
+    import type { PluginEnvironment } from '../types';
+
+    export default async function createPlugin({
+      config,
+      database,
+      reader,
+  +   discovery,
+    }: PluginEnvironment): Promise<Router> {
+      const dockerClient = new Docker();
+      const containerRunner = new DockerContainerRunner({ dockerClient });
+
+  -   const cookiecutterTemplater = new CookieCutter({ containerRunner });
+  -   const craTemplater = new CreateReactAppTemplater({ containerRunner });
+  -   const templaters = new Templaters();
+
+  -   templaters.register('cookiecutter', cookiecutterTemplater);
+  -   templaters.register('cra', craTemplater);
+  -
+  -   const preparers = await Preparers.fromConfig(config, { logger });
+  -   const publishers = await Publishers.fromConfig(config, { logger });
+
+  -   const discovery = SingleHostDiscovery.fromConfig(config);
+      const catalogClient = new CatalogClient({ discoveryApi: discovery });
+
+      return await createRouter({
+  -     preparers,
+  -     templaters,
+  -     publishers,
+  +     containerRunner,
+        logger,
+        config,
+        database,
+
+  ```
+
+- 7cad18e2f: Adding `config: Config` as a required argument to `createBuiltinActions` and downstream methods in order to support configuration of the default git author used for Scaffolder commits.
+
+  The affected methods are:
+
+  - `createBuiltinActions`
+  - `createPublishGithubAction`
+  - `createPublishGitlabAction`
+  - `createPublishBitbucketAction`
+  - `createPublishAzureAction`
+
+  Call sites to these methods will need to be migrated to include the new `config` argument. See `createRouter` in `plugins/scaffolder-backend/src/service/router.ts` for an example of adding this new argument.
+
+  To configure the default git author, use the `defaultAuthor` key under `scaffolder` in `app-config.yaml`:
+
+  ```yaml
+  scaffolder:
+    defaultAuthor:
+      name: Example
+      email: example@example.com
+  ```
+
+### Patch Changes
+
+- dad481793: add default branch property for publish GitLab, Bitbucket and Azure actions
+- 62c2f10f7: Added filesystem remove/rename built-in actions
+- 6841e0113: fix minor version of git-url-parse as 11.5.x introduced a bug for Bitbucket Server
+- 11e66e804: bump azure-devops-node to 10.2.2
+- 7a3ad92b5: Export the `fetchContents` from scaffolder-backend
+- c2db794f5: add defaultBranch property for publish GitHub action
+- 253136fba: removing mandatory of protection for the default branch, that could be handled by the GitHub automation in async manner, thus throwing floating errors
+- Updated dependencies
+  - @backstage/integration@0.5.8
+  - @backstage/catalog-model@0.9.0
+  - @backstage/backend-common@0.8.5
+  - @backstage/catalog-client@0.3.16
+
+## 0.12.4
+
+### Patch Changes
+
+- 1627daac2: Fix `catalog:write` on windows systems
+- ab5cc376f: Use new utilities from `@backstage/backend-common` for safely resolving child paths
+- Updated dependencies
+  - @backstage/backend-common@0.8.4
+  - @backstage/integration@0.5.7
+  - @backstage/catalog-client@0.3.15
+
+## 0.12.3
+
+### Patch Changes
+
+- a7f5fe7d7: created an action to write a catalog-info file
+- 71416fb64: Moved installation instructions from the main [backstage.io](https://backstage.io) documentation to the package README file. These instructions are not generally needed, since the plugin comes installed by default with `npx @backstage/create-app`.
+- c18a3c2ae: Correctly recognize whether the cookiecutter command exists
+- Updated dependencies
+  - @backstage/catalog-client@0.3.14
+  - @backstage/catalog-model@0.8.4
+
+## 0.12.2
+
+### Patch Changes
+
+- b49222176: Keep the empty string as empty string in `input` rather than replacing with `undefined` to make empty values ok for `cookiecutter`
+
+## 0.12.1
+
+### Patch Changes
+
+- 55a834f3c: Use the correct parameter to create a public repository in Bitbucket Server for the v2 templates
+- 745351190: Describe `publish:github` scaffolder action fields
+
+  This change adds a description to the fields with examples of what to input. The
+  `collaborators` description is also expanded a bit to make it more clear that
+  these are additional compared to access and owner.
+
+- 090dfe65d: Adds support to enable LFS for hosted Bitbucket
+- 878c1851d: Add a `topics` input to `publish:github` action that can be used to set topics on the repository upon creation.
+- 4ca322826: Migrate from the `command-exists-promise` dependency to `command-exists`.
+- df3ac03cf: Use the correct parameter to create a public repository in Bitbucket Server.
+- Updated dependencies
+  - @backstage/backend-common@0.8.3
+  - @backstage/catalog-model@0.8.3
+
+## 0.12.0
+
+### Minor Changes
+
+- 66c6bfebd: Scaffolding a repository in Bitbucket will now use the apiBaseUrl if it is provided instead of only the host parameter
+
+### Patch Changes
+
+- 27a9b503a: Introduce conditional steps in scaffolder templates.
+
+  A step can now include an `if` property that only executes a step if the
+  condition is truthy. The condition can include handlebar templates.
+
+  ```yaml
+  - id: register
+      if: '{{ not parameters.dryRun }}'
+      name: Register
+      action: catalog:register
+      input:
+      repoContentsUrl: '{{ steps.publish.output.repoContentsUrl }}'
+      catalogInfoPath: '/catalog-info.yaml'
+  ```
+
+  Also introduces a `not` helper in handlebar templates that allows to negate
+  boolean expressions.
+
+- 55a253de2: Migrating old `backstage.io/v1alpha1` templates to `backstage.io/v1beta2`
+
+  Deprecating the `create-react-app` Template. We're planning on removing the `create-react-app` templater, as it's been a little tricky to support and takes 15mins to run in a container. We've currently cached a copy of the output for `create-react-app` and ship that under our sample templates folder. If you want to continue using it, we suggest copying the template out of there and putting it in your own repository as it will be removed in upcoming releases.
+
+  We also recommend removing this entry from your `app-config.yaml` if it exists:
+
+  ```diff
+  -    - type: url
+  -      target: https://github.com/backstage/backstage/blob/master/plugins/scaffolder-backend/sample-templates/create-react-app/template.yaml
+  -      rules:
+  -        - allow: [Template]
+  ```
+
+- f26e6008f: Add `debug:log` action for debugging.
+- 4f8cf50fe: Update gitbeaker past the broken version without a dist folder
+- Updated dependencies [92963779b]
+- Updated dependencies [27a9b503a]
+- Updated dependencies [70bc30c5b]
+- Updated dependencies [eda9dbd5f]
+  - @backstage/backend-common@0.8.2
+  - @backstage/catalog-model@0.8.2
+  - @backstage/catalog-client@0.3.13
+  - @backstage/integration@0.5.6
+
+## 0.11.5
+
+### Patch Changes
+
+- 6fe1567a7: This adds a configuration option to the scaffolder plugin router, so we can allow for multiple `TaskWorkers`. Currently with only one `TaskWorker` you are limited to scaffolding one thing at a time. Set the `taskWorkers?: number` option in your scaffolder router to get more than 1 `TaskWorker`
+- Updated dependencies [ebe802bc4]
+- Updated dependencies [49d7ec169]
+  - @backstage/catalog-model@0.8.1
+  - @backstage/integration@0.5.5
+
+## 0.11.4
+
+### Patch Changes
+
+- 260aaa684: Bump `@gitbeaker` dependencies to `29.x`.
+- Updated dependencies [0fd4ea443]
+- Updated dependencies [add62a455]
+- Updated dependencies [704875e26]
+  - @backstage/integration@0.5.4
+  - @backstage/catalog-client@0.3.12
+  - @backstage/catalog-model@0.8.0
+
+## 0.11.3
+
+### Patch Changes
+
+- 021eb366a: Instead of failing, warn when you need to pay for GitHub Pro.
+
+## 0.11.2
+
+### Patch Changes
+
+- f7f7783a3: Add Owner field in template card and new data distribution
+  Add spec.owner as optional field into TemplateV1Alpha and TemplateV1Beta Schema
+  Add relations ownedBy and ownerOf into Template entity
+  Template documentation updated
+- 65e6c4541: Remove circular dependencies
+- 81d7b9c6f: Added deprecation warnings for `v1alpha1` templates
+- 9962faa2b: Add branch protection for default branches of scaffolded GitHub repositories
+- Updated dependencies [f7f7783a3]
+- Updated dependencies [c7dad9218]
+- Updated dependencies [65e6c4541]
+- Updated dependencies [68fdbf014]
+- Updated dependencies [5001de908]
+  - @backstage/catalog-model@0.7.10
+  - @backstage/backend-common@0.8.1
+  - @backstage/integration@0.5.3
+
+## 0.11.1
+
+### Patch Changes
+
+- 062bbf90f: chore: bump `@testing-library/user-event` from 12.8.3 to 13.1.8
+- 82ca1ac22: The apiBaseUrl setting for Bitbucket Server integrations will now be used when it is set. Otherwise, it will default back to the host setting.
+- fd39d4662: Move `jest-when` to the dev dependencies
+- Updated dependencies [22fd8ce2a]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [f9fb4a205]
+- Updated dependencies [16be1d093]
+  - @backstage/backend-common@0.8.0
+  - @backstage/catalog-model@0.7.9
+
+## 0.11.0
+
+### Minor Changes
+
+- e0bfd3d44: Migrate the plugin to use the `ContainerRunner` interface instead of `runDockerContainer(…)`.
+  It also provides the `ContainerRunner` to the individual templaters instead of to the `createRouter` function.
+
+  To apply this change to an existing backend application, add the following to `src/plugins/scaffolder.ts`:
+
+  ```diff
+  - import { SingleHostDiscovery } from '@backstage/backend-common';
+  + import {
+  +   DockerContainerRunner,
+  +   SingleHostDiscovery,
+  + } from '@backstage/backend-common';
+
+    export default async function createPlugin({
+      logger,
+      config,
+      database,
+      reader,
+    }: PluginEnvironment): Promise<Router> {
+  +   const dockerClient = new Docker();
+  +   const containerRunner = new DockerContainerRunner({ dockerClient });
+
+  +   const cookiecutterTemplater = new CookieCutter({ containerRunner });
+  -   const cookiecutterTemplater = new CookieCutter();
+  +   const craTemplater = new CreateReactAppTemplater({ containerRunner });
+  -   const craTemplater = new CreateReactAppTemplater();
+      const templaters = new Templaters();
+
+      templaters.register('cookiecutter', cookiecutterTemplater);
+      templaters.register('cra', craTemplater);
+
+      const preparers = await Preparers.fromConfig(config, { logger });
+      const publishers = await Publishers.fromConfig(config, { logger });
+
+  -   const dockerClient = new Docker();
+
+      const discovery = SingleHostDiscovery.fromConfig(config);
+      const catalogClient = new CatalogClient({ discoveryApi: discovery });
+
+      return await createRouter({
+        preparers,
+        templaters,
+        publishers,
+        logger,
+        config,
+  -     dockerClient,
+        database,
+        catalogClient,
+        reader,
+      });
+    }
+  ```
+
+### Patch Changes
+
+- 38ca05168: The default `@octokit/rest` dependency was bumped to `"^18.5.3"`.
+- 69eefb5ae: Fix GithubPR built-in action `credentialsProvider.getCredentials` URL.
+  Adding Documentation for GitHub PR built-in action.
+- 75c8cec39: bump `jsonschema` from 1.2.7 to 1.4.0
+- Updated dependencies [e0bfd3d44]
+- Updated dependencies [38ca05168]
+- Updated dependencies [d8b81fd28]
+- Updated dependencies [d1b1306d9]
+  - @backstage/backend-common@0.7.0
+  - @backstage/integration@0.5.2
+  - @backstage/catalog-model@0.7.8
+  - @backstage/config@0.1.5
+  - @backstage/catalog-client@0.3.11
+
+## 0.10.1
+
+### Patch Changes
+
+- a1783f306: Added the `nebula-preview` preview to `Octokit` for repository visibility.
+
 ## 0.10.0
 
 ### Minor Changes

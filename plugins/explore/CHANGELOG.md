@@ -1,5 +1,134 @@
 # @backstage/plugin-explore
 
+## 0.3.10
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.3.0
+
+## 0.3.9
+
+### Patch Changes
+
+- f11e50ea7: - Enhanced core `Button` component to open external links in new tab.
+  - Replaced the use of `Button` component from material by `core-components` in tools card.
+- Updated dependencies
+  - @backstage/core-components@0.1.5
+  - @backstage/catalog-model@0.9.0
+  - @backstage/plugin-catalog-react@0.2.6
+
+## 0.3.8
+
+### Patch Changes
+
+- dd9118574: Using displayName as default value when loading Groups Diagram
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.2.5
+  - @backstage/core-components@0.1.4
+
+## 0.3.7
+
+### Patch Changes
+
+- 5c4e6aee2: Refactors the explore plugin to be more customizable. This includes the following non-breaking changes:
+
+  - Introduce new `ExploreLayout` page which can be used to create a custom `ExplorePage`
+  - Refactor `ExplorePage` to use a new `ExploreLayout` component
+  - Exports existing `DomainExplorerContent`, `GroupsExplorerContent`, & `ToolExplorerContent` components
+  - Allows `title` props to be customized
+
+  Create a custom explore page in `packages/app/src/components/explore/ExplorePage.tsx`.
+
+  ```tsx
+  import {
+    DomainExplorerContent,
+    ExploreLayout,
+  } from '@backstage/plugin-explore';
+  import React from 'react';
+  import { InnserSourceExplorerContent } from './InnserSourceExplorerContent';
+
+  export const ExplorePage = () => {
+    return (
+      <ExploreLayout
+        title="Explore the ACME corp ecosystem"
+        subtitle="Browse our ecosystem"
+      >
+        <ExploreLayout.Route path="domains" title="Domains">
+          <DomainExplorerContent />
+        </ExploreLayout.Route>
+        <ExploreLayout.Route path="inner-source" title="InnerSource">
+          <AcmeInnserSourceExplorerContent />
+        </ExploreLayout.Route>
+      </ExploreLayout>
+    );
+  };
+
+  export const explorePage = <ExplorePage />;
+  ```
+
+  Now register the new explore page in `packages/app/src/App.tsx`.
+
+  ```diff
+  + import { explorePage } from './components/explore/ExplorePage';
+
+  const routes = (
+    <FlatRoutes>
+  -    <Route path="/explore" element={<ExplorePage />} />
+  +    <Route path="/explore" element={<ExplorePage />}>
+  +      {explorePage}
+  +    </Route>
+    </FlatRoutes>
+  );
+  ```
+
+- 48c9fcd33: Migrated to use the new `@backstage/core-*` packages rather than `@backstage/core`.
+- Updated dependencies
+  - @backstage/core-plugin-api@0.1.3
+  - @backstage/catalog-model@0.8.4
+  - @backstage/plugin-catalog-react@0.2.4
+  - @backstage/plugin-explore-react@0.0.6
+
+## 0.3.6
+
+### Patch Changes
+
+- Updated dependencies [add62a455]
+- Updated dependencies [cc592248b]
+- Updated dependencies [17c497b81]
+- Updated dependencies [704875e26]
+  - @backstage/catalog-model@0.8.0
+  - @backstage/core@0.7.11
+  - @backstage/plugin-catalog-react@0.2.0
+
+## 0.3.5
+
+### Patch Changes
+
+- 062bbf90f: chore: bump `@testing-library/user-event` from 12.8.3 to 13.1.8
+- 0b033d07b: Add "Organization" tab with a diagram
+- 675a569a9: chore: bump `react-use` dependency in all packages
+- Updated dependencies [062bbf90f]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [889d89b6e]
+- Updated dependencies [16be1d093]
+- Updated dependencies [3f988cb63]
+- Updated dependencies [675a569a9]
+  - @backstage/core@0.7.9
+  - @backstage/plugin-catalog-react@0.1.6
+  - @backstage/plugin-explore-react@0.0.5
+  - @backstage/catalog-model@0.7.9
+
+## 0.3.4
+
+### Patch Changes
+
+- c614ede9a: Updated README to have up-to-date install instructions.
+- Updated dependencies [9afcac5af]
+- Updated dependencies [e0c9ed759]
+- Updated dependencies [6eaecbd81]
+  - @backstage/core@0.7.7
+
 ## 0.3.3
 
 ### Patch Changes

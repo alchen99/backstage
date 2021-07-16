@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-export { schemaValidator } from './util';
-export type { KindValidator } from './types';
 export { apiEntityV1alpha1Validator } from './ApiEntityV1alpha1';
 export type {
   ApiEntityV1alpha1 as ApiEntity,
@@ -52,13 +50,9 @@ export type {
   SystemEntityV1alpha1 as SystemEntity,
   SystemEntityV1alpha1,
 } from './SystemEntityV1alpha1';
-export { templateEntityV1alpha1Validator } from './TemplateEntityV1alpha1';
-export type {
-  TemplateEntityV1alpha1 as TemplateEntity,
-  TemplateEntityV1alpha1,
-} from './TemplateEntityV1alpha1';
 export { templateEntityV1beta2Validator } from './TemplateEntityV1beta2';
 export type { TemplateEntityV1beta2 } from './TemplateEntityV1beta2';
+export type { KindValidator } from './types';
 export { userEntityV1alpha1Validator } from './UserEntityV1alpha1';
 export type {
   UserEntityV1alpha1 as UserEntity,

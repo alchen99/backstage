@@ -1,5 +1,202 @@
 # @backstage/plugin-catalog
 
+## 0.6.7
+
+### Patch Changes
+
+- 75a532fbe: Add unstable prop for disabling unregister entity menu
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.3.0
+
+## 0.6.6
+
+### Patch Changes
+
+- ad5d05b69: Change catalog page layout to use Grid components to improve responsiveness
+- 6841e0113: fix minor version of git-url-parse as 11.5.x introduced a bug for Bitbucket Server
+- Updated dependencies
+  - @backstage/integration@0.5.8
+  - @backstage/core-components@0.1.5
+  - @backstage/catalog-model@0.9.0
+  - @backstage/catalog-client@0.3.16
+  - @backstage/plugin-catalog-react@0.2.6
+
+## 0.6.5
+
+### Patch Changes
+
+- f423891ee: Fixed sizing of the System diagram when the rendered graph was wider than the container.
+- e19283b39: Get rid of flex console warning for IconLink
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.2.5
+  - @backstage/core-components@0.1.4
+  - @backstage/integration@0.5.7
+  - @backstage/catalog-client@0.3.15
+
+## 0.6.4
+
+### Patch Changes
+
+- bba9df7f9: improve the wrapping behavior of long entity links
+- 5f4339b8c: Adding `FeatureFlag` component and treating `FeatureFlags` as first class citizens to composability API
+- 7bd46b19d: Allow `defaultKind` from `CatalogTable.column.creatNameColumn` to be configurable
+- 71416fb64: Moved installation instructions from the main [backstage.io](https://backstage.io) documentation to the package README file. These instructions are not generally needed, since the plugin comes installed by default with `npx @backstage/create-app`.
+- e3cbfa8c2: Disambiguated titles of `EntityDependencyOfComponentsCard` and `EntityDependsOnComponentsCard`.
+- 3d7b1c9f0: Adds an optional `actions` prop to `CatalogTable` and `CatalogPage` to support supplying custom actions for each entity row in the table. This uses the default actions if not provided.
+- 48c9fcd33: Migrated to use the new `@backstage/core-*` packages rather than `@backstage/core`.
+- 80a82ffce: Clearer titles for the relationship cards
+- Updated dependencies
+  - @backstage/core-plugin-api@0.1.3
+  - @backstage/catalog-client@0.3.14
+  - @backstage/catalog-model@0.8.4
+  - @backstage/integration-react@0.1.4
+  - @backstage/plugin-catalog-react@0.2.4
+
+## 0.6.3
+
+### Patch Changes
+
+- 30c2fdad2: Exports `CatalogLayout` and `CreateComponentButton` for catalog customization.
+- e2d68f1ce: Truncate long entity names on the system diagram
+- d2d42a7fa: Fix for Diagram component using hard coded namespace.
+- 2ebc430c4: Export `CatalogTableRow` type
+- Updated dependencies
+  - @backstage/plugin-catalog-react@0.2.3
+  - @backstage/catalog-model@0.8.3
+  - @backstage/core@0.7.13
+
+## 0.6.2
+
+### Patch Changes
+
+- db1c8f93b: A `<CatalogResultListItem />` component is now available for use in custom Search Experiences.
+- f4e3ac5ce: Move `ScmIntegrationIcon` from `@backstage/plugin-catalog` to
+  `@backstage/integration-react` and make it customizable using
+  `app.getSystemIcon()`.
+- 7028ee1ca: Expose `getEntitySourceLocation`, `getEntityMetadataViewUrl`, and
+  `getEntityMetadataEditUrl` from `@backstage/plugin-catalog-react`.
+- 4fbb00707: A new card that shows components that depend on the active component
+- d5ad47bbb: Exported AboutCard contents and utility functions
+- Updated dependencies [27a9b503a]
+- Updated dependencies [f4e3ac5ce]
+- Updated dependencies [7028ee1ca]
+- Updated dependencies [70bc30c5b]
+- Updated dependencies [eda9dbd5f]
+  - @backstage/catalog-model@0.8.2
+  - @backstage/integration-react@0.1.3
+  - @backstage/plugin-catalog-react@0.2.2
+  - @backstage/catalog-client@0.3.13
+  - @backstage/integration@0.5.6
+
+## 0.6.1
+
+### Patch Changes
+
+- 2a942cc9e: invert logic for when to show type column
+- f46a9e82d: Move dependency to `@microsoft/microsoft-graph-types` from `@backstage/plugin-catalog`
+  to `@backstage/plugin-catalog-backend`.
+- Updated dependencies [e7c5e4b30]
+- Updated dependencies [ebe802bc4]
+- Updated dependencies [49d7ec169]
+- Updated dependencies [1cf1d351f]
+- Updated dependencies [deaba2e13]
+- Updated dependencies [8e919a6f8]
+  - @backstage/theme@0.2.8
+  - @backstage/catalog-model@0.8.1
+  - @backstage/integration@0.5.5
+  - @backstage/core@0.7.12
+  - @backstage/plugin-catalog-react@0.2.1
+
+## 0.6.0
+
+### Minor Changes
+
+- 17c497b81: The default `CatalogPage` has been reworked to be more composable and make
+  customization easier. This change only affects those who have replaced the
+  default `CatalogPage` with a custom implementation; others can safely ignore the
+  rest of this changelog.
+
+  If you created a custom `CatalogPage` to **add or remove tabs** from the
+  catalog, a custom page is no longer necessary. The fixed tabs have been replaced
+  with a `spec.type` dropdown that shows all available `Component` types in the
+  catalog.
+
+  For other needs, customizing the `CatalogPage` should now be easier. The new
+  [CatalogPage.tsx](https://github.com/backstage/backstage/blob/9a4baa74509b6452d7dc054d34cf079f9997166d/plugins/catalog/src/components/CatalogPage/CatalogPage.tsx)
+  shows the default implementation. Overriding this with your own, similar
+  `CatalogPage` component in your `App.tsx` routing allows you to adjust the
+  layout, header, and which filters are available.
+
+  See the documentation added on [Catalog
+  Customization](https://backstage.io/docs/features/software-catalog/catalog-customization)
+  for instructions.
+
+### Patch Changes
+
+- 7ab5bfe68: Add support for fullHeight variant to the AboutCard
+- Updated dependencies [0fd4ea443]
+- Updated dependencies [add62a455]
+- Updated dependencies [cc592248b]
+- Updated dependencies [17c497b81]
+- Updated dependencies [704875e26]
+  - @backstage/integration@0.5.4
+  - @backstage/catalog-client@0.3.12
+  - @backstage/catalog-model@0.8.0
+  - @backstage/core@0.7.11
+  - @backstage/plugin-catalog-react@0.2.0
+
+## 0.5.8
+
+### Patch Changes
+
+- a53f3d603: - Added `RelatedEntitesCard` as a base implementation of displaying entities that are related to another entity.
+  - Added `HasResourcesCard` to display resources that are part of a system.
+  - Added `DependsOnComponentsCard` to display components that are dependencies of a component.
+  - Added `DependsOnResourcesCard` to display resources that are dependencies of a component.
+  - Refactored `HasComponentsCard` to use base `RelatedEntitiesCard`. Card remains backwards compatible.
+  - Refactored `HasSubcomponentsCard` to use base `RelatedEntitiesCard`. Card remains backwards compatible.
+  - Refactored `HasSystemsCard` to use base `RelatedEntitiesCard`. Card remains backwards compatible.
+  - Updated the example app to take advantage of these new components.
+- b203699e9: Display warning when Entity has orphan annotation.
+- Updated dependencies [f7f7783a3]
+- Updated dependencies [65e6c4541]
+- Updated dependencies [68fdbf014]
+- Updated dependencies [5da6a561d]
+  - @backstage/catalog-model@0.7.10
+  - @backstage/core@0.7.10
+  - @backstage/integration@0.5.3
+
+## 0.5.7
+
+### Patch Changes
+
+- 062bbf90f: chore: bump `@testing-library/user-event` from 12.8.3 to 13.1.8
+- 5542de095: This makes the CatalogTable configurable with custom columns, passed through the CatalogPage component rendered on the home page.
+- 675a569a9: chore: bump `react-use` dependency in all packages
+- Updated dependencies [062bbf90f]
+- Updated dependencies [10c008a3a]
+- Updated dependencies [889d89b6e]
+- Updated dependencies [16be1d093]
+- Updated dependencies [3f988cb63]
+- Updated dependencies [675a569a9]
+  - @backstage/core@0.7.9
+  - @backstage/integration-react@0.1.2
+  - @backstage/plugin-catalog-react@0.1.6
+  - @backstage/catalog-model@0.7.9
+
+## 0.5.6
+
+### Patch Changes
+
+- 19a4dd710: Removed unused `swr` dependency.
+- da546ce00: Support `gridItem` variant for `EntityLinksCard`.
+- e0c9ed759: Add `if` prop to `EntityLayout.Route` to conditionally render tabs
+- 1a142ae8a: Switch out the time-based personal greeting for a plain title on the catalog index page, and remove the clocks for different timezones.
+- Updated dependencies [9afcac5af]
+- Updated dependencies [e0c9ed759]
+- Updated dependencies [6eaecbd81]
+  - @backstage/core@0.7.7
+
 ## 0.5.5
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { ApiProvider, ApiRegistry, errorApiRef } from '@backstage/core';
 import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { AnalyzeResult, catalogImportApiRef } from '../../api/';
 import { StepInitAnalyzeUrl } from './StepInitAnalyzeUrl';
+
+import { ApiProvider, ApiRegistry } from '@backstage/core-app-api';
+import { errorApiRef } from '@backstage/core-plugin-api';
 
 describe('<StepInitAnalyzeUrl />', () => {
   const catalogImportApi: jest.Mocked<typeof catalogImportApiRef.T> = {
@@ -98,7 +100,11 @@ describe('<StepInitAnalyzeUrl />', () => {
     );
 
     await act(async () => {
-      userEvent.click(getByRole('button', { name: /Analyze/i }));
+      try {
+        userEvent.click(getByRole('button', { name: /Analyze/i }));
+      } catch {
+        return;
+      }
     });
 
     expect(catalogImportApi.analyzeUrl).toBeCalledTimes(0);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import { Config } from '@backstage/config';
 import express from 'express';
 import fs from 'fs-extra';
 import os from 'os';
+import createLimiter from 'p-limit';
 import path from 'path';
 import { Logger } from 'winston';
 import {
@@ -31,6 +32,11 @@ import {
   ReadinessResponse,
   TechDocsMetadata,
 } from './types';
+import {
+  getFileTreeRecursively,
+  getHeadersForFileExtension,
+  lowerCaseEntityTripletInStoragePath,
+} from './helpers';
 
 // TODO: Use a more persistent storage than node_modules or /tmp directory.
 // Make it configurable with techdocs.publisher.local.publishDirectory
@@ -132,7 +138,16 @@ export class LocalPublish implements PublisherBase {
   }
 
   docsRouter(): express.Handler {
-    return express.static(staticDocsDir);
+    return express.static(staticDocsDir, {
+      // Handle content-type header the same as all other publishers.
+      setHeaders: (res, filePath) => {
+        const fileExtension = path.extname(filePath);
+        const headers = getHeadersForFileExtension(fileExtension);
+        for (const [header, value] of Object.entries(headers)) {
+          res.setHeader(header, value);
+        }
+      },
+    });
   }
 
   async hasDocsBeenGenerated(entity: Entity): Promise<boolean> {
@@ -153,5 +168,46 @@ export class LocalPublish implements PublisherBase {
     } catch (err) {
       return false;
     }
+  }
+
+  /**
+   * This code will never run in practice. It is merely here to illustrate how
+   * to implement this method for other storage providers.
+   */
+  async migrateDocsCase({
+    removeOriginal = false,
+    concurrency = 25,
+  }): Promise<void> {
+    // Iterate through every file in the root of the publisher.
+    const files = await getFileTreeRecursively(staticDocsDir);
+    const limit = createLimiter(concurrency);
+
+    await Promise.all(
+      files.map(f =>
+        limit(async file => {
+          const relativeFile = file.replace(`${staticDocsDir}${path.sep}`, '');
+          const newFile = lowerCaseEntityTripletInStoragePath(relativeFile);
+
+          // If all parts are already lowercase, ignore.
+          if (relativeFile === newFile) {
+            return;
+          }
+
+          // Otherwise, copy or move the file.
+          await new Promise<void>(resolve => {
+            const migrate = removeOriginal ? fs.move : fs.copyFile;
+            this.logger.debug(`Migrating ${relativeFile}`);
+            migrate(file, newFile, err => {
+              if (err) {
+                this.logger.warn(
+                  `Unable to migrate ${relativeFile}: ${err.message}`,
+                );
+              }
+              resolve();
+            });
+          });
+        }, f),
+      ),
+    );
   }
 }

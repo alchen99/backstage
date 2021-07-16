@@ -26,6 +26,7 @@ import 'global-agent/bootstrap';
 
 ```sh
 export GLOBAL_AGENT_HTTP_PROXY=$HTTP_PROXY
+export GLOBAL_AGENT_NO_PROXY=$NO_PROXY
 yarn start
 ```
 
@@ -79,7 +80,5 @@ backend:
   cors:
     origin: https://your-public-url.com:3000
 ```
-
-If the protocol is `http`, you will need to set `backend.csp.upgrade-insecure-requests` to `false` as well.
 
 The app port must proxy web socket connections in order to make hot reloading work.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 import {
   Entity,
-  LocationSpec,
   LocationEntityV1alpha1,
+  LocationSpec,
   LOCATION_ANNOTATION,
   ORIGIN_LOCATION_ANNOTATION,
   stringifyEntityRef,
@@ -29,7 +29,6 @@ export function locationSpecToMetadataName(location: LocationSpec) {
   const hash = createHash('sha1')
     .update(`${location.type}:${location.target}`)
     .digest('hex');
-
   return `generated-${hash}`;
 }
 

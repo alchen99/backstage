@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export type Project = {
-  key: string;
-};
-
-export type Repository = {
-  project: Project;
+export type BitbucketRepository = {
+  project: {
+    key: string;
+  };
   slug: string;
-  links: Record<string, Link[]>;
-};
-
-export type Link = {
-  href: string;
+  links: Record<
+    string,
+    {
+      href: string;
+    }[]
+  >;
 };

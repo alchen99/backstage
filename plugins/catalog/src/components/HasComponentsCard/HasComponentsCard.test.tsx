@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 
 import { Entity, RELATION_HAS_PART } from '@backstage/catalog-model';
-import { ApiProvider, ApiRegistry } from '@backstage/core';
 import {
   CatalogApi,
   catalogApiRef,
@@ -25,6 +24,7 @@ import { renderInTestApp } from '@backstage/test-utils';
 import { waitFor } from '@testing-library/react';
 import React from 'react';
 import { HasComponentsCard } from './HasComponentsCard';
+import { ApiProvider, ApiRegistry } from '@backstage/core-app-api';
 
 describe('<HasComponentsCard />', () => {
   const catalogApi: jest.Mocked<CatalogApi> = {
@@ -66,7 +66,7 @@ describe('<HasComponentsCard />', () => {
       </Wrapper>,
     );
 
-    expect(getByText('Components')).toBeInTheDocument();
+    expect(getByText('Has components')).toBeInTheDocument();
     expect(
       getByText(/No component is part of this system/i),
     ).toBeInTheDocument();
@@ -91,14 +91,18 @@ describe('<HasComponentsCard />', () => {
         },
       ],
     };
-    catalogApi.getEntityByName.mockResolvedValue({
-      apiVersion: 'v1',
-      kind: 'Component',
-      metadata: {
-        name: 'target-name',
-        namespace: 'my-namespace',
-      },
-      spec: {},
+    catalogApi.getEntities.mockResolvedValue({
+      items: [
+        {
+          apiVersion: 'v1',
+          kind: 'Component',
+          metadata: {
+            name: 'target-name',
+            namespace: 'my-namespace',
+          },
+          spec: {},
+        },
+      ],
     });
 
     const { getByText } = await renderInTestApp(
@@ -110,7 +114,7 @@ describe('<HasComponentsCard />', () => {
     );
 
     await waitFor(() => {
-      expect(getByText('Components')).toBeInTheDocument();
+      expect(getByText('Has components')).toBeInTheDocument();
       expect(getByText(/target-name/i)).toBeInTheDocument();
     });
   });

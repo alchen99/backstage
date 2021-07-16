@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,26 @@
  * limitations under the License.
  */
 
-import {
-  configApiRef,
-  Header,
-  HomepageTimer,
-  identityApiRef,
-  Page,
-  useApi,
-} from '@backstage/core';
 import React from 'react';
-import { getTimeBasedGreeting } from './utils/timeUtil';
+
+import { configApiRef, useApi } from '@backstage/core-plugin-api';
+import { Header, Page } from '@backstage/core-components';
 
 type Props = {
   children?: React.ReactNode;
 };
 
-const CatalogLayout = ({ children }: Props) => {
-  const greeting = getTimeBasedGreeting();
-  const profile = useApi(identityApiRef).getProfile();
-  const userId = useApi(identityApiRef).getUserId();
-  const orgName = useApi(configApiRef).getOptionalString('organization.name');
+export const CatalogLayout = ({ children }: Props) => {
+  const orgName =
+    useApi(configApiRef).getOptionalString('organization.name') ?? 'Backstage';
 
   return (
     <Page themeId="home">
       <Header
-        title={`${greeting.greeting}, ${profile.displayName || userId}!`}
-        subtitle={`${orgName || 'Backstage'} Service Catalog`}
-        tooltip={greeting.language}
+        title={`${orgName} Catalog`}
+        subtitle={`Catalog of software components at ${orgName}`}
         pageTitleOverride="Home"
-      >
-        <HomepageTimer />
-      </Header>
+      />
       {children}
     </Page>
   );

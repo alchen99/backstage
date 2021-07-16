@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { ContainerRunner } from '@backstage/backend-common';
 import { Entity } from '@backstage/catalog-model';
 import { Config } from '@backstage/config';
 import { Logger } from 'winston';
@@ -30,11 +31,18 @@ export class Generators implements GeneratorBuilder {
 
   static async fromConfig(
     config: Config,
-    { logger }: { logger: Logger },
+    {
+      logger,
+      containerRunner,
+    }: { logger: Logger; containerRunner: ContainerRunner },
   ): Promise<GeneratorBuilder> {
     const generators = new Generators();
 
-    const techdocsGenerator = new TechdocsGenerator(logger, config);
+    const techdocsGenerator = new TechdocsGenerator({
+      logger,
+      containerRunner,
+      config,
+    });
     generators.register('techdocs', techdocsGenerator);
 
     return generators;

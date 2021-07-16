@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,7 +136,7 @@ describe('bump', () => {
       'bumping @backstage/theme in b to ^2.0.0',
       'Running yarn install to install new versions',
       '⚠️  The following packages may have breaking changes:',
-      '  @backstage/theme',
+      '  @backstage/theme : 1.0.0 ~> 2.0.0',
       '    https://github.com/backstage/backstage/blob/master/packages/theme/CHANGELOG.md',
       'Version bump complete!',
     ]);

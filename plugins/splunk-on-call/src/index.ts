@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 export {
+  EntitySplunkOnCallCard,
   splunkOnCallPlugin,
   splunkOnCallPlugin as plugin,
   SplunkOnCallPage,
 } from './plugin';
-export {
-  isPluginApplicableToEntity,
-  SplunkOnCallCard,
-} from './components/SplunkOnCallCard';
+export { isSplunkOnCallAvailable } from './components/EntitySplunkOnCallCard';
 export {
   SplunkOnCallClient,
   splunkOnCallApiRef,

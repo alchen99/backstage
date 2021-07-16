@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 import React, { useEffect } from 'react';
-import { useWorkflowRuns } from '../useWorkflowRuns';
-import { WorkflowRun, WorkflowRunsTable } from '../WorkflowRunsTable';
+import { useWorkflowRuns, WorkflowRun } from '../useWorkflowRuns';
+import { WorkflowRunsTable } from '../WorkflowRunsTable';
 import { Entity } from '@backstage/catalog-model';
 import { useEntity } from '@backstage/plugin-catalog-react';
 import { WorkflowRunStatus } from '../WorkflowRunStatus';
 import { Link, Theme, makeStyles, LinearProgress } from '@material-ui/core';
+import ExternalLinkIcon from '@material-ui/icons/Launch';
+import { CLOUDBUILD_ANNOTATION } from '../useProjectName';
+
 import {
   InfoCard,
   StructuredMetadataTable,
-  errorApiRef,
-  useApi,
   WarningPanel,
-} from '@backstage/core';
-import ExternalLinkIcon from '@material-ui/icons/Launch';
-import { CLOUDBUILD_ANNOTATION } from '../useProjectName';
+} from '@backstage/core-components';
+import { errorApiRef, useApi } from '@backstage/core-plugin-api';
 
 const useStyles = makeStyles<Theme>({
   externalLinkIcon: {

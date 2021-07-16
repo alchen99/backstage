@@ -1,5 +1,52 @@
 # @backstage/catalog-client
 
+## 0.3.16
+
+### Patch Changes
+
+- Updated dependencies
+  - @backstage/catalog-model@0.9.0
+
+## 0.3.15
+
+### Patch Changes
+
+- ca080cab8: Don't crash if the entities response doesn't include the entities name and kind
+
+## 0.3.14
+
+### Patch Changes
+
+- 45ef515d0: Return entities sorted alphabetically by ref
+- Updated dependencies
+  - @backstage/catalog-model@0.8.4
+
+## 0.3.13
+
+### Patch Changes
+
+- 70bc30c5b: Display preview result final step.
+- Updated dependencies [27a9b503a]
+  - @backstage/catalog-model@0.8.2
+
+## 0.3.12
+
+### Patch Changes
+
+- add62a455: Foundation for standard entity status values
+- Updated dependencies [add62a455]
+- Updated dependencies [704875e26]
+  - @backstage/catalog-model@0.8.0
+
+## 0.3.11
+
+### Patch Changes
+
+- d1b1306d9: Allow `filter` parameter to be specified multiple times
+- Updated dependencies [d8b81fd28]
+  - @backstage/catalog-model@0.7.8
+  - @backstage/config@0.1.5
+
 ## 0.3.10
 
 ### Patch Changes

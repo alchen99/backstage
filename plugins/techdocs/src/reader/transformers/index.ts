@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,30 +23,4 @@ export * from './simplifyMkdocsFooter';
 export * from './onCssReady';
 export * from './sanitizeDOM';
 export * from './injectCss';
-
-// TODO(freben): move all of this out of index
-
-export type Transformer = (dom: Element) => Element;
-
-function transform(
-  html: string | Element,
-  transformers: Transformer[],
-): Element {
-  let dom: Element;
-
-  if (typeof html === 'string') {
-    dom = new DOMParser().parseFromString(html, 'text/html').documentElement;
-  } else if (html instanceof Element) {
-    dom = html;
-  } else {
-    throw new Error('dom is not a recognized type');
-  }
-
-  transformers.forEach(transformer => {
-    dom = transformer(dom);
-  });
-
-  return dom;
-}
-
-export default transform;
+export * from './transformer';

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Spotify AB
+ * Copyright 2021 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ function appTitle(context: BadgeContext): string {
 
 function entityUrl(context: BadgeContext): string {
   const e = context.entity!;
-  const entityUri = `${e.kind}/${
-    e.metadata.namespace || ENTITY_DEFAULT_NAMESPACE
+  const entityUri = `${e.metadata.namespace || ENTITY_DEFAULT_NAMESPACE}/${
+    e.kind
   }/${e.metadata.name}`;
   const catalogUrl = `${context.config.getString('app.baseUrl')}/catalog`;
   return `${catalogUrl}/${entityUri}`.toLowerCase();

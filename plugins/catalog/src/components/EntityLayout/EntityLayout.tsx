@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Spotify AB
+ * Copyright 2020 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,27 +20,47 @@ import {
   RELATION_OWNED_BY,
 } from '@backstage/catalog-model';
 import {
-  Content,
-  Header,
-  HeaderLabel,
+  useElementFilter,
+  attachComponentData,
   IconComponent,
-  Page,
-  Progress,
-  TabbedLayout,
-} from '@backstage/core';
+} from '@backstage/core-plugin-api';
 import {
   EntityContext,
   EntityRefLinks,
   getEntityRelations,
   useEntityCompoundName,
 } from '@backstage/plugin-catalog-react';
-import { Box } from '@material-ui/core';
+import { Box, TabProps } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
-import { default as React, useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { EntityContextMenu } from '../EntityContextMenu/EntityContextMenu';
 import { FavouriteEntity } from '../FavouriteEntity/FavouriteEntity';
 import { UnregisterEntityDialog } from '../UnregisterEntityDialog/UnregisterEntityDialog';
+import {
+  Content,
+  Header,
+  HeaderLabel,
+  Page,
+  Progress,
+  RoutedTabs,
+} from '@backstage/core-components';
+
+type SubRoute = {
+  path: string;
+  title: string;
+  children: JSX.Element;
+  if?: (entity: Entity) => boolean;
+  tabProps?: TabProps<React.ElementType, { component?: React.ElementType }>;
+};
+
+const dataKey = 'plugin.catalog.entityLayoutRoute';
+
+const Route: (props: SubRoute) => null = () => null;
+attachComponentData(Route, dataKey, true);
+
+// This causes all mount points that are discovered within this route to use the path of the route itself
+attachComponentData(Route, 'core.gatherMountPoints', true);
 
 const EntityLayoutTitle = ({
   entity,
@@ -112,8 +132,14 @@ type ExtraContextMenuItem = {
   onClick: () => void;
 };
 
+// unstable context menu option, eg: disable the unregister entity menu
+type contextMenuOptions = {
+  disableUnregister: boolean;
+};
+
 type EntityLayoutProps = {
   UNSTABLE_extraContextMenuItems?: ExtraContextMenuItem[];
+  UNSTABLE_contextMenuOptions?: contextMenuOptions;
   children?: React.ReactNode;
 };
 
@@ -134,10 +160,34 @@ type EntityLayoutProps = {
  */
 export const EntityLayout = ({
   UNSTABLE_extraContextMenuItems,
+  UNSTABLE_contextMenuOptions,
   children,
 }: EntityLayoutProps) => {
   const { kind, namespace, name } = useEntityCompoundName();
   const { entity, loading, error } = useContext(EntityContext);
+
+  const routes = useElementFilter(children, elements =>
+    elements
+      .selectByComponentData({
+        key: dataKey,
+        withStrictError: 'Child of EntityLayout must be an EntityLayout.Route',
+      })
+      .getElements<SubRoute>() // all nodes, element data, maintain structure or not?
+      .flatMap(({ props }) => {
+        if (props.if && entity && !props.if(entity)) {
+          return [];
+        }
+
+        return [
+          {
+            path: props.path,
+            title: props.title,
+            children: props.children,
+            tabProps: props.tabProps,
+          },
+        ];
+      }),
+  );
 
   const { headerTitle, headerType } = headerProps(
     kind,
@@ -167,6 +217,7 @@ export const EntityLayout = ({
             <EntityLabels entity={entity} />
             <EntityContextMenu
               UNSTABLE_extraContextMenuItems={UNSTABLE_extraContextMenuItems}
+              UNSTABLE_contextMenuOptions={UNSTABLE_contextMenuOptions}
               onUnregisterEntity={showRemovalDialog}
             />
           </>
@@ -175,7 +226,7 @@ export const EntityLayout = ({
 
       {loading && <Progress />}
 
-      {entity && <TabbedLayout>{children}</TabbedLayout>}
+      {entity && <RoutedTabs routes={routes} />}
 
       {error && (
         <Content>
@@ -192,4 +243,4 @@ export const EntityLayout = ({
   );
 };
 
-EntityLayout.Route = TabbedLayout.Route;
+EntityLayout.Route = Route;
